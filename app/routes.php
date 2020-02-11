@@ -1937,6 +1937,7 @@ Route::group(array('before' => 'auth.api', 'prefix' => 'api'), function()
 	Route::post('updateAccountService', 'AccountsApiController@updateAccountService');
 	Route::post('updateServicePackage', 'AccountsApiController@updateServicePackage');
 	Route::post('transferServiceNumber', 'AccountsApiController@transferServiceNumber');
+	Route::post('updateFinalNumber', 'AccountsApiController@updateFinalNumber');
 
 
 

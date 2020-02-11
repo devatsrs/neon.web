@@ -119,6 +119,7 @@ class Invoice extends \Eloquent {
                 $PaymentDueInDays = BillingClass::getPaymentDueInDays($BillingClassID);
             }
 
+            //$AccountBilling = AccountBilling::where('AccountID',$Invoice->AccountID)->first();
             $Reseller = Reseller::where('ChildCompanyID', $Account->CompanyId)->first();
             //Log::info("Pdf Reseller");
             //Log::info(print_r($Reseller, true));
@@ -157,8 +158,22 @@ class Invoice extends \Eloquent {
             if(isset($InvoiceTemplate) && $InvoiceTemplate->ShowTotalInMultiCurrency==1){
                 $MultiCurrencies = Invoice::getTotalAmountInOtherCurrency($Account->CompanyId,$Account->CurrencyId,$Invoice->GrandTotal,$RoundChargesAmount);
             }
-			
-			$print_type = 'Invoice';
+            $print_type = 'Invoice';
+
+            /*if($AccountBilling->BillingType == AccountBilling::BILLINGTYPE_PREPAID)
+                $print_type = "Proforma";*/
+
+            $creditNote = Product::where('Code',Product::CreditNote)->first();
+            if($creditNote != false && !empty($InvoiceDetail)){
+                foreach($InvoiceDetail as $item){
+                    if($item->ProductID == $creditNote->ProductID){
+                        $print_type = "Credit Note";
+                        break;
+                    }
+                }
+            }
+
+
             $body = View::make('invoices.pdf', compact('Invoice', 'InvoiceDetail', 'Account', 'Reseller',
 'InvoiceTemplate', 'CurrencyCode', 'logo','CurrencySymbol','print_type','InvoiceTaxRates','PaymentDueInDays','InvoiceAllTaxRates','language' ,'arrSignature','RoundChargesAmount','MultiCurrencies'))->render();
 

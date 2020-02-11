@@ -9,7 +9,7 @@ class PHPMAILERIntegtration{
 	{     
 		Config::set('mail.host',$config->SMTPServer);
 		Config::set('mail.port',$config->Port);
-		if(isset($data['EmailFrom'])){ 
+		if(isset($data['EmailFrom']) && !empty($data['EmailFrom'])){
 			Config::set('mail.from.address',$data['EmailFrom']);
 		}else{ 
 			Config::set('mail.from.address',$config->EmailFrom);

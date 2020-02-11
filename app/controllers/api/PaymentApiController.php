@@ -17,7 +17,7 @@ class PaymentApiController extends ApiController {
 
 	public function getPaymentHistory(){
 		if(parent::checkJson() === false) {
-			return Response::json(["ErrorMessage"=>"Content type must be: application/json"]);
+			return Response::json(["ErrorMessage"=>"Content type must be: application/json"],Codes::$Code400[0]);
 		}
 		$Result=[];
 		$CompanyID=0;
@@ -29,11 +29,11 @@ class PaymentApiController extends ApiController {
 			$data=json_decode(json_encode($post_vars),true);
 			$countValues = count($data);
 			if ($countValues == 0) {
-				return Response::json(["ErrorMessage"=>"Invalid Request"]);
+				return Response::json(["ErrorMessage"=>"Invalid Request"],Codes::$Code400[0]);
 			}	
 		}catch(Exception $ex) {
 			Log::info('Exception in updateAccount API.Invalid JSON' . $ex->getTraceAsString());
-			return Response::json(["ErrorMessage"=>"Invalid Request"]);
+			return Response::json(["ErrorMessage"=>"Invalid Request"],Codes::$Code400[0]);
 		}
 
 		if(!empty($data['AccountID'])) {
@@ -200,7 +200,7 @@ class PaymentApiController extends ApiController {
 	public function requestFund(){
 		
 		if(parent::checkJson() === false) {
-			return Response::json(["ErrorMessage"=>"Content type must be: application/json"]);
+			return Response::json(["ErrorMessage"=>"Content type must be: application/json"],Codes::$Code400[0]);
 		}
 		$data=array();
 		$CompanyID=0;
@@ -210,11 +210,11 @@ class PaymentApiController extends ApiController {
 			$data=json_decode(json_encode($post_vars),true);
 			$countValues = count($data);
 			if ($countValues == 0) {
-				return Response::json(["ErrorMessage"=>"Invalid Request"]);
+				return Response::json(["ErrorMessage"=>"Invalid Request"],Codes::$Code400[0]);
 			}	
 		}catch(Exception $ex) {
 			Log::info('Exception in updateAccount API.Invalid JSON' . $ex->getTraceAsString());
-			return Response::json(["ErrorMessage"=>"Invalid Request"]);
+			return Response::json(["ErrorMessage"=>"Invalid Request"],Codes::$Code400[0]);
 		}
 		
 		if(!empty($data['AccountID'])) {
@@ -260,12 +260,12 @@ class PaymentApiController extends ApiController {
 
 			$AccountBalance = AccountBalance::where('AccountID', $AccountID)->first();
 
-			$BillingType=AccountBilling::where(['AccountID'=>$AccountID,'ServiceID'=>0])->pluck('BillingType');
+			/*$BillingType=AccountBilling::where(['AccountID'=>$AccountID,'ServiceID'=>0])->pluck('BillingType');
 			$BalanceAmount = AccountBalance::getNewAccountBalance($CompanyID, $AccountID);
 			if(isset($BillingType) && $BillingType==AccountApproval::BILLINGTYPE_PREPAID){
 				$BalanceAmount = AccountBalanceLog::getPrepaidAccountBalance($AccountID);
-			}
-			if($AccountBalance != false && $BalanceAmount >= $data['Amount']){
+			}*/
+			if($AccountBalance != false && (float)$AccountBalance->OutPaymentAvailable >= $data['Amount']){
 
 				//$newBalance = $AccountBalance->BalanceAmount - (float)$data['Amount'];
 				$newAvailable = $AccountBalance->OutPaymentAvailable - (float)$data['Amount'];
@@ -345,7 +345,7 @@ class PaymentApiController extends ApiController {
 
 	public function depositFund(){
 		if(parent::checkJson() === false) {
-			return Response::json(["ErrorMessage"=>"Content type must be: application/json"]);
+			return Response::json(["ErrorMessage"=>"Content type must be: application/json"],Codes::$Code400[0]);
 		}
 		Log::useFiles(storage_path() . '/logs/deposit-fund-' . date('Y-m-d') . '.log');
 		$AccountID	= 0;
@@ -355,11 +355,11 @@ class PaymentApiController extends ApiController {
 			$data=json_decode(json_encode($post_vars),true);
 			$countValues = count($data);
 			if ($countValues == 0) {
-				return Response::json(["ErrorMessage"=>"Invalid Request"]);
+				return Response::json(["ErrorMessage"=>"Invalid Request"],Codes::$Code400[0]);
 			}	
 		}catch(Exception $ex) {
 			Log::info('Exception in updateAccount API.Invalid JSON' . $ex->getTraceAsString());
-			return Response::json(["ErrorMessage"=>"Invalid Request"]);
+			return Response::json(["ErrorMessage"=>"Invalid Request"],Codes::$Code400[0]);
 		}
 
 		if(!empty($data['AccountID'])) {

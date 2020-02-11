@@ -66,7 +66,13 @@ tfoot {
       @endif
     </div>
     <div id="company" class="pull-right flip">
-      <h2 class="name text-right flip"><b>@lang('routes.CUST_PANEL_PAGE_INVOICE_PDF_LBL_INVOICE_FROM')</b></h2>
+      @if($print_type == "Proforma")
+      <h2 class="name text-right flip"><b>@lang('routes.CUST_PANEL_PAGE_INVOICE_PDF_LBL_PROFORMA_FROM')</b></h2>
+      @elseif($print_type == "Credit Note")
+        <h2 class="name text-right flip"><b>@lang('routes.CUST_PANEL_PAGE_INVOICE_PDF_LBL_CREDIT_NOTE_FROM')</b></h2>
+      @else
+        <h2 class="name text-right flip"><b>@lang('routes.CUST_PANEL_PAGE_INVOICE_PDF_LBL_INVOICE_FROM')</b></h2>
+      @endif
       <div class="text-right flip">{{ nl2br(Account::getAddress($Account)) }}</div>
     </div>
   </header>
@@ -79,11 +85,24 @@ tfoot {
 
       <div id="details" class="clearfix">
         <div id="client" class="pull-left flip">
-          <div class="to"><b>@lang('routes.CUST_PANEL_PAGE_INVOICE_PDF_LBL_INVOICE_TO')</b></div>
+
+          @if($print_type == "Proforma")
+            <div class="to"><b>@lang('routes.CUST_PANEL_PAGE_INVOICE_PDF_LBL_PROFORMA_TO')</b></div>
+          @elseif($print_type == "Credit Note")
+            <div class="to"><b>@lang('routes.CUST_PANEL_PAGE_INVOICE_PDF_LBL_CREDIT_NOTE_TO')</b></div>
+          @else
+            <div class="to"><b>@lang('routes.CUST_PANEL_PAGE_INVOICE_PDF_LBL_INVOICE_TO')</b></div>
+          @endif
           <div>{{nl2br($Invoice->Address)}}</div>
         </div>
         <div id="invoice" class="pull-right flip">
-          <h1  class="text-right flip">@lang('routes.CUST_PANEL_PAGE_INVOICE_PDF_LBL_INVOICE_NO') {{$Invoice->FullInvoiceNumber}}</h1>
+          @if($print_type == "Proforma")
+            <h3 class="text-right flip">@lang('routes.CUST_PANEL_PAGE_INVOICE_PDF_LBL_PROFORMA_NO') {{$Invoice->FullInvoiceNumber}}</h3>
+          @elseif($print_type == "Credit Note")
+            <h3 class="text-right flip">@lang('routes.CUST_PANEL_PAGE_INVOICE_PDF_LBL_CREDIT_NOTE_NO') {{$Invoice->FullInvoiceNumber}}</h3>
+          @else
+            <h1 class="text-right flip">@lang('routes.CUST_PANEL_PAGE_INVOICE_PDF_LBL_INVOICE_NO') {{$Invoice->FullInvoiceNumber}}</h1>
+          @endif
           <div class="date text-right flip">@lang('routes.CUST_PANEL_PAGE_INVOICE_PDF_LBL_INVOICE_DATE') {{ date(invoice_date_fomat($Reseller->InvoiceDateFormat),strtotime($Invoice->IssueDate))}}</div>
           <div class="date text-right flip">@lang('routes.CUST_PANEL_PAGE_INVOICE_PDF_LBL_DUE_DATE') {{date(invoice_date_fomat($Reseller->InvoiceDateFormat),strtotime($Invoice->IssueDate.' +'.$PaymentDueInDays.' days'))}}</div>
           @if(!empty($MultiCurrencies))
@@ -93,8 +112,8 @@ tfoot {
           @endif
         </div>
       </div>
-      
-      <!-- content of front page section start -->      
+
+      <!-- content of front page section start -->
       <!--<div id="Service">
         <h1>Item</h1>
       </div>-->
@@ -110,7 +129,7 @@ tfoot {
           <th class="total"><b>@lang('routes.CUST_PANEL_PAGE_INVOICE_PDF_TBL_LINE_TOTAL')</b></th>
         </tr>
         </thead>
-        
+
         <tbody>
         @foreach($InvoiceDetail as $ProductRow)
           <?php if(!isset($TaxrateName)){ $TaxrateName = TaxRate::getTaxName($ProductRow->TaxRateID); } ?>
@@ -126,9 +145,9 @@ tfoot {
                   @endif
                 </td>
                 <td class="total leftsideview">{{number_format($ProductRow->LineTotal,$RoundChargesAmount)}}</td>
-              </tr> 
+              </tr>
             {{--@endif--}}
-        @endforeach       
+        @endforeach
         </tbody>
         <tfoot>
         <tr>
@@ -136,7 +155,7 @@ tfoot {
           <td colspan="2">@lang('routes.CUST_PANEL_PAGE_INVOICE_PDF_TBL_SUB_TOTAL')</td>
           <td class="subtotal leftsideview">{{$CurrencySymbol}}{{number_format($Invoice->SubTotal,$RoundChargesAmount)}}</td>
         </tr>
-        
+
         @if(count($InvoiceAllTaxRates))
           @foreach($InvoiceAllTaxRates as $InvoiceTaxRate)
             <tr>
@@ -146,18 +165,18 @@ tfoot {
             </tr>
           @endforeach
                 @endif
-        
+
         <tr>
           <td colspan="3"></td>
           <td colspan="2"><b>@lang('routes.CUST_PANEL_PAGE_INVOICE_PDF_TBL_GRAND_TOTAL')</b></td>
           <td class="subtotal leftsideview"><b>{{$CurrencySymbol}}{{number_format($Invoice->GrandTotal,$RoundChargesAmount)}}</b></td>
         </tr>
-        
+
         </tfoot>
       </table>
-      <!-- content of front page section end -->  
-    </main> 
-    
+      <!-- content of front page section end -->
+    </main>
+
     <!-- adevrtisement and terms section start-->
     <div id="thanksadevertise">
       <div class="invoice-left">
