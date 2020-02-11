@@ -211,7 +211,7 @@
                                             action += '&nbsp;<button   data-id="' + CronJobID + '" class="edit-config btn btn-default btn-sm" title="Edit" data-placement="top" data-toggle="tooltip"><i class="entypo-pencil"></i></button>';
                                     <?php } ?>
 
-                                    var history_url = baseurl + "/cronjobs/history/" + CronJobID;
+                                    var history_url = baseurl + "/cronjobs/history/" + CronJobID + '/app';
 
                                     action += '&nbsp;<a target="_blank" href="'+ history_url +'" class=" btn btn-default btn-sm" title="History" data-placement="top" data-toggle="tooltip"><i class="entypo-back-in-time"></i></a>';
 

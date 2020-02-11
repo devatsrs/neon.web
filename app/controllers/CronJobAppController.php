@@ -195,7 +195,7 @@ class CronJobAppController extends \BaseController {
         $JobTitle = CronJobApp::where("CronJobID",$id)->pluck("JobTitle");
         $data['StartDateDefault'] 	  	= 	date("Y-m-d",strtotime(''.date('Y-m-d').' -1 months'));
         $data['EndDateDefault']  	= 	date('Y-m-d');
-        return View::make('cronjob.history', compact('id','JobTitle','data'));
+        return View::make('cronjob.history_app', compact('id','JobTitle','data'));
     }
     public function history_ajax_datagrid($id,$type) {
         $data = Input::all();
