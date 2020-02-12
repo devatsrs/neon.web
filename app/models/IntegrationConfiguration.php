@@ -36,5 +36,12 @@ class IntegrationConfiguration extends \Eloquent {
 		
 		$result = $Gateway->count();
 		return $result;
-   }     
+   } 
+   static function get_status(){
+ 	 	$companyID              = User::get_companyID();
+        $accountData            = Integration::join('tblIntegrationConfiguration','tblIntegration.IntegrationID','=','tblIntegrationConfiguration.IntegrationID')
+        ->where(['tblIntegration.Slug' => 'masav', 'tblIntegration.CompanyId' => $companyID])
+        ->select('tblIntegrationConfiguration.Status')->first();
+		return $accountData->Status;
+   }   
 }

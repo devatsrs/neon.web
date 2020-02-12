@@ -730,7 +730,7 @@
                     <div class="col-md-3">
 
                         <h4>Preferred Payment Method</h4>
-
+                        
                         <ul class="icheck-list">
                             <li>
                                 <input type="radio" class="icheck-11" id="minimal-radio-3-11" name="PaymentMethod" value="AuthorizeNet" @if( $account->PaymentMethod == 'AuthorizeNet' ) checked="" @endif />
@@ -783,6 +783,10 @@
                             <li>
                                 <input tabindex="8" class="icheck-11" type="radio" id="minimal-radio-2-11" name="PaymentMethod" value="Wire Transfer" @if( $account->PaymentMethod == 'Wire Transfer' ) checked="" @endif />
                                 <label for="minimal-radio-2-11">Wire Transfer</label>
+                            </li>
+                            <li>
+                                <input tabindex="8" class="icheck-11" type="radio" id="minimal-radio-2-16" name="PaymentMethod" value="MASAV" @if( $account->PaymentMethod == 'MASAV' ) checked="" @endif />
+                                <label for="minimal-radio-2-16">MASAV</label>
                             </li>
                             <li>
                                 <input type="radio" class="icheck-11" id="minimal-radio-5-11" name="PaymentMethod" value="Other" @if( $account->PaymentMethod == 'Other' ) checked="" @endif />

@@ -576,6 +576,38 @@ class IntegrationController extends \BaseController
 				}
 				return Response::json(array("status" => "success", "message" => "PeleCard Settings Successfully Updated"));
 			}
+			if ($data['secondcategory'] == 'MASAV') {
+				$masaDbData = IntegrationConfiguration::where(array('CompanyId' => $companyID, "IntegrationID" => $data['secondcategoryid']))->first();
+
+				if (count($masaDbData) > 0) { // update
+					$rules = array(
+						'KEY' 	=> 'required'
+					);
+				} else { // create
+					$rules = array(
+						'KEY' 	=> 'required'
+					);
+				}
+
+				$validator = Validator::make($data, $rules);
+
+				if ($validator->fails()) {
+					return json_validator_response($validator);
+				}
+				$data['Status'] = isset($data['Status'])?1:0;
+				$masaData = array(
+					"KEY"			=>	$data['KEY']
+				);
+
+				if (count($masaDbData) > 0) {
+					$SaveData = array("Settings" => json_encode($masaData), "updated_by" => User::get_user_full_name(), "Status"=>$data['Status'], 'ParentIntegrationID' => $data['firstcategoryid']);
+					IntegrationConfiguration::where(array('IntegrationConfigurationID' => $masaDbData->IntegrationConfigurationID))->update($SaveData);
+				} else {
+					$SaveData = array("Settings" => json_encode($masaData), "IntegrationID" => $data['secondcategoryid'], "CompanyId" => $companyID, "created_by" => User::get_user_full_name(), "Status"=>$data['Status'], 'ParentIntegrationID' => $data['firstcategoryid']);
+					IntegrationConfiguration::create($SaveData);
+				}
+				return Response::json(array("status" => "success", "message" => "MASAV Settings Successfully Updated"));
+			}
 		}
 		
 		if($data['firstcategory']=='email') {

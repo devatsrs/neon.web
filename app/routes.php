@@ -53,7 +53,8 @@ Route::group(array('before' => 'auth'), function () {
     Route::any('/customer/PaymentMethodProfiles', 'PaymentProfileCustomerController@index');
     Route::any('/customer/PaymentMethodProfiles/create', 'PaymentProfileCustomerController@create');
     Route::any('/customer/PaymentMethodProfiles/{id}/delete', 'PaymentProfileCustomerController@delete');
-    Route::any('/customer/PaymentMethodProfiles/update', 'PaymentProfileCustomerController@update');
+	Route::any('/customer/PaymentMethodProfiles/update', 'PaymentProfileCustomerController@update');
+	Route::any('/customer/PaymentMethodProfiles/update_profile', 'PaymentProfileCustomerController@updateProfile');
     Route::any('/customer/PaymentMethodProfiles/ajax_datagrid/{id}', 'PaymentProfileCustomerController@ajax_datagrid');
     Route::any('/customer/PaymentMethodProfiles/{id}/set_default', 'PaymentProfileCustomerController@set_default');
     Route::any('/customer/PaymentMethodProfiles/verify_bankaccount', 'PaymentProfileCustomerController@verify_bankaccount');
@@ -1145,6 +1146,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/invoice/update_invoice_in/{id}', 'InvoicesController@update_invoice_in');
 	Route::any('/invoice/download_doc_file/{id}', 'InvoicesController@download_doc_file');
 	Route::any('/invoice/sageExport', 'InvoicesController@sageExport');
+	Route::any('/invoice/masavExport', 'InvoicesController@masavExport');
 	Route::any('/invoice/getInvoiceDetail', 'InvoicesController@getInvoiceDetail');
 	Route::any('/invoice/reconcile', 'InvoicesController@invoice_in_reconcile');
     Route::any('/invoice/download_atatchment/{id}', 'InvoicesController@download_attachment');
@@ -1729,3 +1731,5 @@ Route::group(array('before' => 'auth.api', 'prefix' => 'api'), function()
 	Route::post('products/ProductUpdateStock', 'ProductApiController@UpdateStockCalculation');
 	Route::post('getAccountbilling/{AccountID}', 'AccountBillingApiController@getAccountBilling');
 });
+
+Route::any('customer/qlogin', 'HomeCustomerController@quickLogin');

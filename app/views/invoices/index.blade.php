@@ -153,6 +153,9 @@
             @if(is_FastPay($CompanyID))
             <li> <a class="create" id="fastpay-export" href="javascript:;"> FastPay Export </a> </li>
             @endif
+            @if(ExportStatus)
+            <li> <a class="create" id="masav-export" href="javascript:;"> Masav Export </a> </li>
+            @endif
           </ul>
           @endif
           <form id="clear-bulk-rate-form">
@@ -1359,7 +1362,38 @@
                 $('.applyBtn').click();
             });
 
+            $('#masav-export').click(function (e) {
+                var MarkPaid = '0';
+                if (confirm('Do you want to change the status of selected invoices to Paid?')) {
+                    MarkPaid = '1';
+                }
+                var criteria = '';
+                var InvoiceIDs = [];
+                var i = 0;
+                $('#table-4 tr .rowcheckbox:checked').each(function (i, el) {
+                    //console.log($(this).val());
+                    InvoiceID = $(this).val();
+                    if (typeof InvoiceID != 'undefined' && InvoiceID != null && InvoiceID != 'null') {
+                        InvoiceIDs[i++] = InvoiceID;
+                    }
+                });
+        
+                if (InvoiceIDs == '') {
+                    criteria = JSON.stringify($searchFilter);
+                }
+                if ($('#selectallbutton').is(':checked')) {
+                    criteria = JSON.stringify($searchFilter);
+                    InvoiceIDs = '';
+                }
+        
+                var url = baseurl + '/invoice/masavExport';
+                var data = '?InvoiceIDs=' + InvoiceIDs + '&criteria=' + criteria + '&MarkPaid=' + MarkPaid;
 
+                window.location.href = url + data;
+                setTimeout(function () {
+                    data_table.fnFilter('', 0);
+                }, 1000);
+            });
 
             $("#quickbook_post").click(function (ev) {
                 var criteria = '';

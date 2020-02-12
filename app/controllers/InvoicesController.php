@@ -2351,7 +2351,87 @@ class InvoicesController extends \BaseController {
         }
 
     }
-
+    public function masavExport() {
+		$invoiceIds 			= $paymentData = $result = [];
+        $providerKey            = '';
+        $data                   = Input::all();
+		
+        // Account Manager Condition
+        $userID                 = 0; 
+        if(User::is('AccountManager')) { // Account Manager
+            $userID             = User::get_userID();
+        }
+        //// GET PROVIDE KEY  /////
+        $companyID = User::get_companyID();
+        $accountData = Integration::join('tblIntegrationConfiguration','tblIntegration.IntegrationID','=','tblIntegrationConfiguration.IntegrationID')
+        ->where(['tblIntegration.Slug' => 'masav', 'tblIntegration.CompanyId' => $companyID])
+        ->select('tblIntegrationConfiguration.Settings')->first();
+        if(!empty($accountData)) {
+            $stringData             = $accountData->Settings;
+            $keyData                = json_decode($stringData,true);
+            $providerKey            = $keyData['KEY'];
+        }
+        //// END GET PROVIDE KEY  /////
+        $query = Invoice::join('Ratemanagement3.tblAccount','Ratemanagement3.tblAccount.AccountID','=','tblInvoice.AccountID');
+        $query->join('Ratemanagement3.tblAccountPaymentProfile', 'Ratemanagement3.tblAccountPaymentProfile.AccountID', '=', 'Ratemanagement3.tblAccount.AccountID');
+        $query->where(['Ratemanagement3.tblAccount.PaymentMethod' => 'MASAV', 'Ratemanagement3.tblAccountPaymentProfile.isDefault' => 1, 'Ratemanagement3.tblAccountPaymentProfile.PaymentGatewayID' => PaymentGateway::MASAV]);
+        //// ADD INVOICES
+        if(!empty($data['InvoiceIDs'])){
+            $invoiceIds         = explode(',', $data['InvoiceIDs']);
+            $query->whereIn('tblInvoice.InvoiceID', $invoiceIds);
+        }
+        $query->select('Ratemanagement3.tblAccount.AccountID', 'Ratemanagement3.tblAccount.PaymentMethod', 'Ratemanagement3.tblAccount.AccountName', 'Ratemanagement3.tblAccountPaymentProfile.Options', 'tblInvoice.InvoiceID', 'tblInvoice.FullInvoiceNumber', 'tblInvoice.GrandTotal', 'tblInvoice.IssueDate');
+        $excel_data = $query->get()->toArray();
+		
+        foreach($excel_data as $key=>$value) {
+			$paymentData['PaymentStatus'] = '';
+			if($data['MarkPaid'] == 1) {
+				$paymentData['PaymentStatus'] 	= Invoice::PAID;
+			}
+			$paymentData['AccountID'] 			= $value['AccountID'];
+			$paymentData['PaymentMethod'] 		= $value['PaymentMethod'];
+			$invoiceIds[$key] = $paymentData['InvoiceID'] = $value['InvoiceID'];
+			$result[$key]['Amount']             = $paymentData['Amount'] = $value['GrandTotal'];
+            $result[$key]['CustomerName']       = $paymentData['CreatedBy'] = $paymentData['ModifyBy'] = $value['AccountName'];
+			$paymentData['Transaction'] 		= '';
+			$paymentData['transaction_notes'] 	= '';
+			$paymentData['Response'] 	= '';
+			
+			
+            if(!empty($value['Options'])) {
+                $optionsData = json_decode($value['Options'],true);
+                $result[$key]['BankCode']       = $optionsData['BankCode'];
+                $result[$key]['BranchNo']       = $optionsData['BranchNo'];
+                $result[$key]['BankAccount']    = $optionsData['BankAccount'];  
+            }
+            $result[$key]['InvoiceNumber']      = $value['FullInvoiceNumber'];
+            $result[$key]['ProviderKey']        = $providerKey;
+            $orgDate = $value['IssueDate'];  
+            $result[$key]['DueDate']            = date("Y-m-d", strtotime($orgDate));
+			$result[$key]['Type'] 			= 504;
+			if(!empty($paymentData)){
+				Payment::paymentSuccess($paymentData);
+			}
+			
+        }
+		
+		if(!empty($result)) {
+				if(!empty($invoiceIds) && count($invoiceIds) > 0) {
+					if($data['MarkPaid'] == 1) {
+						if (Invoice::whereIn('InvoiceID', $invoiceIds)->update(['InvoiceStatus'=>Invoice::PAID])) {
+							$file_path              = CompanyConfiguration::get('UPLOAD_PATH') .'/InvoiceMasavExport.csv';
+							$NeonExcel              = new NeonExcelIO($file_path);
+							$NeonExcel->download_csv($result);
+						}
+					}else {
+						$file_path              = CompanyConfiguration::get('UPLOAD_PATH') .'/InvoiceMasavExport.csv';
+						$NeonExcel              = new NeonExcelIO($file_path);
+						$NeonExcel->download_csv($result);
+					} 
+				}	
+		}
+        
+    }
     public function invoice_fastpayexport(){
         $data = Input::all();
 
