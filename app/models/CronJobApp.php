@@ -193,7 +193,7 @@ class CronJobApp extends \Eloquent {
         $ReturnStatus = terminate_process($PID);
         if($MysqlPID!=''){
             try{
-                $MysqlProcess=DB::select("SELECT * FROM INFORMATION_SCHEMA.PROCESSLIST where ID=".$MysqlPID);
+                $MysqlProcess=DB::connection('sqlapprm')->select("SELECT * FROM INFORMATION_SCHEMA.PROCESSLIST where ID=".$MysqlPID);
                 if(!empty($MysqlProcess)){
                     terminateMysqlProcess($MysqlPID);
                 }
