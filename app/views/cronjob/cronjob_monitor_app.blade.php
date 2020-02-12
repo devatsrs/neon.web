@@ -80,12 +80,13 @@
     </p>
 
     <ul class="nav nav-tabs bordered"><!-- available classes "bordered", "right-aligned" -->
-        <li class="active">
+        <li>
             <a href="{{ URL::to('/cronjob_monitor') }}" >
                 <span class="hidden-xs">Web</span>
             </a>
         </li>
-        <li>
+
+        <li class="active">
             <a href="{{ URL::to('cronjob_monitor/app') }}" >
                 <span class="hidden-xs">App</span>
             </a>
@@ -134,7 +135,7 @@
                 "bProcessing":true,
                 "bServerSide":true,
                 "bPaginate": true,
-                "sAjaxSource": baseurl + "/cronjobs/activecronjob_ajax_datagrid",
+                "sAjaxSource": baseurl + "/cronjobs/activecronjob_ajax_datagrid/app",
                 "iDisplayLength": parseInt('{{CompanyConfiguration::get('PAGE_SIZE')}}'),
                 "sPaginationType": "bootstrap",
                 "sDom": "<'row'<'col-xs-6 col-left  'l><'col-xs-6 col-right'<'change-view'><'export-data'T>f>r><'gridview'>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
@@ -210,7 +211,7 @@
                                             action += '&nbsp;<button   data-id="' + CronJobID + '" class="edit-config btn btn-default btn-sm" title="Edit" data-placement="top" data-toggle="tooltip"><i class="entypo-pencil"></i></button>';
                                     <?php } ?>
 
-                                    var history_url = baseurl + "/cronjobs/history/" + CronJobID;
+                                    var history_url = baseurl + "/cronjobs/history/" + CronJobID + '/app';
 
                                     action += '&nbsp;<a target="_blank" href="'+ history_url +'" class=" btn btn-default btn-sm" title="History" data-placement="top" data-toggle="tooltip"><i class="entypo-back-in-time"></i></a>';
 
@@ -323,7 +324,7 @@
                 result = confirm("Are you Sure?");
                 if(result){
                     status = ($(this).attr('data-status')==0)?1:0;
-                    submit_ajax(baseurl+'/cronjob/'+$(this).attr('data-id') + '/change_status/' +  status );
+                    submit_ajax(baseurl+'/cronjob/'+$(this).attr('data-id') + '/change_status/' +  status + '/app' );
                 }
             });
 
@@ -331,7 +332,7 @@
                 result = confirm("Are you Sure?");
                 if(result){
                     status = ($(this).attr('data-status')==0)?1:0;
-                    submit_ajax(baseurl+'/cronjob/'+$(this).attr('data-id') + '/terminate'  );
+                    submit_ajax(baseurl+'/cronjob/'+$(this).attr('data-id') + '/terminate/app'  );
                 }
             });
 
@@ -339,7 +340,7 @@
                 result = confirm("Are you Sure?");
                 if(result){
                     status = ($(this).attr('data-status')==0)?1:0;
-                    submit_ajax(baseurl+'/cronjob/'+$(this).attr('data-id') + '/trigger'  );
+                    submit_ajax(baseurl+'/cronjob/'+$(this).attr('data-id') + '/trigger/app'  );
                 }
             });
 
@@ -347,7 +348,7 @@
                 result = confirm("Are you Sure to Start Cron Tab?");
                 if(result){
 
-                    ajax_json(baseurl+'/cronjob/change_crontab_status/1','',function(response){
+                    ajax_json(baseurl+'/cronjob/change_crontab_status/1/app','',function(response){
                         $(".btn").button('reset');
                         if (response.status == 'success') {
                             toastr.success(response.message, "Success", toastr_opts);
@@ -364,7 +365,7 @@
             $('.stop_crontab').click(function(ev){
                 result = confirm("Are you Sure to Stop Cron Tab?");
                 if(result){
-                    ajax_json(baseurl+'/cronjob/change_crontab_status/0','',function(response){
+                    ajax_json(baseurl+'/cronjob/change_crontab_status/0/app','',function(response){
                         $(".btn").button('reset');
                         if (response.status == 'success') {
                             toastr.success(response.message, "Success", toastr_opts);
@@ -418,7 +419,7 @@
 
 @section('footer_ext')
     @parent
-    @include('cronjob.cronjob_edit_popup')
+    @include('cronjob.cronjob_app_edit_popup')
 @stop
 
 @stop
