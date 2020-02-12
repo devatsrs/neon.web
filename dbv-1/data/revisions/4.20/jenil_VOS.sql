@@ -762,10 +762,11 @@ ALTER TABLE `tblAccount`
 
 
 DELIMITER //
-CREATE PROCEDURE `prc_VOSCreateAccountOnNeonIfNotExist`(
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_VOSCreateAccountOnNeonIfNotExist`(
 	IN `p_CompanyID` INT	
+
 )
-BEGIN
+sp:BEGIN
 
     DECLARE v_CustomerType int;
     DECLARE v_VendorType int;
@@ -983,6 +984,33 @@ BEGIN
 		AND acct2.AccountType=v_VendorType;
 		
 		
+		/*update Customer Authentication Rule*/
+		UPDATE tblAccountAuthenticate taa
+			INNER JOIN tmp_vos_account taa2
+				ON taa2.AccountID=taa.AccountID
+			INNER JOIN tblAccount a on a.AccountID=taa2.AccountID
+		SET taa.CustomerAuthRule='Other',taa.CustomerAuthValue=a.AccountName
+		WHERE 
+			taa2.AccountID is not null 
+			AND taa2.AccountType=v_CustomerType AND a.IsCustomer = 1
+			AND ((taa.CustomerAuthRule is null or taa.CustomerAuthRule='') and (taa.CustomerAuthValue is null or taa.CustomerAuthValue=''))
+		;
+		
+		
+		/*update Vendor Authentication Rule*/
+		UPDATE tblAccountAuthenticate taa
+			INNER JOIN tmp_vos_account taa2 
+				ON taa2.AccountID=taa.AccountID
+			INNER JOIN tblAccount a 
+				on a.AccountID=taa2.AccountID
+		SET taa.VendorAuthRule='Other',taa.VendorAuthValue=a.AccountName
+		WHERE 
+			taa2.AccountID is not null 
+			AND taa2.AccountType=v_VendorType AND a.IsVendor = 1
+			AND ((taa.VendorAuthRule is null or taa.VendorAuthRule='') and (taa.VendorAuthValue is null or taa.VendorAuthValue=''))
+		;
+		
+			
 		IF v_cnt > 0 THEN
 			/* Create Account */
 			INSERT INTO tmp_create_account
@@ -1030,7 +1058,7 @@ BEGIN
 					JOIN tblVosAccount b ON a.AccountName = b.AccountName 
 					GROUP BY b.AccountName;
 					
-					
+										
 						-- Apply Authentication Rule
 					INSERT INTO tblAccountAuthenticate
 					(CompanyID,AccountID,CustomerAuthRule,CustomerAuthValue,VendorAuthRule,VendorAuthValue,ServiceID)
@@ -1080,10 +1108,14 @@ BEGIN
 		;
 		
 
+		
+
 	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 	
 END//
-DELIMITER ;
+DELIMITER ;	
+	
+	
 
 
 
@@ -4224,5 +4256,10 @@ prc_getVOSAccountIP
 prc_getVOSGatewayRouting
 prc_getVOSVendorActiveCall
 prc_getVOSGatewayMappingOnline
+prc_ArchiveOldCustomerRate
+prc_ArchiveOldVendorRate
+
+(RateTask Remain in Live)
+
 
 */

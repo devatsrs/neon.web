@@ -80,7 +80,7 @@ td {
 <br>
 
 <ul class="nav nav-tabs bordered"><!-- available classes "bordered", "right-aligned" -->
-    @if(User::checkCategoryPermission('AccountIP','View'))
+    @if(User::checkCategoryPermission('VOSAccountIP','View'))
         <li>
             <a href="{{ URL::to('VOS/mapping_gateway') }}" >
                 <span class="hidden-xs">Mapping Gateways</span>

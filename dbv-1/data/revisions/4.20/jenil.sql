@@ -1,33 +1,5 @@
 USE Ratemanagement3;
 
-/* Lock wait timeout - 1wordtec and other env */
-
-DROP PROCEDURE IF EXISTS `prc_UpdateMysqlPID`;
-DELIMITER //
-CREATE PROCEDURE `prc_UpdateMysqlPID`(
-	IN `p_processId` VARCHAR(200)
-)
-BEGIN
-	DECLARE MysqlPID VARCHAR(200);
---	  SET SESSION TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
-		
-		SELECT CONNECTION_ID() into MysqlPID;
-		
-		UPDATE tblCronJob
-			SET MysqlPID=MysqlPID
-		WHERE ProcessID=p_processId;
-		
-		COMMIT;
-
---	  SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
-
-END//
-DELIMITER ;
-
-/* END- Lock wait timeout - 1wordtec and other env */
-
-
-
 	
 /* Tickets Changes */
 		
@@ -401,145 +373,56 @@ DELIMITER ;
 
 
 
-/* ----------- Billing --------- */
-
-USE NeonBillingDev;
-
-DROP PROCEDURE IF EXISTS `prc_getInvoiceUsage`;
+DROP PROCEDURE IF EXISTS `prc_deleteArchiveOldRate`;
 DELIMITER //
-CREATE PROCEDURE `prc_getInvoiceUsage`(
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_deleteArchiveOldRate`(
 	IN `p_CompanyID` INT,
-	IN `p_AccountID` INT,
-	IN `p_ServiceID` INT,
-	IN `p_GatewayID` INT,
-	IN `p_StartDate` DATETIME,
-	IN `p_EndDate` DATETIME,
-	IN `p_ShowZeroCall` INT
+	IN `p_DeleteDate` DATETIME,
+	IN `p_processID` VARCHAR(200)
+
 
 )
 BEGIN
+ 	
+ 	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+ 	
+ 	  
+	  DELETE
+			tblCustomerRateArchive
+	  FROM tblCustomerRateArchive 
+	  INNER JOIN tblAccount 
+		ON tblAccount.AccountID=tblCustomerRateArchive.AccountId
+	  WHERE 
+	  tblAccount.CompanyId=p_CompanyID
+	  AND tblCustomerRateArchive.EffectiveDate <= p_DeleteDate;
 
-	DECLARE v_InvoiceCount_ INT;
-	DECLARE v_BillingTime_ INT;
-	DECLARE v_CDRType_ INT;
-	DECLARE v_AvgRound_ INT;
-	SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+		
+	  DELETE
+	  		tblVendorRateArchive
+	  FROM tblVendorRateArchive 
+	  INNER JOIN tblAccount 
+		ON tblAccount.AccountID=tblVendorRateArchive.AccountId
+	  WHERE
+		tblAccount.CompanyId=p_CompanyID
+	  AND EffectiveDate <= p_DeleteDate;
 
-	SELECT fnGetBillingTime(p_GatewayID,p_AccountID) INTO v_BillingTime_;
 
-	CALL fnServiceUsageDetail(p_CompanyID,p_AccountID,p_GatewayID,p_ServiceID,p_StartDate,p_EndDate,v_BillingTime_);
-
-	SELECT
-		it.CDRType,b.RoundChargesCDR  INTO v_CDRType_, v_AvgRound_
-	FROM NeonRMDev.tblAccountBilling ab
-	INNER JOIN  NeonRMDev.tblBillingClass b
-		ON b.BillingClassID = ab.BillingClassID
-	INNER JOIN tblInvoiceTemplate it
-		ON it.InvoiceTemplateID = b.InvoiceTemplateID
-	WHERE ab.AccountID = p_AccountID
-		AND ab.ServiceID = p_ServiceID
-	LIMIT 1;
-
-	IF( v_CDRType_ = 2)
-	THEN
-
-		DROP TEMPORARY TABLE IF EXISTS tmp_tblSummaryUsageDetails_;
-		CREATE TEMPORARY TABLE IF NOT EXISTS tmp_tblSummaryUsageDetails_(
-			AccountID int,
-			area_prefix varchar(50),
-			trunk varchar(50),
-			UsageDetailID int,
-			duration int,
-			billed_duration int,
-			cost decimal(18,6),
-			ServiceID INT,
-			AvgRate decimal(18,6)
-		);
-
-		INSERT INTO tmp_tblSummaryUsageDetails_
-		SELECT
-			AccountID,
-			area_prefix,
-			trunk,
-			UsageDetailID,
-			duration,
-			billed_duration,
-			cost,
-			ServiceID,
-			ROUND((uh.cost/uh.billed_duration)*60.0,v_AvgRound_) as AvgRate
-		FROM tmp_tblUsageDetails_ uh;
-
-		SELECT
-					area_prefix AS AreaPrefix,
-					Trunk,
-					(SELECT
-					Country
-					FROM NeonRMDev.tblRate r
-					INNER JOIN NeonRMDev.tblCountry c
-					ON c.CountryID = r.CountryID
-					WHERE  r.Code = ud.area_prefix limit 1)
-					AS Country,
-					(SELECT Description
-					FROM NeonRMDev.tblRate r
-					WHERE  r.Code = ud.area_prefix limit 1 )
-					AS Description,
-					COUNT(UsageDetailID) AS NoOfCalls,
-					CONCAT( FLOOR(SUM(duration ) / 60), ':' , SUM(duration ) % 60) AS Duration,
-					CONCAT( FLOOR(SUM(billed_duration ) / 60),':' , SUM(billed_duration ) % 60) AS BillDuration,
-					SUM(cost) AS ChargedAmount,
-					SUM(duration ) as DurationInSec,
-					SUM(billed_duration ) as BillDurationInSec,
-					ud.ServiceID,
-					ud.AvgRate as AvgRatePerMin
-				FROM tmp_tblSummaryUsageDetails_ ud
-				GROUP BY ud.area_prefix,ud.Trunk,ud.AccountID,ud.ServiceID,ud.AvgRate;
-
-	ELSE
-
-		SELECT
-			trunk AS Trunk,
-			area_prefix AS Prefix,
-			CONCAT("'",cli) AS CLI,
-			CONCAT("'",cld) AS CLD,
-			(SELECT
-			Country
-			FROM NeonRMDev.tblRate r
-			INNER JOIN NeonRMDev.tblCountry c
-			ON c.CountryID = r.CountryID
-			WHERE  r.Code = ud.area_prefix limit 1)
-			AS Country,
-			(SELECT
-			Description
-			FROM NeonRMDev.tblRate r
-			INNER JOIN NeonRMDev.tblCountry c
-			ON c.CountryID = r.CountryID
-			WHERE  r.Code = ud.area_prefix limit 1)
-			AS Description,
-			CASE
-			WHEN is_inbound=1 then 'Incoming'
-				ELSE 'Outgoing'
-			END
-			as CallType,
-			connect_time AS ConnectTime,
-			disconnect_time AS DisconnectTime,
-			billed_duration AS BillDuration,
-			SEC_TO_TIME(billed_duration) AS BillDurationMinutes,
-			cost AS ChargedAmount,
-			ServiceID
-		FROM tmp_tblUsageDetails_ ud
-		WHERE ((p_ShowZeroCall =0 AND ud.cost >0 ) OR (p_ShowZeroCall =1 AND ud.cost >= 0))
-		ORDER BY connect_time ASC;
-
-	END IF;
-
-	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
-
+	  DELETE
+	  		tblRateTableRateArchive
+	  FROM tblRateTableRateArchive 
+	  INNER JOIN tblRateTable 
+	  ON tblRateTable.RateTableId=tblRateTableRateArchive.RateTableId
+	  WHERE 
+	  tblRateTable.CompanyId=p_CompanyID
+	  AND tblRateTableRateArchive.EffectiveDate <= p_DeleteDate;	  	  
+	  
+	 
+   SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ; 
 END//
 DELIMITER ;
 
 
-/*New Add RatePrefix in Account- Bulk Ratesheet Email - VOS Change*/
-INSERT INTO `tblCompanyConfiguration` (`CompanyID`, `Key`, `Value`) VALUES (1, 'VOS_RATEPREFIX_RATESHEET', '0');
+
 
 DROP PROCEDURE IF EXISTS `prc_WSGenerateRateSheet`;
 DELIMITER //
@@ -1004,6 +887,67 @@ BEGIN
 	END//
 DELIMITER ;
 
+
+
+/* ClarityPBX Rate Export Start */
+
+
+INSERT INTO `tblCronJobCommand` (`CompanyID`, `GatewayID`, `Title`, `Command`, `Settings`, `Status`, `created_at`, `created_by`) VALUES (1, 19, 'Export Clarity PBX Customer Rate', 'exportclaritypbxcustomerrate', '[[{"title":"Threshold Time (Minute)","type":"text","value":"","name":"ThresholdTime"},{"title":"Success Email","type":"text","value":"","name":"SuccessEmail"},{"title":"Error Email","type":"text","value":"","name":"ErrorEmail"}]]', 1, '2019-05-29 19:33:05', NULL);
+
+INSERT INTO `tblCronJob` (`CompanyID`, `CronJobCommandID`, `Settings`, `Status`, `LastRunTime`, `NextRunTime`, `created_at`, `created_by`, `updated_at`, `updated_by`, `Active`, `JobTitle`, `DownloadActive`, `PID`, `EmailSendTime`, `CdrBehindEmailSendTime`, `CdrBehindDuration`, `ProcessID`, `MysqlPID`) VALUES (1, 610, '{"ThresholdTime":"","SuccessEmail":"","ErrorEmail":"","JobTime":"DAILY","JobInterval":"1","JobDay":["DAILY"],"JobStartTime":"12:00:00 AM","CompanyGatewayID":"60"}', 1, NULL, '2019-06-06 00:00:00', '2019-06-05 00:00:00', 'Sumera Saeed', '2019-06-05 13:07:48', NULL, 0, 'Export Customer Rate - Clarity PBX', 0, '', NULL, NULL, NULL, NULL, NULL);
+
+
+
+INSERT INTO `tblCronJobCommand` (`CompanyID`, `GatewayID`, `Title`, `Command`, `Settings`, `Status`, `created_at`, `created_by`) VALUES (1, 19, 'Export Clarity PBX Vendor Rate', 'exportclaritypbxvendorrate', '[[{"title":"Threshold Time (Minute)","type":"text","value":"","name":"ThresholdTime"},{"title":"Success Email","type":"text","value":"","name":"SuccessEmail"},{"title":"Error Email","type":"text","value":"","name":"ErrorEmail"}]]', 1, '2019-04-08 16:49:33', NULL);
+
+INSERT INTO `tblCronJob` (`CompanyID`, `CronJobCommandID`, `Settings`, `Status`, `LastRunTime`, `NextRunTime`, `created_at`, `created_by`, `updated_at`, `updated_by`, `Active`, `JobTitle`, `DownloadActive`, `PID`, `EmailSendTime`, `CdrBehindEmailSendTime`, `CdrBehindDuration`, `ProcessID`, `MysqlPID`) VALUES (1, 611, '{"ThresholdTime":"","SuccessEmail":"","ErrorEmail":"","JobTime":"DAILY","JobInterval":"1","JobDay":["DAILY"],"JobStartTime":"12:00:00 AM","vendors":"","CompanyGatewayID":"60"}', 1, NULL, '2019-06-11 00:00:00', '2019-06-10 00:00:00', 'Sumera Saeed', '2019-06-10 18:37:56', NULL, 0, 'Export Vendor Rate - Clarity PBX', 0, '', NULL, NULL, NULL, NULL, NULL);
+
+
+
+
+/* Israel - translation add for billingDashboard - Invoices & Expense */
+
+CUST_PANEL_DASHBOARD_EXPENSE_CHART_PAYMENT_RECEIVED_LBL - Payment Received
+CUST_PANEL_DASHBOARD_EXPENSE_CHART_TOTAL_INVOICE_LBL - Total Invoice
+CUST_PANEL_DASHBOARD_EXPENSE_CHART_TOTAL_OUTSTANDING_LBL - Total Outstanding
+
+
+/* For ClarityPBX Change - done staging-Live */
+
+CREATE TABLE IF NOT EXISTS `tblTempAccountRateTable` (
+  `tblTempRateTableID` int(11) NOT NULL AUTO_INCREMENT,
+  `AccountName` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `RateTableName` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `created_at` datetime DEFAULT NULL,
+  `created_by` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
+  PRIMARY KEY (`tblTempRateTableID`)
+) COLLATE='utf8_unicode_ci'
+  ENGINE=InnoDB;
+
+
+
+DROP PROCEDURE IF EXISTS `prc_CreateCustomerTrunks`;
+DELIMITER //
+CREATE DEFINER=`root`@`localhost` PROCEDURE `prc_CreateCustomerTrunks`(
+	IN `p_CompanyID` INT
+)
+BEGIN
+
+	SET SESSION TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
+
+	select 
+		rt.RateTableId,
+		ac.AccountID,
+		tempAcctRateTable.AccountName 
+	FROM tblTempAccountRateTable tempAcctRateTable 
+	join tblRateTable rt on tempAcctRateTable.RateTableName=rt.RateTableName 
+	join tblAccount ac on ac.AccountName = tempAcctRateTable.AccountName;
+	
+	
+	SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
+END//
+DELIMITER ;
 
 
 	
