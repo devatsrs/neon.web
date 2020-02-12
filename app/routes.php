@@ -909,6 +909,23 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/cronjob/{id}/terminate', 'CronJobController@terminate');
 	Route::any('/cronjob/{id}/change_status/{id2}', 'CronJobController@change_status');
 	Route::any('/cronjob/change_crontab_status/{id}', 'CronJobController@change_crontab_status');
+	
+	//App Cron Job Section//
+	Route::any('/cronjobs/create/app', 'CronJobAppController@create');
+	Route::any('/cronjobs/update/{id}/app', 'CronJobAppController@update');
+	Route::any('/cronjobs/delete/{id}/app', 'CronJobAppController@delete');
+	Route::any('/cronjobs/ajax_load_cron_dropdown/app', 'CronJobAppController@ajax_load_cron_dropdown');
+	Route::any('/cronjobs/history/{id}/app', 'CronJobAppController@history');
+	Route::any('/cronjobs/history_ajax_datagrid/{id}/{type}/app', 'CronJobAppController@history_ajax_datagrid');
+	Route::any('/activecronjob/app', 'CronJobAppController@activecronjob');
+	Route::any('/cronjobs/activecronjob_ajax_datagrid/app', 'CronJobAppController@activecronjob_ajax_datagrid');
+	Route::any('/cronjobs/activeprocessdelete/app', 'CronJobAppController@activeprocessdelete');
+	Route::any('/cronjobs/check_failing/app', 'CronJobAppController@check_failing');
+	Route::any('/cronjob_monitor/app', 'CronJobAppController@cronjob_monitor_app');
+	Route::any('/cronjob/{id}/trigger/app', 'CronJobAppController@trigger');
+	Route::any('/cronjob/{id}/terminate/app', 'CronJobAppController@terminate');
+	Route::any('/cronjob/{id}/change_status/{id2}/app', 'CronJobAppController@change_status');
+	Route::any('/cronjob/change_crontab_status/{id}/app', 'CronJobAppController@change_crontab_status');
 
 	//Company
 	Route::any('/company', 'CompaniesController@edit');

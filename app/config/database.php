@@ -177,6 +177,17 @@ return array(
 			'prefix'    => '',
 			'strict'    => false,
 		],
+		'sqlapprm' => [
+			'driver'    => 'mysql',
+			'host'      => getenv('DB_HOST_APP_RM'),
+			'database'  => getenv('DB_APP_RM'),
+			'username'  => getenv('DB_UB_APP_RM'),
+			'password'  => substr(getenv('DB_APP_PASSWORD_RM'),5),
+			'charset'   => 'utf8',
+			'collation' => 'utf8_unicode_ci',
+			'prefix'    => '',
+			'strict'    => false,
+		],
 
 	),
 
