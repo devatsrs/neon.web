@@ -5284,7 +5284,7 @@ class AccountsApiController extends ApiController {
 					return Response::json($response, Codes::$Code500[0]);
 				}
 			} else {
-				$number_error = 'Test Number '. $data['TestNumberPurchased'] . ' not found against '.$AccountFindType.': '.$data[$AccountFindType].', OrderID: '. $data['OrderID'];
+				$number_error = 'Test Number '. $data['TestNumberPurchased'] . ' not found against '.$AccountFindType.': '.json_encode($data[$AccountFindType]).', OrderID: '. $data['OrderID'];
 				return Response::json(["ErrorMessage" => $number_error],Codes::$Code400[0]);
 			}
 		} else {
