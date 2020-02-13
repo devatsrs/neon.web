@@ -4408,9 +4408,9 @@ class AccountsApiController extends ApiController {
 			'OrderID'							=> 'required|numeric',
 			'NumberPurchased'					=> 'required|numeric',
 			'ProductID'							=> 'required|numeric',
-			'InboundTariffCategoryID'			=> 'required|numeric',
+			'InboundTariffCategoryID'			=> 'required|numeric|in:1,4,7',
 			'NumberContractID'					=> 'required|numeric',
-			'NewNumberContractID'				=> 'required|numeric|in:1,4,7',
+			'NewNumberContractID'				=> 'required|numeric',
 			'ContractStartDate'					=> 'required|date|date_format:Y-m-d|after:'.date('Y-m-d',strtotime("-1 days")),
 			'ContractEndDate'					=> 'required|date|date_format:Y-m-d|after:ContractStartDate',
 		);
