@@ -213,7 +213,7 @@
           <th>Grand Total</th>
           <th>Paid/OS</th>
           <th>Status</th>
-          <th>Available Credit Notes</th>
+          <!-- <th>Available Credit Notes</th> -->
           <th>Due Date</th>
           <th>Payment Reminder</th>
           <th>Action</th>
@@ -420,13 +420,13 @@
                         }
 
                     },  // 7 InvoiceStatus
-                    {
-                        "bSortable": false,
-                        mRender: function (id, type, full) {
-                                return full[22];
-                        }
+                    // {
+                    //     "bSortable": false,
+                    //     mRender: function (id, type, full) {
+                    //             return full[22];
+                    //     }
 
-                    }, // 18 CreditNotes Amount
+                    // }, // 18 CreditNotes Amount
                     {
                         "bSortable": true,
                         mRender: function (id, type, full) {
