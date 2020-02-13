@@ -950,6 +950,45 @@
                 </div>
             </div>
 
+            <?php
+                $Companies = Reseller::where(array("tblReseller.Status"=>1,"tblAccount.Status"=>1))
+                        ->join('tblAccount' , 'tblAccount.AccountID' , '=' , 'tblReseller.AccountID')
+                        ->Join('tblCompany' , 'tblCompany.CompanyID' , '=' , 'tblReseller.ChildCompanyID')
+                        ->get(['tblCompany.CompanyName', 'tblCompany.CompanyID']);
+
+                $MainCompany = Company::find(1);
+            ?>
+            <div class="panel panel-primary" data-collapsed="0">
+                <div class="panel-heading">
+                    <div class="panel-title">
+                        Division (For Invoice Posting)
+                    </div>
+                    <div class="panel-options">
+                        <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
+                    </div>
+                </div>
+                <div class="panel-body">
+                    <div class="col-md-6  margin-top">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">{{$MainCompany->CompanyName}}:</label>
+                            <div class="col-sm-8">
+                                <input type="text" class="form-control" name="Division[{{$MainCompany->CompanyID}}]" value="{{isset($ExactData['Division'][$MainCompany->CompanyID])?$ExactData['Division'][$MainCompany->CompanyID]:""}}" />
+                            </div>
+                        </div>
+                    </div>
+                    <?php foreach($Companies as $Company) { ?>
+                        <div class="col-md-6  margin-top">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">{{$Company->CompanyName}}:</label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="form-control" name="Division[{{$Company->CompanyID}}]" value="{{isset($ExactData['Division'][$Company->CompanyID])?$ExactData['Division'][$Company->CompanyID]:""}}" />
+                                </div>
+                            </div>
+                        </div>
+                    <?php } ?>
+                </div>
+            </div>
+
             @foreach(ExactAuthentication::$MappingTypes as $MappingKey => $MappingText)
                 <div class="panel panel-primary" data-collapsed="0">
                     <div class="panel-heading">
