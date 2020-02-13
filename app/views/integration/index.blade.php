@@ -951,12 +951,14 @@
             </div>
             
             <?php
+            $CompanyID = User::get_companyID();
             $Companies = Reseller::where(array("tblReseller.Status"=>1,"tblAccount.Status"=>1))
                     ->join('tblAccount' , 'tblAccount.AccountID' , '=' , 'tblReseller.AccountID')
                     ->Join('tblCompany' , 'tblCompany.CompanyID' , '=' , 'tblReseller.ChildCompanyID')
+                    ->where(['tblReseller.CompanyID' => $CompanyID])
                     ->get(['tblCompany.CompanyName', 'tblCompany.CompanyID']);
 
-            $MainCompany = Company::find(1);
+            $MainCompany = Company::find($CompanyID);
             ?>
             <div class="panel panel-primary" data-collapsed="0">
                 <div class="panel-heading">
