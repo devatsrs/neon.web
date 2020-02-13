@@ -3848,7 +3848,7 @@ class AccountsApiController extends ApiController {
 
 				AccountBilling::storeFirstTimeInvoicePeriod($accountInfo->AccountID, 0);
 				
-			}else{
+			}else if(isset($accountData['BillingTypeID']) && !empty($accountData['BillingTypeID'])){
 				$AccountBillingType['AccountID'] = $accountInfo->AccountID;
 				$AccountBillingType['BillingType'] = $accountData['BillingTypeID'];
 				if(isset($accountData['BillingTypeID']) && !empty($accountData['BillingTypeID'])){
