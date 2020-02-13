@@ -63,26 +63,27 @@ class Forte {
             } 
         }
 
-        $address = ['first_name' => $firstName, 'last_name' => $lastName];
+        $address = ['first_name' => 'Bill', 'last_name' => 'Customer'];
         //eCheck Info
         $echeck = [
-            'account_holder'            => $data['account_holder_name'],
+            "sec_code"                  => "",
+            'account_type'              => $data['AccountHolderType'],
             'routing_number'            => $data['RoutingNumber'],
             'account_number'            => $data['AccountNumber'],
-            'account_type'              => $data['AccountHolderType']
+            'account_holder'            => $data['account_holder_name']
         ];
         //Credit Card Info
         $params = [
-            'action'                    => $data['action'],  //sale, authorize, credit, void, capture, inquiry, verify, force, reverse
-            'card'                      => $echeck,     //change to 'echeck' => $echeck for an ACH transaction
-            'billing_address'           => $address,
+            'action'                    => 'sale',  //sale, authorize, credit, void, capture, inquiry, verify, force, reverse
             'authorization_amount'      => $data['amount'],
+            'billing_address'           => $address,
+            'echeck'                    => $echeck     //change to 'echeck' => $echeck for an ACH transaction
 
-            'customer_token'            => isset($data['customer_token']) ? $data['customer_token'] : '',
-            'paymethod_token'           => isset($data['paymethod_token']) ? $data['paymethod_token'] : '',
-            'transaction_id'            => isset($data['transaction_id']) ? $data['transaction_id'] : '',
-            'original_transaction_id'   => isset($data['original_transaction_id']) ? $data['original_transaction_id'] : '',
-            'authorization_code'        => isset($data['authorization_code']) ? $data['authorization_code'] : ''
+            // 'customer_token'            => isset($data['customer_token']) ? $data['customer_token'] : '',
+            // 'paymethod_token'           => isset($data['paymethod_token']) ? $data['paymethod_token'] : '',
+            // 'transaction_id'            => isset($data['transaction_id']) ? $data['transaction_id'] : '',
+            // 'original_transaction_id'   => isset($data['original_transaction_id']) ? $data['original_transaction_id'] : '',
+            // 'authorization_code'        => isset($data['authorization_code']) ? $data['authorization_code'] : ''
         ];
         return $params;
     }
@@ -279,8 +280,8 @@ class Forte {
             }
 
             
-            $data['expire_month'] = $data['ExpirationMonth'];
-            $data['expire_year']  = substr($data['ExpirationYear'], -2);
+            //$data['expire_month'] = $data['ExpirationMonth'];
+            //$data['expire_year']  = substr($data['ExpirationYear'], -2);
             $postData = $this->getApiData($data);
             //$jsonData = json_encode($postData);
             try {
@@ -356,14 +357,18 @@ class Forte {
 
     public function createForteProfile($data){
         try {
-            $ExpirationYear = substr($data['ExpirationYear'], -2);
+            $address = ['first_name' => 'Bill', 'last_name' => 'Customer'];
+            //Credit Card Info
             $postdata = [
-                'card_type'                 => 'VISA',
-                'name_on_card'              => $data['NameOnCard'],
-                'account_number'            => $data['CardNumber'],
-                'expire_month'              => $data['ExpirationMonth'],
-                'expire_year'               => $ExpirationYear,
-                'card_verification_value'   => $data['CVVNumber']
+                'action'                    => 'sale',  //sale, authorize, credit, void, capture, inquiry, verify, force, reverse
+                'billing_address'           => $address,
+                'echeck'                    => [
+                    "sec_code"                  => "",
+                    'account_type'              => $data['AccountHolderType'],
+                    'routing_number'            => $data['RoutingNumber'],
+                    'account_number'            => $data['AccountNumber'],
+                    'account_holder'            => $data['account_holder_name']
+                ]
             ];
             // $jsonData = json_encode($postdata);
             try {
