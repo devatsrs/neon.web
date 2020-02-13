@@ -153,7 +153,7 @@
             @if(is_FastPay($CompanyID))
             <li> <a class="create" id="fastpay-export" href="javascript:;"> FastPay Export </a> </li>
             @endif
-            @if(ExportStatus)
+            @if(IntegrationConfiguration::get_status())
             <li> <a class="create" id="masav-export" href="javascript:;"> Masav Export </a> </li>
             @endif
           </ul>

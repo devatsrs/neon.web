@@ -1101,6 +1101,55 @@
                     </div>
                     <!-- MASAV End -->
 
+                    <!-- Forte Start -->
+                    <?php
+                    $forteDBData = IntegrationConfiguration::GetIntegrationDataBySlug(SiteIntegration::$ForteSlug);
+                    $forteData   = isset($forteDBData->Settings)?json_decode($forteDBData->Settings):"";
+                    ?>
+                    <div class="subcategorycontent" id="subcategorycontent{{$forteDBData->Slug}}">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="field-1" class="control-label">* Organization ID:</label>
+                                    <input type="text"  class="form-control" name="organizationID" value="{{isset($forteData->organizationID)?$forteData->organizationID:''}}" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="field-1" class="control-label">* API Access ID:</label>
+                                    <input type="text"  class="form-control" name="accessID" value="{{isset($forteData->accessID)?$forteData->accessID:''}}" />
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="field-1" class="control-label">* Api Secure Key:</label>
+                                    <input type="text"  class="form-control" name="apiSecureKey" value="{{isset($forteData->apiSecureKey)?$forteData->apiSecureKey:''}}" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="field-1" class="control-label">* Live:</label>
+                                    <div id="forteDataLiveDiv">
+                                        <input id="forteDataLive" class="subcatstatus" Divid="forteDataLiveDiv" name="forteDataLive" type="checkbox" value="1" <?php if(isset($forteData->forteDataLive) && $forteData->forteDataLive==1){ ?>   checked="checked"<?php } ?> >
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="control-label">Active:</label>
+                                    <div id="forteDataStatusDiv">
+                                        <input id="forteDataStatus" class="subcatstatus" Divid="forteDataStatusDiv" name="Status" type="checkbox" value="1" <?php if(isset($forteDataData->Status) && $forteDataData->Status==1){ ?>   checked="checked"<?php } ?> >
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Forte End -->
+
                     <!-- Xero -->
                     <?php
                     $XeroDbData = IntegrationConfiguration::GetIntegrationDataBySlug(SiteIntegration::$XeroSlug);
