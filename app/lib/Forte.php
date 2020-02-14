@@ -6,7 +6,8 @@
 *   Dtaed       : 07-02-2020
 */
 
-class Forte {
+class Forte 
+{
     public $request;
     var $status;
     var $organizationID;
@@ -18,9 +19,10 @@ class Forte {
     var $ForteUrl;
     var $authToken;
 
-    function __construct($CompanyID=0) {
+    function __construct($CompanyID=0) 
+    {
         $Forteobj = SiteIntegration::CheckIntegrationConfiguration(true,SiteIntegration::$ForteSlug,$CompanyID);
-        if($Forteobj){
+        if ($Forteobj) {
             $this->SandboxUrl           =   "https://sandbox.forte.net/api/v3";
             $this->LiveUrl              =   "https://api.forte.net/v3";
             $this->organizationID 	    = 	$Forteobj->organizationID;
@@ -28,31 +30,32 @@ class Forte {
             $this->apiSecureKey		    = 	$Forteobj->apiSecureKey;
             $this->forteDataLive        =   $Forteobj->forteDataLive;
             $this->authToken            =   base64_encode($this->ApiAccessID . ':' . $this->apiSecureKey);
-            if($this->forteDataLive == 1) {
+            if ($this->forteDataLive == 1) {
                 $this->ForteUrl         = 	$this->LiveUrl;
-            }else {
+            } else {
                 $this->ForteUrl         = 	$this->SandboxUrl;
             }
             $this->status               =   true;
-        }else {
+        } else {
             $this->status               =   false;
         }
     }
-    public function getApiData($data) {
+    public function getApiData($data) 
+    {
         //Address Info
         $AccountName    = [];
         $firstName      = '';
         $lastName       = '';
         $AccountName    = explode(" ",$data['customer_name']);
         $total          = count($AccountName);
-        if($total > 0) {
+        if ($total > 0) {
             foreach($AccountName as $key=>$name) {
-                if($key == 0) {
+                if ($key == 0) {
                     $firstName = $name;
-                }else {
-                    if($key == 1){
+                } else {
+                    if ($key == 1) {
                         $lastName =  $name;
-                    }else {
+                    } else {
                         $lastName .=  ' '.$name; 
                     }
                    
@@ -78,7 +81,8 @@ class Forte {
         ];
         return $params;
     }
-	public function doValidation($data){
+    public function doValidation($data)
+    {
 		$ValidationResponse = [];
 		$rules = [
 			'AccountNumber' => 'required|digits_between:6,19',
@@ -102,19 +106,19 @@ class Forte {
 		$CustomerID = $data['AccountID'];
 		$account = Account::find($CustomerID);
 		$CurrencyCode = Currency::getCurrency($account->CurrencyId);
-		if(empty($CurrencyCode)){
+		if (empty($CurrencyCode)) {
 			$ValidationResponse['status'] = 'failed';
 			$ValidationResponse['message'] = cus_lang("PAYMENT_MSG_NO_ACCOUNT_CURRENCY_AVAILABLE");
 			return $ValidationResponse;
 		}
 		$data['currency'] = strtolower($CurrencyCode);
 		$Country = $account->Country;
-		if(!empty($Country)){
+		if (!empty($Country)) {
 			$CountryCode = Country::where(['Country'=>$Country])->pluck('ISO2');
-		}else{
+		} else{
 			$CountryCode = '';
 		}
-		if(empty($CountryCode)){
+		if (empty($CountryCode)) {
 			$ValidationResponse['status'] = 'failed';
 			$ValidationResponse['message'] = cus_lang("PAYMENT_MSG_NO_ACCOUNT_COUNTRY_AVAILABLE");
 			return $ValidationResponse;
@@ -122,7 +126,8 @@ class Forte {
 		$ValidationResponse['status'] = 'success';
 		return $ValidationResponse;
 	}
-	public function verifyBankAccount($data){
+    public function verifyBankAccount($data)
+    {
 		$response       = [];
 		$customerId     = $data['CustomerProfileID'];
 		$bankAccountId  = $data['BankAccountID'];
@@ -136,7 +141,7 @@ class Forte {
 			//$varify = Stripe::BankAccounts()->verify($customerId,$bankAccountId,array(32, 45));
 			$varify = Stripe::BankAccounts()->verify($customerId,$bankAccountId,array($MicroDeposit1, $MicroDeposit2));
 			Log::info(print_r($varify,true));
-			if(!empty($varify['id'])){
+			if (!empty($varify['id'])) {
 				$response['status'] = 'Success';
 				$response['VerifyStatus'] = $varify['status'];
 			}
@@ -149,7 +154,8 @@ class Forte {
 
 		return $response;
 	}
-    public function paymentWithProfile($data){
+    public function paymentWithProfile($data)
+    {
         $account = Account::find($data['AccountID']);
         $CustomerProfile                = AccountPaymentProfile::find($data['AccountPaymentProfileID']);
         $ForteObj                       = json_decode($CustomerProfile->Options);
@@ -163,12 +169,12 @@ class Forte {
         $Fortedata['AccountID']      = $data['AccountID'];
         $Fortedata['cardID']         = $ForteObj->cardID;
         $transactionResponse = [];
-        $transaction = $this->pay_invoice($Fortedata);
-        if($transaction['status']=='success') {
+        $transaction = $this->payInvoice($Fortedata);
+        if ($transaction['status']=='success') {
             $Status = TransactionLog::SUCCESS;
             $Notes  = 'Forte transaction_id ' . $transaction['transaction_id'];
             $transactionResponse['response_code']   = 1;
-        }else{
+        } else{
             $Status = TransactionLog::FAILED;
             $Notes  = empty($transaction['error']) ? '' : $transaction['error'];
         }
@@ -201,7 +207,8 @@ class Forte {
         return $transactionResponse;
     }
 
-    public function pay_invoice($data){
+    public function payInvoice($data)
+    {
         try {
             $Account            = Account::find($data['AccountID']);
             $CurrencyID         = $Account->CurrencyId;
@@ -209,10 +216,10 @@ class Forte {
             $accountname = empty($account->AccountName)?'':$account->AccountName;
             $data['customer_name'] = $accountname;
             //$data['GrandTotal'] = 70;
-            if(is_int($data['GrandTotal'])) {
+            if (is_int($data['GrandTotal'])) {
                 $data['amount'] = str_replace(',', '', str_replace('.', '', $data['GrandTotal']));
                 $data['amount'] = number_format((float)$Amount, 2, '.', '');
-            }else {
+            } else {
                 if($this->ForteLive == 1) {
                     $data['amount'] = $data['GrandTotal']; // for live
                 }else {
@@ -255,17 +262,18 @@ class Forte {
         return $response;
     }
 
-    public function payInvoiceWithApi($data){
+    public function payInvoiceWithApi($data)
+    {
         try {
             $data['invoiceCurrency']    = Currency::getCurrency($data['CurrencyId']);
             //$data['GrandTotal'] = 70;
-            if(is_int($data['GrandTotal'])) {
+            if (is_int($data['GrandTotal'])) {
                 $data['amount'] = str_replace(',', '', str_replace('.', '', $data['GrandTotal']));
                 $data['amount'] = number_format((float)$data['amount'], 2, '.', '');
-            }else {
-                if($this->ForteLive == 1) {
+            } else {
+                if ($this->ForteLive == 1) {
                     $data['amount'] = $data['GrandTotal']; // for live
-                }else {
+                } else {
                     $data['amount'] = number_format(round($data['GrandTotal']), 2, '.', ''); // for testing
                 }
             }
@@ -283,13 +291,13 @@ class Forte {
                 $response['error']          = $e->getMessage();
             }
 
-            if(!empty($res['status']) && $res['status']==1 && $res['responseData']['responseCode']==0) {
+            if (!empty($res['status']) && $res['status']==1 && $res['responseData']['responseCode']==0) {
                 $response['status']         = 'success';
                 $response['note']           = 'Forte transaction_id '.$res['transactionID'];
                 $response['transaction_id'] = $res['transactionID'];
                 $response['amount']         = $res['responseData']['transactionAmount'];
                 $response['response']       = $res;
-            }else {
+            } else {
                 $response['status']         = 'fail';
                 $response['transaction_id'] = !empty($res['transactionID']) ? $res['transactionID'] : "";
                 $response['error']          = $res['responseData']['responseMessage'];
@@ -304,7 +312,8 @@ class Forte {
         return $response;
     }
 
-    public function createProfile($data) {
+    public function createProfile($data) 
+    {
         $CustomerID         = $data['AccountID'];
         $CompanyID          = $data['CompanyID'];
         $PaymentGatewayID   = $data['PaymentGatewayID'];
@@ -316,12 +325,12 @@ class Forte {
             ->where(['isDefault' => 1])
             ->count();
 
-        if($count>0) {
+        if ($count>0) {
             $isDefault = 0;
         }
 
         $ForteResponse = $this->createForteProfile($data);
-       // echo "<pre>";print_r($ForteResponse);exit;
+        // echo "<pre>";print_r($ForteResponse);exit;
         if ($ForteResponse["status"] == "success") {
             $option = [
                 'cardID' => $ForteResponse['cardID'],'cardKey' => $ForteResponse['response']['responseData']['cardKey'],'ivrCardID' => $ForteResponse['response']['responseData']['ivrCardID']
@@ -338,15 +347,16 @@ class Forte {
             ];
             if (AccountPaymentProfile::create($CardDetail)) {
                 return Response::json(array("status" => "success", "message" => "Payment Method Profile Successfully Created"));
-            }else {
+            } else {
                 return Response::json(array("status" => "failed", "message" => "Problem Saving Payment Method Profile."));
             }
-        }else{
+        } else {
             return Response::json(array("status" => "failed", "message" => $ForteResponse['error']));
         }
     }
 
-    public function createForteProfile($data){
+    public function createForteProfile($data)
+    {
         try {
             $postdata = [
                 "organization_id"   => "org_".$this->organizationID,
@@ -364,11 +374,11 @@ class Forte {
                 $response['error']          = $e->getMessage();
             }
 
-            if(!empty($res['status']) && $res['status']==1 && $res['responseData']['responseCode']==0){
+            if(!empty($res['status']) && $res['status']==1 && $res['responseData']['responseCode']==0) {
                 $response['status']         = 'success';
                 $response['cardID']         = $res['responseData']['cardID'];
                 $response['response']       = $res;
-            }else{
+            } else {
                 $response['status']         = 'fail';
                 $response['error']          = $res['responseData']['responseMessage'];
                 $response['response']       = $res;
@@ -381,8 +391,9 @@ class Forte {
         }
         return $response;
     }
-    public function doVerify($data){
-		if(empty($data['MicroDeposit1']) || empty($data['MicroDeposit2'])){
+    public function doVerify($data)
+    {
+		if (empty($data['MicroDeposit1']) || empty($data['MicroDeposit2'])) {
 			return Response::json(array("status" => "failed", "message" => cus_lang("PAYMENT_MSG_BOTH_MICRODEPOSIT_REQUIRED")));
 		}
 		$cardID = $data['cardID'];
@@ -397,25 +408,24 @@ class Forte {
 		$stripedata['MicroDeposit2'] = $data['MicroDeposit2'];
 
 		$StripeResponse = $this->verifyBankAccount($stripedata);
-		if($StripeResponse['status']=='Success'){
-			if($StripeResponse['VerifyStatus']=='verified'){
-				$option = array(
+		if ($StripeResponse['status']== 'Success') {
+			if ($StripeResponse['VerifyStatus']== 'verified') {
+				$option = [
 					'CustomerProfileID' => $CustomerProfileID,
 					'BankAccountID' => $BankAccountID,
 					'VerifyStatus' => $StripeResponse['VerifyStatus']
-				);
+                ];
 				$AccountPaymentProfile->update(array('Options' => json_encode($option)));
-
 				return Response::json(array("status" => "success", "message" => cus_lang("PAYMENT_STRIPEACH_MSG_VERIFICATION_STATUS_IS").$StripeResponse['VerifyStatus']));
-			}else{
+			} else {
 				return Response::json(array("status" => "failed", "message" => cus_lang("PAYMENT_STRIPEACH_MSG_VERIFICATION_STATUS_IS").$StripeResponse['VerifyStatus']));
 			}
-
-		}else{
+		} else {
 			return Response::json(array("status" => "failed", "message" => $StripeResponse['error']));
 		}
 	}
-    public function sendCurlRequest($url,$postData) {
+    public function sendCurlRequest($url,$postData) 
+    {
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_VERBOSE, 1);
@@ -435,11 +445,9 @@ class Forte {
         $info = curl_getinfo($ch);
         curl_close($ch);
         $data = json_decode($response);
-
-        echo '<pre>';
-        print_r('HttpStatusCode: ' . $info['http_code'] . '<br><br>');
+        echo "<pre>";
         print_r($data);
-        echo '</pre>';
+        exit;
         // Validate the response - the only successful code is 0
         $status = ((int)$data['http_code'] === 0) ? true : false;
 
@@ -451,25 +459,26 @@ class Forte {
             ];
         return $res;
     }
-    public function paymentValidateWithProfile($data){
+    public function paymentValidateWithProfile($data)
+    {
 		$Response = array();
-		$Response['status']='success';
+		$Response['status']= 'success';
 		$account = Account::find($data['AccountID']);
 		$CurrencyCode = Currency::getCurrency($account->CurrencyId);
-		if(empty($CurrencyCode)){
+		if (empty($CurrencyCode)) {
 			$Response['status']='failed';
-			$Response['message']=cus_lang("PAYMENT_MSG_NO_ACCOUNT_CURRENCY_AVAILABLE");
+			$Response['message']= cus_lang("PAYMENT_MSG_NO_ACCOUNT_CURRENCY_AVAILABLE");
 		}
 		$CustomerProfile = AccountPaymentProfile::find($data['AccountPaymentProfileID']);
 		$StripeObj = json_decode($CustomerProfile->Options);
-		if(empty($StripeObj->VerifyStatus) || $StripeObj->VerifyStatus!=='verified'){
-			$Response['status']='failed';
-			$Response['message']=cus_lang("PAYMENT_MSG_BANK_ACCOUNT_NOT_VERIFIED");
+		if (empty($StripeObj->VerifyStatus) || $StripeObj->VerifyStatus!== 'verified') {
+			$Response['status']= 'failed';
+			$Response['message']= cus_lang("PAYMENT_MSG_BANK_ACCOUNT_NOT_VERIFIED");
 		}
-
 		return $Response;
 	}
-    public function deleteForteProfile($Token){
+    public function deleteForteProfile($Token)
+    {
         $response['status']         = 'success';
         return $response;
     }
