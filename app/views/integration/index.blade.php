@@ -1108,13 +1108,13 @@
                     ?>
                     <div class="subcategorycontent" id="subcategorycontent{{$forteDBData->Slug}}">
                         <div class="row">
-                            <div class="col-md-12">
+                            <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="field-1" class="control-label">* Organization ID:</label>
                                     <input type="text"  class="form-control" name="organizationID" value="{{isset($forteData->organizationID)?$forteData->organizationID:''}}" />
                                 </div>
                             </div>
-                            <div class="col-md-12">
+                            <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="field-1" class="control-label">* Location ID:</label>
                                     <input type="text"  class="form-control" name="locationID" value="{{isset($forteData->locationID)?$forteData->locationID:''}}" />
