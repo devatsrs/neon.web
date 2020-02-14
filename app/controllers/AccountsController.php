@@ -1514,7 +1514,7 @@ class AccountsController extends \BaseController {
                 $AccountBillingType['BillingType'] = $data['BillingType'];
                 $AccountBillingType['AccountID'] = $id;
                 $LogType = AccountBillingTypeLog::where('AccountID' ,$id)->orderby('AccountBillingTypeLogID' , 'desc')->first();
-                if($LogType != false){
+                if(isset($LogType) && !empty($LogType)){
                     if($LogType->BillingType != $AccountBillingType['BillingType']){
                          $AccountBillingType['OldBillingType'] = $LogType->BillingType;
                         AccountBillingTypeLog::create($AccountBillingType);
