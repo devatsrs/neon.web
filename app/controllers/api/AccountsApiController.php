@@ -3879,7 +3879,7 @@ class AccountsApiController extends ApiController {
 				$AccountBillingType['AccountID'] = $accountInfo->AccountID;
 				$AccountBillingType['BillingType'] = $accountData['BillingTypeID'];
                 $LogType = AccountBillingTypeLog::where('AccountID' ,$accountInfo->AccountID)->orderby('AccountBillingTypeLogID' , 'desc')->first();
-                if($LogType != false){
+                if(isset($LogType) && !empty($LogType)){
                     if($LogType->BillingType != $accountData['BillingTypeID']){
                          $AccountBillingType['OldBillingType'] = $LogType->BillingType;
                         AccountBillingTypeLog::create($AccountBillingType);
