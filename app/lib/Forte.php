@@ -367,7 +367,7 @@ class Forte
             ];
             // $jsonData = json_encode($postdata);
             try {
-                $res = $this->sendCurlRequest($this->TokenUrl,$postdata);
+                $res = $this->sendCurlRequest($this->ForteUrl,$postdata);
             } catch (\Guzzle\Http\Exception\CurlException $e) {
                 log::info($e->getMessage());
                 $response['status']         = 'fail';
