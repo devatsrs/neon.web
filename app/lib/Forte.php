@@ -16,7 +16,6 @@ class Forte {
     var $SandboxUrl;
     var $LiveUrl;
     var $ForteUrl;
-    var $SaveCardUrl;
     var $authToken;
 
     function __construct($CompanyID=0) {
@@ -30,10 +29,8 @@ class Forte {
             $this->forteDataLive        =   $Forteobj->forteDataLive;
             $this->authToken            =   base64_encode($this->ApiAccessID . ':' . $this->apiSecureKey);
             if($this->forteDataLive == 1) {
-                $this->SaveCardUrl	    = 	$this->LiveUrl;
                 $this->ForteUrl         = 	$this->LiveUrl;
             }else {
-                $this->SaveCardUrl	    = 	$this->SandboxUrl;
                 $this->ForteUrl         = 	$this->SandboxUrl;
             }
             $this->status               =   true;
@@ -63,14 +60,14 @@ class Forte {
             } 
         }
 
-        $address = ['first_name' => 'Bill', 'last_name' => 'Customer'];
+        $address = ['first_name' => $firstName, 'last_name' => $lastName];
         //eCheck Info
         $echeck = [
-            "sec_code"                  => "",
+            "sec_code"                  => "WEB",
             'account_type'              => $data['AccountHolderType'],
             'routing_number'            => $data['RoutingNumber'],
             'account_number'            => $data['AccountNumber'],
-            'account_holder'            => $data['account_holder_name']
+            'account_holder'            => $data['AccountHolderName']
         ];
         //Credit Card Info
         $params = [
@@ -78,12 +75,6 @@ class Forte {
             'authorization_amount'      => $data['amount'],
             'billing_address'           => $address,
             'echeck'                    => $echeck     //change to 'echeck' => $echeck for an ACH transaction
-
-            // 'customer_token'            => isset($data['customer_token']) ? $data['customer_token'] : '',
-            // 'paymethod_token'           => isset($data['paymethod_token']) ? $data['paymethod_token'] : '',
-            // 'transaction_id'            => isset($data['transaction_id']) ? $data['transaction_id'] : '',
-            // 'original_transaction_id'   => isset($data['original_transaction_id']) ? $data['original_transaction_id'] : '',
-            // 'authorization_code'        => isset($data['authorization_code']) ? $data['authorization_code'] : ''
         ];
         return $params;
     }
@@ -233,9 +224,9 @@ class Forte {
             //$jsonData = json_encode($postData);
             try {
                 if(isset($data['cardID'])) {
-                    $res = $this->sendCurlRequest($this->TokenUrl, $postdata);
+                    $res = $this->sendCurlRequest($this->ForteUrl, $postdata);
                 }else {
-                    $res = $this->sendCurlRequest($this->SaveCardUrl, $postdata);
+                    $res = $this->sendCurlRequest($this->ForteUrl, $postdata);
                 }
             } catch (\Guzzle\Http\Exception\CurlException $e) {
                 log::info($e->getMessage());
@@ -285,7 +276,7 @@ class Forte {
             $postData = $this->getApiData($data);
             //$jsonData = json_encode($postData);
             try {
-                $res = $this->sendCurlRequest($this->SaveCardUrl, $postdata);
+                $res = $this->sendCurlRequest($this->ForteUrl, $postdata);
             } catch (\Guzzle\Http\Exception\CurlException $e) {
                 log::info($e->getMessage());
                 $response['status']         = 'fail';
@@ -357,18 +348,12 @@ class Forte {
 
     public function createForteProfile($data){
         try {
-            $address = ['first_name' => 'Bill', 'last_name' => 'Customer'];
-            //Credit Card Info
             $postdata = [
-                'action'                    => 'sale',  //sale, authorize, credit, void, capture, inquiry, verify, force, reverse
-                'billing_address'           => $address,
-                'echeck'                    => [
-                    "sec_code"                  => "",
-                    'account_type'              => $data['AccountHolderType'],
-                    'routing_number'            => $data['RoutingNumber'],
-                    'account_number'            => $data['AccountNumber'],
-                    'account_holder'            => $data['account_holder_name']
-                ]
+                "organization_id"   => "org_".$this->organizationID,
+                'account_number'    => $data['AccountNumber'],
+                'routing_number'    => $data['RoutingNumber'],
+                'account_type'      => $data['AccountHolderType'],
+                'label'             => $data['AccountHolderName']
             ];
             // $jsonData = json_encode($postdata);
             try {

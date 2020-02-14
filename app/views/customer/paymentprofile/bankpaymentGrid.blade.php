@@ -399,13 +399,15 @@
                     </div>
                     <div class="modal-body">
                         <div class="row">
+                            @if($title != 'Forte')
                             <div class="col-md-12">
                                 <div class="form-group">
                                     <label for="field-5" class="control-label">@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_MODAL_ADD_NEW_BANK_AC_FIELD_TITLE')</label>
                                     <input type="text" name="Title" class="form-control" id="field-5" placeholder="">
                                 </div>
                             </div>
-
+                            @endif
+                            
                             @if($title != 'GoCardLess')
                                 <div class="col-md-12">
                                     <div class="form-group">
@@ -440,7 +442,7 @@
                                 <div class="col-md-12">
                                     <div class="form-group">
                                         <label for="field-5" class="control-label">@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_MODAL_ADD_NEW_BANK_AC_FIELD_AC_HOLDER_TYPE')</label>
-                                        {{ Form::select('AccountHolderType',Payment::$account_holder_type,'', array("class"=>"select2 small")) }}
+                                        {{ Form::select('AccountHolderType',['savings'=>'Saving', 'Checking'=>'Checking'],'', array("class"=>"select2 small")) }}
                                     </div>
                                 </div>
                                 @endif
