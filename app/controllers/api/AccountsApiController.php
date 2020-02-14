@@ -1853,22 +1853,10 @@ class AccountsApiController extends ApiController {
 			}
 
 			if ($data['IsAffiliateAccount'] == 1) {
-				$rules = [];
-				$rules['AffiliateAccounts'] = 'required';
-				
-
-				$validator = Validator::make($data, $rules);
-				if ($validator->fails()) {
-					$errors = "";
-					foreach ($validator->messages()->all() as $error) {
-						$errors .= $error . "<br>";
+				if(isset($data['AffiliateAccounts']) && !empty($data['AffiliateAccounts'])){
+					if(!preg_match('/^[0-9,]+$/', $data['AffiliateAccounts'])){
+						return Response::json(array("ErrorMessage" => Codes::$Code1066[1]),Codes::$Code1066[0]);
 					}
-					return Response::json(["ErrorMessage" => $errors],Codes::$Code400[0]);
-				}
-
-
-				if(!preg_match('/^[0-9,]+$/', $data['AffiliateAccounts'])){
-					return Response::json(array("ErrorMessage" => Codes::$Code1066[1]),Codes::$Code1066[0]);
 				}
 			}
 
@@ -2083,7 +2071,7 @@ class AccountsApiController extends ApiController {
 				}
 			}
 
-			if($data['IsCustomer'] == 1 || $data['AffiliateAccounts'] == 1){
+			if($data['IsCustomer'] == 1 || $data['IsAffiliateAccount'] == 1){
 				$ResellerID = DynamicFieldsValue::where(['DynamicFieldsID' => 93 , 'FieldValue' => $data['PartnerID']])->first();
 				if(!$ResellerID){
 					return Response::json(["ErrorMessage" => Codes::$Code1059[1]],Codes::$Code1059[0]);
@@ -2330,15 +2318,30 @@ class AccountsApiController extends ApiController {
 
 
 				if ($data['Billing'] == 1) {
+					$billingCompanyID = isset($data['CompanyID']) ? $data['CompanyID'] : 1 ;
+					if($data['IsReseller'] == 1){
+						$billingCompanyID = $CompanyID;
+					}
 					$dataAccountBilling['BillingType'] = $BillingSetting['billing_type'];
 					if (isset($data['PaymentMethod'])) {
 						$BillingSetting['billing_class'] = $dataAccountBilling['BillingType']  == 1? "Prepaid":"Postpaid";
 						$BillingSetting['billing_class'] = strtolower($BillingSetting['billing_class'] .'-'. $data['PaymentMethod']);
-						Log::info("PaymentMethod " .  $BillingSetting['billing_class'] . ' ' . $CompanyID);
-						$BillingClassSql = BillingClass::where('Name', $BillingSetting['billing_class'])
-							->where('CompanyID', '=', $CompanyID);
-						//dd($dataAccountBilling['BillingType']);
+						Log::info("PaymentMethod " .  $BillingSetting['billing_class'] . ' ' . $billingCompanyID);
+						$BillingClassSql = DB::table('tblBillingClass as b1')->leftJoin('tblBillingClass as b2',function ($join) use($billingCompanyID){
+			                $join->on('b1.BillingClassID', '=', 'b2.ParentBillingClassID');
+			                $join->on('b1.IsGlobal','=', DB::raw('1'));
+			                $join->on('b2.CompanyID','=', DB::raw($billingCompanyID));
+		            	})->select(['b1.*'])
+		                ->where(function($q) use($billingCompanyID) {
+		                    $q->where('b1.CompanyID', $billingCompanyID)
+		                        ->orWhere('b1.IsGlobal', '1');
+		                })->where('b1.Name' , $BillingSetting['billing_class'])
+		                ->whereNull('b2.BillingClassID');
 						$BillingClass = $BillingClassSql->first();
+						$BillingClass = json_decode(json_encode($BillingClass), True);
+
+						// BillingClass::where('Name', $BillingSetting['billing_class'])
+						// 	->where('CompanyID', '=', $billingCompanyID);
 						if (!isset($BillingClass)) {
 							return Response::json(["ErrorMessage" => Codes::$Code1017[1]], Codes::$Code1017[0]);
 						}else {
@@ -2598,6 +2601,10 @@ class AccountsApiController extends ApiController {
 					AccountPaymentAutomation::create($AccountPaymentAutomation);
 				}
 				if ($data['Billing'] == 1) {
+					$billingCompanyID = $data['CompanyID'];
+					if($data['IsReseller'] == 1){
+						$billingCompanyID = $CompanyID;
+					}
 					$TaxRateCalculation = [];
 					$TaxRateID = [];
 					$TaxRateCalculation['CompanyID'] = $CompanyID;
@@ -2626,7 +2633,17 @@ class AccountsApiController extends ApiController {
 					$account->update($TaxRateID);
 
 					$dataAccountBilling['BillingType'] = $BillingSetting['billing_type'];
-					$BillingClassSql = BillingClass::where('BillingClassID', $BillingSetting['billing_class'])->where('CompanyID','=',$CompanyID);
+					$BillingClassSql = DB::table('tblBillingClass as b1')->leftJoin('tblBillingClass as b2',function ($join) use($CompanyID){
+			                $join->on('b1.BillingClassID', '=', 'b2.ParentBillingClassID');
+			                $join->on('b1.IsGlobal','=', DB::raw('1'));
+			                $join->on('b2.CompanyID','=', DB::raw($CompanyID));
+		            	})->select(['b1.*'])
+		                ->where(function($q) use($CompanyID) {
+		                    $q->where('b1.CompanyID', $CompanyID)
+		                        ->orWhere('b1.IsGlobal', '1');
+		                })->where('b1.BillingClassID' , $BillingSetting['billing_class'])
+		                ->whereNull('b2.BillingClassID');
+					// BillingClass::where('BillingClassID', $BillingSetting['billing_class'])->where('CompanyID','=',$billingCompanyID);
 					$BillingClass = $BillingClassSql->first();
 					if (!isset($BillingClass)) {
 						return Response::json(["ErrorMessage" => Codes::$Code1017[1]],Codes::$Code1017[0]);
@@ -2684,6 +2701,9 @@ class AccountsApiController extends ApiController {
 
 					AccountBilling::insertUpdateBilling($account->AccountID, $dataAccountBilling, 0);
 					AccountBilling::storeFirstTimeInvoicePeriod($account->AccountID, 0);
+					$AccountBillingType['AccountID']    = $account->AccountID;
+					$AccountBillingType['BillingType']  = $accountData['BillingTypeID'];
+					AccountBillingTypeLog::create($AccountBillingType);
 
 				}
 				if($data['IsReseller']==1) {
@@ -3437,6 +3457,7 @@ class AccountsApiController extends ApiController {
 					}
 				}
 			}
+
 			
 			if(isset($accountData['AutoTopup']) && $accountData['AutoTopup'] > 1){
 				return Response::json(["ErrorMessage" => 'Auto Top Up Value Should Be 0 Or 1'], Codes::$Code400[0]);
@@ -3761,6 +3782,131 @@ class AccountsApiController extends ApiController {
 					AccountPayout::create($CardDetail);
 				}
 			}
+
+			if (isset($accountData['BillingTypeID']) && !empty($accountData['BillingTypeID']) && !empty($accountInfo->PaymentMethod)) {
+			
+				$BillingCycleTypeID[0] = "daily";
+				$BillingCycleTypeID[1] = "fortnightly";
+				$BillingCycleTypeID[2] = "in_specific_days";
+				$BillingCycleTypeID[3] = "manual";
+				$BillingCycleTypeID[4] = "monthly";
+				$BillingCycleTypeID[5] = "monthly_anniversary";
+				$BillingCycleTypeID[6] = "quarterly";
+				$BillingCycleTypeID[7] = "weekly";
+				$BillingCycleTypeID[8] = "yearly";
+
+				$BillingSetting['billing_type'] = isset($accountData['BillingTypeID']) ? $accountData['BillingTypeID'] : '';
+				$BillingSetting['billing_class']= isset($accountData['BillingClassID']) ? $accountData['BillingClassID'] : '';
+				$BillingSetting['billing_cycle']= isset($accountData['BillingCycleTypeID']) ? $accountData['BillingCycleTypeID'] : '';
+				$BillingSetting['billing_cycle_options']= isset($accountData['BillingCycleValue']) ? $accountData['BillingCycleValue'] :'';
+				$BillingSetting['billing_start_date']=  isset($accountData['BillingStartDate']) ? $accountData['BillingStartDate'] : '';
+				$BillingSetting['NextInvoiceDate']= isset($accountData['NextInvoiceDate']) ? $accountData['NextInvoiceDate'] : '';
+
+
+				$dataAccountBilling['BillingType'] = $BillingSetting['billing_type'];
+				//dd('hi990');
+				$BillingSetting['billing_class'] = $dataAccountBilling['BillingType']  == 1? "Prepaid":"Postpaid";
+				$BillingSetting['billing_class'] = strtolower($BillingSetting['billing_class'] .'-'. $accountInfo->PaymentMethod);
+				Log::info("PaymentMethod " .  $BillingSetting['billing_class'] . ' ' . $CompanyID);
+				$BillingClassSql =  DB::table('tblBillingClass as b1')->leftJoin('tblBillingClass as b2',function ($join) use($CompanyID){
+	                $join->on('b1.BillingClassID', '=', 'b2.ParentBillingClassID');
+	                $join->on('b1.IsGlobal','=', DB::raw('1'));
+	                $join->on('b2.CompanyID','=', DB::raw($CompanyID));
+            	})->select(['b1.*'])
+                ->where(function($q) use($CompanyID) {
+                    $q->where('b1.CompanyID', $CompanyID)
+                        ->orWhere('b1.IsGlobal', '1');
+                })->where('b1.Name' , $BillingSetting['billing_class'])
+                ->whereNull('b2.BillingClassID');
+				$BillingClass = $BillingClassSql->first();
+				$BillingClass = json_decode(json_encode($BillingClass), True);
+				// dd($BillingClass);
+				if (!isset($BillingClass)) {
+					return Response::json(["ErrorMessage" => Codes::$Code1017[1]], Codes::$Code1017[0]);
+				}else {
+					$BillingSetting['billing_class'] = $BillingClass['BillingClassID'];
+				}
+
+				$dataAccountBilling['BillingType'] = $BillingSetting['billing_type'];
+			
+				$BillingClassSql = DB::table('tblBillingClass as b1')->leftJoin('tblBillingClass as b2',function ($join) use($CompanyID){
+	                $join->on('b1.BillingClassID', '=', 'b2.ParentBillingClassID');
+	                $join->on('b1.IsGlobal','=', DB::raw('1'));
+	                $join->on('b2.CompanyID','=', DB::raw($CompanyID));
+            	})->select(['b1.*'])
+                ->where(function($q) use($CompanyID) {
+                    $q->where('b1.CompanyID', $CompanyID)
+                        ->orWhere('b1.IsGlobal', '1');
+                })->where('b1.BillingClassID' , $BillingSetting['billing_class'])
+                ->whereNull('b2.BillingClassID');
+
+                //BillingClass::where('BillingClassID', $BillingSetting['billing_class'])->where('CompanyID','=',$CompanyID);
+				$BillingClass = $BillingClassSql->first();
+				if (!isset($BillingClass)) {
+					return Response::json(["ErrorMessage" => Codes::$Code1017[1]],Codes::$Code1017[0]);
+				}
+
+				$dataAccountBilling['BillingClassID'] = $BillingClass->BillingClassID;
+				$dataAccountBilling['BillingTimezone'] = $BillingClass->BillingTimezone;
+				$dataAccountBilling['SendInvoiceSetting'] = empty($BillingClass->SendInvoiceSetting) ? 'after_admin_review' : $BillingClass->SendInvoiceSetting;
+
+				//get from billing class id over
+				$dataAccountBilling['BillingCycleType'] = '';
+				$dataAccountBilling['BillingCycleValue'] = empty($BillingSetting['billing_cycle_options']) ? '' : $BillingSetting['billing_cycle_options'];
+				// set as first invoice generate
+				$BillingCycleValue = '';
+				if (isset($BillingSetting['billing_start_date']) && $BillingSetting['billing_start_date'] != '') {
+					$BillingStartDate = $BillingSetting['billing_start_date'];
+				} else {
+					$BillingStartDate = date('Y-m-d');
+				}
+
+				$NextBillingDate = next_billing_date($BillingCycleTypeID[4], $BillingCycleValue, strtotime($BillingStartDate));
+				$NextChargedDate = date('Y-m-d', strtotime('-1 day', strtotime($NextBillingDate)));
+
+				$dataAccountBilling['LastInvoiceDate'] = $BillingStartDate;
+				$dataAccountBilling['LastChargeDate'] = $BillingStartDate;
+				if (isset($BillingSetting['NextInvoiceDate']) && $BillingSetting['NextInvoiceDate'] != '') {
+					$NextBillingDate = $BillingSetting['NextInvoiceDate'];
+				}
+
+				$dataAccountBilling['NextInvoiceDate'] = $NextBillingDate;
+				$dataAccountBilling['NextChargeDate'] = $NextChargedDate;
+				$dataAccountBilling['BillingCycleType'] = $BillingCycleTypeID[4];
+
+				AccountBilling::insertUpdateBilling($accountInfo->AccountID, $dataAccountBilling, 0);
+				
+				$AccountBillingType['AccountID'] = $accountInfo->AccountID;
+				$AccountBillingType['BillingType'] = $accountData['BillingTypeID'];
+                $LogType = AccountBillingTypeLog::where('AccountID' ,$accountInfo->AccountID)->orderby('AccountBillingTypeLogID' , 'desc')->first();
+                if($LogType){
+                    if($LogType->BillingType != $accountData['BillingTypeID']){
+                         $AccountBillingType['OldBillingType'] = $LogType->BillingType;
+                        AccountBillingTypeLog::create($AccountBillingType);
+                    }
+                }else{
+                    AccountBillingTypeLog::create($AccountBillingType);
+                }
+
+				AccountBilling::storeFirstTimeInvoicePeriod($accountInfo->AccountID, 0);
+				
+			}else if(isset($accountData['BillingTypeID']) && !empty($accountData['BillingTypeID'])){
+				$AccountBillingType['AccountID'] = $accountInfo->AccountID;
+				$AccountBillingType['BillingType'] = $accountData['BillingTypeID'];
+				if(isset($accountData['BillingTypeID']) && !empty($accountData['BillingTypeID'])){
+					AccountBilling::where('AccountID' , $accountInfo->AccountID)->update(['BillingType' => $accountData['BillingTypeID']]);
+					$LogType = AccountBillingTypeLog::where('AccountID' ,$accountInfo->AccountID)->orderby('AccountBillingTypeLogID' , 'desc')->first();
+					if($LogType){
+						if($LogType->BillingType != $accountData['BillingTypeID']){
+							$AccountBillingType['OldBillingType'] = $LogType->BillingType;
+							AccountBillingTypeLog::create($AccountBillingType);
+						}
+					}else{
+						AccountBillingTypeLog::create($AccountBillingType);
+					}
+				}
+			}
+
 			$AccountSuccessMessage['AccountID'] = $accountInfo->AccountID;
 
 			DB::commit();
@@ -4408,9 +4554,9 @@ class AccountsApiController extends ApiController {
 			'OrderID'							=> 'required|numeric',
 			'NumberPurchased'					=> 'required|numeric',
 			'ProductID'							=> 'required|numeric',
-			'InboundTariffCategoryID'			=> 'required|numeric',
+			'InboundTariffCategoryID'			=> 'required|numeric|in:1,4,7',
 			'NumberContractID'					=> 'required|numeric',
-			'NewNumberContractID'				=> 'required|numeric|in:1,4,7',
+			'NewNumberContractID'				=> 'required|numeric',
 			'ContractStartDate'					=> 'required|date|date_format:Y-m-d|after:'.date('Y-m-d',strtotime("-1 days")),
 			'ContractEndDate'					=> 'required|date|date_format:Y-m-d|after:ContractStartDate',
 		);
@@ -5284,7 +5430,7 @@ class AccountsApiController extends ApiController {
 					return Response::json($response, Codes::$Code500[0]);
 				}
 			} else {
-				$number_error = 'Test Number '. $data['TestNumberPurchased'] . ' not found against '.$AccountFindType.': '.$data[$AccountFindType].', OrderID: '. $data['OrderID'];
+				$number_error = 'Test Number '. $data['TestNumberPurchased'] . ' not found against '.$AccountFindType.': '.json_encode($data[$AccountFindType]).', OrderID: '. $data['OrderID'];
 				return Response::json(["ErrorMessage" => $number_error],Codes::$Code400[0]);
 			}
 		} else {

@@ -72,7 +72,7 @@
 
 
                     <div class="meta clear pull-left tooltip-primary" data-original-title="Invoice OutStanding" title="" data-placement="right" data-toggle="tooltip">OS : </div><div class="pull-left"><div class="pull-left" data-toggle="popover3"  data-trigger="hover" data-original-title="" data-content="{{$popup_html}}">{{$Account_card->OutStandingAmount}}</div></div>
-                    <div class="meta clear pull-left tooltip-primary" data-original-title="Unbilled Amount" title="" data-placement="right" data-toggle="tooltip">UA : </div><div class="pull-left"><a href="#" class="unbilled_report" data-id="{{$account->AccountID}}">{{$Account_card->UnbilledAmount}}</a></div>
+                    <div class="meta clear pull-left tooltip-primary" data-original-title="Unbilled Amount" title="" data-placement="right" data-toggle="tooltip">UA : </div><div class="pull-left">{{$Account_card->UnbilledAmount}}</div>
                     <div class="meta clear pull-left tooltip-primary" data-original-title="Credit Limit" title="" data-placement="right" data-toggle="tooltip">CL : </div><div class="pull-left">{{$Account_card->PermanentCredit}}</div>
                   </div>
                   @endif </div>
