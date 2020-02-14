@@ -1106,6 +1106,7 @@
                     $forteDBData = IntegrationConfiguration::GetIntegrationDataBySlug(SiteIntegration::$ForteSlug);
                     $forteData   = isset($forteDBData->Settings)?json_decode($forteDBData->Settings):"";
                     ?>
+                    
                     <div class="subcategorycontent" id="subcategorycontent{{$forteDBData->Slug}}">
                         <div class="row">
                             <div class="col-md-12">
