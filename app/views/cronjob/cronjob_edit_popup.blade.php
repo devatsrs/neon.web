@@ -153,7 +153,7 @@
         if($(this).val() != ''){
             $("#CronJobCommandID_hide").val($(this).val());
             $.ajax({
-                url: baseurl + "/cronjobs/ajax_load_cron_dropdown",
+                url: baseurl + "/cronjobs/ajax_load_cron_dropdown/app",
                 type: 'POST',
                 success: function(response) {
                     $('#ajax_config_html').html(response);
