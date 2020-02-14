@@ -23,9 +23,6 @@ class Forte
     function __construct($CompanyID=0) 
     {
         $Forteobj = SiteIntegration::CheckIntegrationConfiguration(true,SiteIntegration::$ForteSlug,$CompanyID);
-        echo "<pre>";
-        print_r($Forteobj);
-        die();
         if ($Forteobj) {
             $this->SandboxUrl           =   "https://sandbox.forte.net/api/v3/";
             $this->LiveUrl              =   "https://api.forte.net/v3/";
