@@ -616,6 +616,7 @@ class IntegrationController extends \BaseController
 				if (count($forteDbData) > 0) { // update
 					$rules = array(
 						'organizationID' => 'required',
+						'locationID' => 'required',
 						'accessID' => 'required',
 						'apiSecureKey' => 'required'
 
@@ -624,6 +625,7 @@ class IntegrationController extends \BaseController
 					$rules = array(
 						'organizationID' => 'required',
 						'accessID' => 'required',
+						'locationID' => 'required',
 						'apiSecureKey' => 'required'
 					);
 				}
@@ -639,6 +641,7 @@ class IntegrationController extends \BaseController
 				
 				$forteData = array(
 					'organizationID'	=>	$data['organizationID'],
+					'locationID'	=>	$data['locationID'],
 					'accessID' 			=> $data['accessID'],
 					'apiSecureKey' 		=> $data['apiSecureKey'],
 					'forteDataLive' 	=> $data['forteDataLive']
