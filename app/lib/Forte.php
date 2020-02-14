@@ -365,6 +365,7 @@ class Forte
                 'account_type'      => $data['AccountHolderType'],
                 'label'             => $data['AccountHolderName']
             ];
+            
             // $jsonData = json_encode($postdata);
             try {
                 $res = $this->sendCurlRequest($this->ForteUrl,$postdata);
@@ -373,7 +374,9 @@ class Forte
                 $response['status']         = 'fail';
                 $response['error']          = $e->getMessage();
             }
-
+            echo "<pre>";
+            print_r($res);
+            die();
             if(!empty($res['status']) && $res['status']==1 && $res['responseData']['responseCode']==0) {
                 $response['status']         = 'success';
                 $response['cardID']         = $res['responseData']['cardID'];
@@ -446,8 +449,14 @@ class Forte
         curl_close($ch);
         $data = json_decode($response);
         echo "<pre>";
+        print_r($response);
+        echo "<br>";
+        echo "<pre>";
+        print_r($info);
+        echo "<br>";
+        echo "<pre>";
         print_r($data);
-        exit;
+        
         // Validate the response - the only successful code is 0
         $status = ((int)$data['http_code'] === 0) ? true : false;
 
