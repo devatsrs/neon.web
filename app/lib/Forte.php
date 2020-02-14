@@ -451,11 +451,11 @@ class Forte
         $status = ((int)$info['http_code'] === 0) ? true : false;
 
         // Make the response a little more useable
-        $res = [
-            'status' => $status,
-            'transactionID' => (isset($data['transactionID']) ? $data['transactionID'] : null),
-            'responseData' => $data
-            ];
+        // $res = [
+        //     'status' => $status,
+        //     'transactionID' => (isset($data['transactionID']) ? $data['transactionID'] : null),
+        //     'responseData' => $data
+        //     ];
             echo "<pre>";
             print_r($response);
             echo "<br>";
@@ -464,9 +464,7 @@ class Forte
             echo "<br>";
             echo "<pre>";
             print_r($data);
-            echo "<br>";
-            echo "<pre>";
-            print_r($res);
+           
             die();
         return $res;
     }
