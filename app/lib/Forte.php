@@ -24,8 +24,8 @@ class Forte
     {
         $Forteobj = SiteIntegration::CheckIntegrationConfiguration(true,SiteIntegration::$ForteSlug,$CompanyID);
         if ($Forteobj) {
-            $this->SandboxUrl           =   "https://sandbox.forte.net/api/v3/";
-            $this->LiveUrl              =   "https://api.forte.net/v3/";
+            $this->SandboxUrl           =   "https://sandbox.forte.net/api/v3";
+            $this->LiveUrl              =   "https://api.forte.net/v3";
             $this->organizationID 	    = 	$Forteobj->organizationID;
             $this->locationID 	        = 	$Forteobj->locationID;
             $this->ApiAccessID		    = 	$Forteobj->accessID;
@@ -437,7 +437,7 @@ class Forte
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($postData));   //disable this line for GETs and DELETEs
         curl_setopt($ch, CURLOPT_HTTPHEADER, array(
         'Authorization: Basic ' . $this->authToken,
-        'X-Forte-Auth-Organization-id: ' . $this->organizationID,
+        'X-Forte-Auth-Organization-id: org_' . $this->organizationID,
         'Accept:application/json',
         'Content-type: application/json'
         ));
