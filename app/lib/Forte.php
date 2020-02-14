@@ -11,6 +11,7 @@ class Forte
     public $request;
     var $status;
     var $organizationID;
+    var $locationID;
     var $ApiAccessID;
     var $apiSecureKey;
     var $hash;
@@ -23,9 +24,10 @@ class Forte
     {
         $Forteobj = SiteIntegration::CheckIntegrationConfiguration(true,SiteIntegration::$ForteSlug,$CompanyID);
         if ($Forteobj) {
-            $this->SandboxUrl           =   "https://sandbox.forte.net/api/v3";
-            $this->LiveUrl              =   "https://api.forte.net/v3";
+            $this->SandboxUrl           =   "https://sandbox.forte.net/api/v3/";
+            $this->LiveUrl              =   "https://api.forte.net/v3/";
             $this->organizationID 	    = 	$Forteobj->organizationID;
+            $this->locationID 	        = 	$Forteobj->locationID;
             $this->ApiAccessID		    = 	$Forteobj->accessID;
             $this->apiSecureKey		    = 	$Forteobj->apiSecureKey;
             $this->forteDataLive        =   $Forteobj->forteDataLive;
@@ -169,7 +171,8 @@ class Forte
         $Fortedata['AccountID']      = $data['AccountID'];
         $Fortedata['cardID']         = $ForteObj->cardID;
         $transactionResponse = [];
-        $transaction = $this->payInvoice($Fortedata);
+        $postUrl = $this->ForteUrl.'/organizations/org_'.$this->organizationID.'/locations/loc_'.$this->locationID.'/transactions';
+        $transaction = $this->payInvoice($postUrl, $Fortedata);
         if ($transaction['status']=='success') {
             $Status = TransactionLog::SUCCESS;
             $Notes  = 'Forte transaction_id ' . $transaction['transaction_id'];
@@ -207,7 +210,7 @@ class Forte
         return $transactionResponse;
     }
 
-    public function payInvoice($data)
+    public function payInvoice($postUrl, $data)
     {
         try {
             $Account            = Account::find($data['AccountID']);
@@ -230,11 +233,7 @@ class Forte
             //echo "<pre>";print_r($data);exit;
             //$jsonData = json_encode($postData);
             try {
-                if(isset($data['cardID'])) {
-                    $res = $this->sendCurlRequest($this->ForteUrl, $postdata);
-                }else {
-                    $res = $this->sendCurlRequest($this->ForteUrl, $postdata);
-                }
+                $res = $this->sendCurlRequest($postUrl, $postdata);
             } catch (\Guzzle\Http\Exception\CurlException $e) {
                 log::info($e->getMessage());
                 $response['status']         = 'fail';
@@ -281,10 +280,11 @@ class Forte
             
             //$data['expire_month'] = $data['ExpirationMonth'];
             //$data['expire_year']  = substr($data['ExpirationYear'], -2);
+            $postUrl = $this->ForteUrl.'/organizations/org_'.$this->organizationID.'/locations/loc_'.$this->locationID.'/transactions';
             $postData = $this->getApiData($data);
             //$jsonData = json_encode($postData);
             try {
-                $res = $this->sendCurlRequest($this->ForteUrl, $postdata);
+                $res = $this->sendCurlRequest($postUrl, $postdata);
             } catch (\Guzzle\Http\Exception\CurlException $e) {
                 log::info($e->getMessage());
                 $response['status']         = 'fail';
@@ -365,18 +365,16 @@ class Forte
                 'account_type'      => $data['AccountHolderType'],
                 'label'             => $data['AccountHolderName']
             ];
-            
+            $postUrl = $this->ForteUrl.'/organizations/org_'.$this->organizationID.'/bankaccounts';
             // $jsonData = json_encode($postdata);
             try {
-                $res = $this->sendCurlRequest($this->ForteUrl,$postdata);
+                $res = $this->sendCurlRequest($postUrl, $postdata);
             } catch (\Guzzle\Http\Exception\CurlException $e) {
                 log::info($e->getMessage());
                 $response['status']         = 'fail';
                 $response['error']          = $e->getMessage();
             }
-            echo "<pre>";
-            print_r($res);
-            die();
+            
             if(!empty($res['status']) && $res['status']==1 && $res['responseData']['responseCode']==0) {
                 $response['status']         = 'success';
                 $response['cardID']         = $res['responseData']['cardID'];
@@ -448,17 +446,9 @@ class Forte
         $info = curl_getinfo($ch);
         curl_close($ch);
         $data = json_decode($response);
-        echo "<pre>";
-        print_r($response);
-        echo "<br>";
-        echo "<pre>";
-        print_r($info);
-        echo "<br>";
-        echo "<pre>";
-        print_r($data);
         
         // Validate the response - the only successful code is 0
-        $status = ((int)$data['http_code'] === 0) ? true : false;
+        $status = ((int)$info['http_code'] === 0) ? true : false;
 
         // Make the response a little more useable
         $res = [
@@ -466,6 +456,18 @@ class Forte
             'transactionID' => (isset($data['transactionID']) ? $data['transactionID'] : null),
             'responseData' => $data
             ];
+            echo "<pre>";
+            print_r($response);
+            echo "<br>";
+            echo "<pre>";
+            print_r($info);
+            echo "<br>";
+            echo "<pre>";
+            print_r($data);
+            echo "<br>";
+            echo "<pre>";
+            print_r($res);
+            die();
         return $res;
     }
     public function paymentValidateWithProfile($data)
