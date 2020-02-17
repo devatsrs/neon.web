@@ -74,8 +74,7 @@ class Forte
             'account_number'            => $data['AccountNumber'],
             'account_holder'            => $data['AccountHolderName']
         ];
-        echo "<pre>";
-        print_r($echeck);
+     
         $card = [
             'card_type' => $data['cardType'],
             'name_on_card' => $data['AccountHolderName'],
@@ -231,7 +230,7 @@ class Forte
         $transaction = $this->payInvoice($postUrl, $Fortedata);
         echo "i am here payment with profile";
         print_r($transaction);
-        die();
+       
         if ($transaction['status']=='success') {
             $Status = TransactionLog::SUCCESS;
             $Notes  = 'Forte transaction_id ' . $transaction['transaction_id'];
@@ -273,10 +272,12 @@ class Forte
     {
         $profileOptions = [];
         try {
-            $Account            = Account::find($data['AccountID']);
+            $Account            = Account::join('tblAccountPaymentProfile','tblAccount.AccountID','=','tblAccountPaymentProfile.AccountID')->select('tblAccount.*', 'tblAccountPaymentProfile.Options')->where('tblAccount.AccountID', '=', $data['AccountID'])->first();
             $CurrencyID         = $Account->CurrencyId;
             $InvoiceCurrency    = Currency::getCurrency($CurrencyID);
             $accountname = empty($account->AccountName)?'':$account->AccountName;
+			$optionsData = $Account->Options;
+
             $data['customer_name'] = $accountname;
             if (is_int($data['GrandTotal'])) {
                 $data['amount'] = str_replace(',', '', str_replace('.', '', $data['GrandTotal']));
@@ -288,21 +289,26 @@ class Forte
                     $data['mount'] = number_format(round($data['GrandTotal']), 2, '.', ''); // for testing
                 }
             }
-            $profileOptions = AccountPaymentProfile::find(52);
-            echo "i am here";
-            print_r($profileOptions);
-            echo "here in else";
-            die();
+			$profileOptions = json_decode($optionsData, true);
+			$data['AccountHolderType'] = $profileOptions['AccountHolderType'];
+			$data['RoutingNumber'] = $profileOptions['RoutingNumber'];
+			$data['AccountNumber'] = $profileOptions['AccountNumber'];
+			$data['AccountHolderName'] = $profileOptions['AccountHolderName'];
+           
             $postData = $this->getApiData($data);
+			
             try {
                 $res = $this->sendCurlRequest($postUrl, $postdata);
+				echo "<pre> payInvoice res";
+				print_r($res);
+				
             } catch (\Guzzle\Http\Exception\CurlException $e) {
                 log::info($e->getMessage());
                 $response['status']         = 'fail';
                 $response['error']          = $e->getMessage();
             }
            
-            if(!empty($res['status']) && $res['status']==1 && $res['responseData']['responseCode']==0){
+            if(!empty($res['status']) && $res['status']==1){
                 $response['status']         = 'success';
                 $response['note']           = 'Forte transaction_id '.$res['transactionID'];
                 $response['transaction_id'] = $res['transactionID'];
