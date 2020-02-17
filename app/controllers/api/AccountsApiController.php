@@ -3883,6 +3883,7 @@ class AccountsApiController extends ApiController {
                     if($LogType->BillingType != $accountData['BillingTypeID']){
                          $AccountBillingType['OldBillingType'] = $LogType->BillingType;
                         AccountBillingTypeLog::create($AccountBillingType);
+						AccountBilling::changeBillingPeriod($accountInfo->AccountID,$accountData['BillingTypeID']);
                     }
                 }else{
                     AccountBillingTypeLog::create($AccountBillingType);
@@ -3900,6 +3901,7 @@ class AccountsApiController extends ApiController {
 						if($LogType->BillingType != $accountData['BillingTypeID']){
 							$AccountBillingType['OldBillingType'] = $LogType->BillingType;
 							AccountBillingTypeLog::create($AccountBillingType);
+							AccountBilling::changeBillingPeriod($accountInfo->AccountID,$accountData['BillingTypeID']);
 						}
 					}else{
 						AccountBillingTypeLog::create($AccountBillingType);

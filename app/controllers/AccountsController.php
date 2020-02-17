@@ -1518,6 +1518,7 @@ class AccountsController extends \BaseController {
                     if($LogType->BillingType != $AccountBillingType['BillingType']){
                          $AccountBillingType['OldBillingType'] = $LogType->BillingType;
                         AccountBillingTypeLog::create($AccountBillingType);
+                        AccountBilling::changeBillingPeriod($id,$data['BillingType']);
                     }
                 }else{
                     AccountBillingTypeLog::create($AccountBillingType);
