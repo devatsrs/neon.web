@@ -271,6 +271,7 @@ class Forte
 
     public function payInvoice($postUrl, $data)
     {
+        $profileOptions = [];
         try {
             $Account            = Account::find($data['AccountID']);
             $CurrencyID         = $Account->CurrencyId;
@@ -287,8 +288,9 @@ class Forte
                     $data['mount'] = number_format(round($data['GrandTotal']), 2, '.', ''); // for testing
                 }
             }
+            $profileOptions = AccountPaymentProfile::find(52);
             echo "i am here";
-            print_r($data);
+            print_r($profileOptions);
             echo "here in else";
             die();
             $postData = $this->getApiData($data);
