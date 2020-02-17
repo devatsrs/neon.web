@@ -275,7 +275,7 @@ class Forte
             $Account            = Account::join('tblAccountPaymentProfile','tblAccount.AccountID','=','tblAccountPaymentProfile.AccountID')->select('tblAccount.*', 'tblAccountPaymentProfile.Options')->where('tblAccount.AccountID', '=', $data['AccountID'])->first();
             $CurrencyID         = $Account->CurrencyId;
             $InvoiceCurrency    = Currency::getCurrency($CurrencyID);
-            $accountname = empty($account->AccountName)?'':$account->AccountName;
+            $accountname = !empty($account->AccountName)?$account->AccountName:'';
 			$optionsData = $Account->Options;
 
             $data['customer_name'] = $accountname;
@@ -295,7 +295,7 @@ class Forte
 			$data['AccountNumber'] = $profileOptions['AccountNumber'];
             $data['AccountHolderName'] = $profileOptions['AccountHolderName'];
             
-            echo "<pre>";
+            echo "<pre>".$account->AccountName;
             print_r($data);
             die('i am heresssss');
             $postData = $this->getApiData($data);
