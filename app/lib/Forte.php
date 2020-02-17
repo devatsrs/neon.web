@@ -79,7 +79,7 @@ class Forte
         $card = [
             'card_type' => $data['cardType'],
             'name_on_card' => $data['AccountHolderName'],
-            'account_number' => $data['accountNumber'],
+            'account_number' => $data['AccountNumber'],
             'expire_month' => $data['expireMonth'],
             'expire_year' => $data['expireYear'],
             'card_verification_value' => $data['CVVNumber']
@@ -93,13 +93,13 @@ class Forte
         ];
         if($data['action'] == 'verify') {
             $physicalAddress = [
-                'street_line1'=> $data['address1'],
-                'street_line2'=> $data['address2'],
-                'locality'=> $data['locality'],
-                'region'=> $data['region'],
-                'postal_code'=> $data['postal_code']
+                'street_line1'=> $data['Address1'],
+                'street_line2'=> $data['Address2'],
+                'locality'=> $data['City'],
+                'region'=> $data['State'],
+                'postal_code'=> $data['PostCode']
             ];
-            $address['phone'] = $data['phoneNumber'];
+            $address['phone'] = $data['Mobile'];
             $address['physicalAddress'] =  $physicalAddress;
 
             $params = [
@@ -231,7 +231,6 @@ class Forte
         $transaction = $this->payInvoice($postUrl, $Fortedata);
         echo "i am here payment with profile";
         print_r($transaction);
-
         die();
         if ($transaction['status']=='success') {
             $Status = TransactionLog::SUCCESS;
@@ -293,7 +292,6 @@ class Forte
             echo "here in else";
             die();
             $postData = $this->getApiData($data);
-            
             try {
                 $res = $this->sendCurlRequest($postUrl, $postdata);
             } catch (\Guzzle\Http\Exception\CurlException $e) {
@@ -391,10 +389,10 @@ class Forte
 		
         if ($ForteResponse["status"] == "success") {
             $option = [
-                'bankaccount_token' => $ForteResponse['response']['responseData']->bankaccount_token,
-				'organization_id' => $ForteResponse['response']['responseData']->organization_id,
-				'routing_number' => $ForteResponse['response']['responseData']->routing_number,
-				'account_type' => $ForteResponse['response']['responseData']->account_type,
+                'AccountHolderType'                 => $data['AccountHolderType'],
+                'RoutingNumber'                     => $data['RoutingNumber'],
+                'AccountNumber'                     => $data['AccountNumber'],
+                'AccountHolderName'                 => $data['AccountHolderName']
             ];
             $CardDetail = [
                 'Options' => json_encode($option),
