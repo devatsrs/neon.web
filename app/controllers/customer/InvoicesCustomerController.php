@@ -150,6 +150,9 @@ class InvoicesCustomerController extends \BaseController {
 
     public function pay_now($id){
         $data = Input::all();
+        echo "<pre>";
+        print_r($data);
+        die();
         //$id = User::get_userID();
         $account = Account::find($id);
         $CompanyID = $account->CompanyId;
