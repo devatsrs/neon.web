@@ -45,7 +45,7 @@ class Forte
     public function getApiData($data) 
     {
         //Address Info
-        $AccountName    = $address = $physicalAddress = [];
+        $AccountName    = $address = $physicalAddress = $params = [];
         $firstName      = '';
         $lastName       = '';
         $AccountName    = explode(" ",$data['customer_name']);
@@ -75,15 +75,6 @@ class Forte
             'account_holder'            => $data['AccountHolderName']
         ];
      
-        // $card = [
-        //     'card_type' => $data['cardType'],
-        //     'name_on_card' => $data['AccountHolderName'],
-        //     'account_number' => $data['AccountNumber'],
-        //     'expire_month' => $data['expireMonth'],
-        //     'expire_year' => $data['expireYear'],
-        //     'card_verification_value' => $data['CVVNumber']
-        // ];
-        //Credit Card Info
         $params = [
             'action'                    => $data['action'],  //sale, authorize, credit, void, capture, inquiry, verify, force, reverse
             'authorization_amount'      => $data['amount'],
@@ -163,56 +154,7 @@ class Forte
 		$ValidationResponse['status'] = 'success';
 		return $ValidationResponse;
 	}
-    public function verifyBankAccount($data)
-    {
-		try {
-            $Account            = Account::find($data['AccountID']);
-            $CurrencyID         = $Account->CurrencyId;
-            $InvoiceCurrency    = Currency::getCurrency($CurrencyID);
-            $accountname = empty($account->AccountName)?'':$account->AccountName;
-            $data['customer_name'] = $accountname;
-           
-            if (is_int($data['GrandTotal'])) {
-                $data['amount'] = str_replace(',', '', str_replace('.', '', $data['GrandTotal']));
-                $data['amount'] = number_format((float)$Amount, 2, '.', '');
-            } else {
-                if($this->forteDataLive == 1) {
-                    $data['amount'] = $data['GrandTotal']; // for live
-                }else {
-                    $data['mount'] = number_format(round($data['GrandTotal']), 2, '.', ''); // for testing
-                }
-            }
-            $data['action'] = 'verify';
-            $postData = $this->getApiData($data);
-            $postUrl = $this->ForteUrl.'/organizations/org_'.$this->organizationID.'/locations/loc_'.$this->locationID.'/transactions/verify';
-            try {
-                $res = $this->sendCurlRequest($postUrl, $postdata);
-            } catch (\Guzzle\Http\Exception\CurlException $e) {
-                log::info($e->getMessage());
-                $response['status']         = 'fail';
-                $response['error']          = $e->getMessage();
-            }
-
-            if(!empty($res['status']) && $res['status']==1){
-                $response['status']         = 'success';
-                $response['note']           = 'Forte transaction_id '.$res['transactionID'];
-                $response['transaction_id'] = $res['transactionID'];
-                $response['amount']         = $res['responseData']['transactionAmount'];
-                $response['response']       = $res;
-            }else {
-                $response['status']         = 'fail';
-                $response['transaction_id'] = !empty($res['transactionID']) ? $res['transactionID'] : "";
-                $response['error']          = $res['responseData']['responseMessage'];
-                $response['response']       = $res;
-                Log::info(print_r($res,true));
-            }
-        } catch (Exception $e) {
-            log::info($e->getMessage());
-            $response['status']             = 'fail';
-            $response['error']              = $e->getMessage();
-        }
-        return $response;
-	}
+ 
     public function paymentWithProfile($data)
     {
         $transactiondata = $Fortedata = $transactionResponse = [];
@@ -228,8 +170,6 @@ class Forte
         
         $postUrl = $this->ForteUrl.'/organizations/org_'.$this->organizationID.'/locations/loc_'.$this->locationID.'/transactions';
         $transaction = $this->payInvoice($postUrl, $Fortedata);
-        echo "i am here payment with profile";
-        print_r($transaction);
        
         if ($transaction['status']=='success') {
             $Status = TransactionLog::SUCCESS;
@@ -270,15 +210,12 @@ class Forte
 
     public function payInvoice($postUrl, $data)
     {
-        $profileOptions = [];
+        $profileOptions = $postData = [];
         try {
             $Account            = Account::join('tblAccountPaymentProfile','tblAccount.AccountID','=','tblAccountPaymentProfile.AccountID')->select('tblAccount.*', 'tblAccountPaymentProfile.Options')->where('tblAccount.AccountID', '=', $data['AccountID'])->first();
             $CurrencyID         = $Account->CurrencyId;
-            echo "<pre>";
-            print_r($account->AccountName);
-            die('i am heresssss');
+			$accountname         = $Account->AccountName;
             $InvoiceCurrency    = Currency::getCurrency($CurrencyID);
-            $accountname = !empty($account->AccountName)?$account->AccountName:'';
 			$optionsData = $Account->Options;
 
             $data['customer_name'] = $accountname;
@@ -298,16 +235,11 @@ class Forte
 			$data['AccountNumber'] = $profileOptions['AccountNumber'];
             $data['AccountHolderName'] = $profileOptions['AccountHolderName'];
             
-            echo "<pre>".$account->AccountName;
-            print_r($Account);
-            die('i am heresssss');
+           
             $postData = $this->getApiData($data);
-			
+
             try {
-                $res = $this->sendCurlRequest($postUrl, $postdata);
-				echo "<pre> payInvoice res";
-				print_r($res);
-				
+				$res = $this->sendCurlRequest($postUrl, $postData);
             } catch (\Guzzle\Http\Exception\CurlException $e) {
                 log::info($e->getMessage());
                 $response['status']         = 'fail';
@@ -316,14 +248,14 @@ class Forte
            
             if(!empty($res['status']) && $res['status']==1){
                 $response['status']         = 'success';
-                $response['note']           = 'Forte transaction_id '.$res['transactionID'];
-                $response['transaction_id'] = $res['transactionID'];
-                $response['amount']         = $res['responseData']['transactionAmount'];
+                $response['note']           = 'Forte transaction_id '.$res['responseData']->transaction_id;
+                $response['transaction_id'] = $res['responseData']->transaction_id;
+                $response['amount']         = $res['responseData']->authorization_amount;
                 $response['response']       = $res;
             }else {
                 $response['status']         = 'fail';
-                $response['transaction_id'] = !empty($res['transactionID']) ? $res['transactionID'] : "";
-                $response['error']          = $res['responseData']['responseMessage'];
+                $response['transaction_id'] = !empty($res['responseData']->transaction_id) ? $res['responseData']->transaction_id : "";
+                $response['error']          = $res['response'];
                 $response['response']       = $res;
                 Log::info(print_r($res,true));
             }
@@ -335,54 +267,7 @@ class Forte
         return $response;
     }
 
-    public function payInvoiceWithApi($data)
-    {
-        try {
-            $data['invoiceCurrency']    = Currency::getCurrency($data['CurrencyId']);
-            if (is_int($data['GrandTotal'])) {
-                $data['amount'] = str_replace(',', '', str_replace('.', '', $data['GrandTotal']));
-                $data['amount'] = number_format((float)$data['amount'], 2, '.', '');
-            } else {
-                if ($this->forteDataLive == 1) {
-                    $data['amount'] = $data['GrandTotal']; // for live
-                } else {
-                    $data['amount'] = number_format(round($data['GrandTotal']), 2, '.', ''); // for testing
-                }
-            }
-
-            $data['expire_month'] = $data['ExpirationMonth'];
-            $data['expire_year']  = substr($data['ExpirationYear'], -2);
-            $postUrl = $this->ForteUrl.'/organizations/org_'.$this->organizationID.'/locations/loc_'.$this->locationID.'/transactions';
-            $postData = $this->getApiData($data);
-         
-            try {
-                $res = $this->sendCurlRequest($postUrl, $postdata);
-            } catch (\Guzzle\Http\Exception\CurlException $e) {
-                log::info($e->getMessage());
-                $response['status']         = 'fail';
-                $response['error']          = $e->getMessage();
-            }
-
-            if (!empty($res['status']) && $res['status']==1) {
-                $response['status']         = 'success';
-                $response['note']           = 'Forte transaction_id '.$res['transactionID'];
-                $response['transaction_id'] = $res['transactionID'];
-                $response['amount']         = $res['responseData']['transactionAmount'];
-                $response['response']       = $res;
-            } else {
-                $response['status']         = 'fail';
-                $response['transaction_id'] = !empty($res['transactionID']) ? $res['transactionID'] : "";
-                $response['error']          = $res['responseData']['responseMessage'];
-                $response['response']       = $res;
-                Log::info(print_r($res,true));
-            }
-        } catch (Exception $e) {
-            log::info($e->getMessage());
-            $response['status']             = 'fail';
-            $response['error']              = $e->getMessage();
-        }
-        return $response;
-    }
+    
 
     public function createProfile($data) 
     {
@@ -429,11 +314,8 @@ class Forte
 
     public function createForteProfile($data)
     {
-        echo "<pre> createForteProfile";
-        print_r($data);
-        die();
         try {
-            $postdata = [
+            $postData = [
                 "organization_id"   => "org_".$this->organizationID,
                 'account_number'    => $data['AccountNumber'],
                 'routing_number'    => $data['RoutingNumber'],
@@ -442,7 +324,7 @@ class Forte
             ];
             $postUrl = $this->ForteUrl.'/organizations/org_'.$this->organizationID.'/bankaccounts';
             try {
-                $res = $this->sendCurlRequest($postUrl, $postdata);
+                $res = $this->sendCurlRequest($postUrl, $postData);
             } catch (\Guzzle\Http\Exception\CurlException $e) {
                 log::info($e->getMessage());
                 $response['status']         = 'fail';
@@ -464,40 +346,6 @@ class Forte
         }
         return $response;
     }
-    public function doVerify($data)
-    {
-        $stripedata = [];
-		if (empty($data['MicroDeposit1']) || empty($data['MicroDeposit2'])) {
-			return Response::json(array("status" => "failed", "message" => cus_lang("PAYMENT_MSG_BOTH_MICRODEPOSIT_REQUIRED")));
-		}
-		$cardID = $data['cardID'];
-		$AccountPaymentProfile = AccountPaymentProfile::find($cardID);
-		$options = json_decode($AccountPaymentProfile->Options,true);
-		$CustomerProfileID = $options['CustomerProfileID'];
-		$BankAccountID = $options['BankAccountID'];
-		
-		$stripedata['CustomerProfileID'] = $CustomerProfileID;
-		$stripedata['BankAccountID'] = $BankAccountID;
-		$stripedata['MicroDeposit1'] = $data['MicroDeposit1'];
-		$stripedata['MicroDeposit2'] = $data['MicroDeposit2'];
-
-		$StripeResponse = $this->verifyBankAccount($stripedata);
-		if ($StripeResponse['status']== 'Success') {
-			if ($StripeResponse['VerifyStatus']== 'verified') {
-				$option = [
-					'CustomerProfileID' => $CustomerProfileID,
-					'BankAccountID' => $BankAccountID,
-					'VerifyStatus' => $StripeResponse['VerifyStatus']
-                ];
-				$AccountPaymentProfile->update(array('Options' => json_encode($option)));
-				return Response::json(array("status" => "success", "message" => cus_lang("PAYMENT_STRIPEACH_MSG_VERIFICATION_STATUS_IS").$StripeResponse['VerifyStatus']));
-			} else {
-				return Response::json(array("status" => "failed", "message" => cus_lang("PAYMENT_STRIPEACH_MSG_VERIFICATION_STATUS_IS").$StripeResponse['VerifyStatus']));
-			}
-		} else {
-			return Response::json(array("status" => "failed", "message" => $StripeResponse['error']));
-		}
-	}
     public function sendCurlRequest($url,$postData) 
     {
         $httpHeader = [
@@ -506,8 +354,7 @@ class Forte
             'Accept:application/json',
             'Content-type: application/json'
         ];
-        echo $url;
-        die();
+        
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_VERBOSE, 1);
@@ -557,5 +404,104 @@ class Forte
         $response['status']         = 'success';
         return $response;
     }
+
+    public function payInvoiceWithApi($data)
+    {
+        try {
+            $data['invoiceCurrency']    = Currency::getCurrency($data['CurrencyId']);
+            if (is_int($data['GrandTotal'])) {
+                $data['amount'] = str_replace(',', '', str_replace('.', '', $data['GrandTotal']));
+                $data['amount'] = number_format((float)$data['amount'], 2, '.', '');
+            } else {
+                if ($this->forteDataLive == 1) {
+                    $data['amount'] = $data['GrandTotal']; // for live
+                } else {
+                    $data['amount'] = number_format(round($data['GrandTotal']), 2, '.', ''); // for testing
+                }
+            }
+
+            $data['expire_month'] = $data['ExpirationMonth'];
+            $data['expire_year']  = substr($data['ExpirationYear'], -2);
+            $postUrl = $this->ForteUrl.'/organizations/org_'.$this->organizationID.'/locations/loc_'.$this->locationID.'/transactions';
+            $postData = $this->getApiData($data);
+         
+            try {
+                $res = $this->sendCurlRequest($postUrl, $postData);
+            } catch (\Guzzle\Http\Exception\CurlException $e) {
+                log::info($e->getMessage());
+                $response['status']         = 'fail';
+                $response['error']          = $e->getMessage();
+            }
+
+            if (!empty($res['status']) && $res['status']==1) {
+                $response['status']         = 'success';
+                $response['note']           = 'Forte transaction_id '.$res['transactionID'];
+                $response['transaction_id'] = $res['transactionID'];
+                $response['amount']         = $res['responseData']['transactionAmount'];
+                $response['response']       = $res;
+            } else {
+                $response['status']         = 'fail';
+                $response['transaction_id'] = !empty($res['transactionID']) ? $res['transactionID'] : "";
+                $response['error']          = $res['responseData']['responseMessage'];
+                $response['response']       = $res;
+                Log::info(print_r($res,true));
+            }
+        } catch (Exception $e) {
+            log::info($e->getMessage());
+            $response['status']             = 'fail';
+            $response['error']              = $e->getMessage();
+        }
+        return $response;
+    }
+    public function verifyBankAccount($data)
+    {
+		try {
+            $Account            = Account::find($data['AccountID']);
+            $CurrencyID         = $Account->CurrencyId;
+            $InvoiceCurrency    = Currency::getCurrency($CurrencyID);
+            $accountname = empty($account->AccountName)?'':$account->AccountName;
+            $data['customer_name'] = $accountname;
+           
+            if (is_int($data['GrandTotal'])) {
+                $data['amount'] = str_replace(',', '', str_replace('.', '', $data['GrandTotal']));
+                $data['amount'] = number_format((float)$Amount, 2, '.', '');
+            } else {
+                if($this->forteDataLive == 1) {
+                    $data['amount'] = $data['GrandTotal']; // for live
+                }else {
+                    $data['mount'] = number_format(round($data['GrandTotal']), 2, '.', ''); // for testing
+                }
+            }
+            $data['action'] = 'verify';
+            $postData = $this->getApiData($data);
+            $postUrl = $this->ForteUrl.'/organizations/org_'.$this->organizationID.'/locations/loc_'.$this->locationID.'/transactions/verify';
+            try {
+                $res = $this->sendCurlRequest($postUrl, $postData);
+            } catch (\Guzzle\Http\Exception\CurlException $e) {
+                log::info($e->getMessage());
+                $response['status']         = 'fail';
+                $response['error']          = $e->getMessage();
+            }
+
+            if(!empty($res['status']) && $res['status']==1){
+                $response['status']         = 'success';
+                $response['note']           = 'Forte transaction_id '.$res['transactionID'];
+                $response['transaction_id'] = $res['transactionID'];
+                $response['amount']         = $res['responseData']['transactionAmount'];
+                $response['response']       = $res;
+            }else {
+                $response['status']         = 'fail';
+                $response['transaction_id'] = !empty($res['transactionID']) ? $res['transactionID'] : "";
+                $response['error']          = $res['responseData']['responseMessage'];
+                $response['response']       = $res;
+                Log::info(print_r($res,true));
+            }
+        } catch (Exception $e) {
+            log::info($e->getMessage());
+            $response['status']             = 'fail';
+            $response['error']              = $e->getMessage();
+        }
+        return $response;
+	}
    
 }
