@@ -214,6 +214,9 @@ class Forte
 	}
     public function paymentWithProfile($data)
     {
+        echo "<pre> paymentWithProfile";
+        print_r($data);
+        die();
         $account = Account::find($data['AccountID']);
         $CustomerProfile                = AccountPaymentProfile::find($data['AccountPaymentProfileID']);
         $ForteObj                       = json_decode($CustomerProfile->Options);
@@ -227,9 +230,7 @@ class Forte
         
         $postUrl = $this->ForteUrl.'/organizations/org_'.$this->organizationID.'/locations/loc_'.$this->locationID.'/transactions';
         $transaction = $this->payInvoice($postUrl, $Fortedata);
-        echo "<pre> i am hwre";
-        print_r($Fortedata);
-        die();
+        
         if ($transaction['status']=='success') {
             $Status = TransactionLog::SUCCESS;
             $Notes  = 'Forte transaction_id ' . $transaction['transaction_id'];
@@ -287,15 +288,9 @@ class Forte
                 }
             }
             $postData = $this->getApiData($data);
-            echo "<pre> postData ....";
-            print_r($postData);
-            //echo "<pre>";print_r($data);exit;
-            //$jsonData = json_encode($postData);
+          
             try {
                 $res = $this->sendCurlRequest($postUrl, $postdata);
-                echo "<pre> res....";
-                print_r($res);
-                //die();
             } catch (\Guzzle\Http\Exception\CurlException $e) {
                 log::info($e->getMessage());
                 $response['status']         = 'fail';
@@ -327,7 +322,6 @@ class Forte
     {
         try {
             $data['invoiceCurrency']    = Currency::getCurrency($data['CurrencyId']);
-            //$data['GrandTotal'] = 70;
             if (is_int($data['GrandTotal'])) {
                 $data['amount'] = str_replace(',', '', str_replace('.', '', $data['GrandTotal']));
                 $data['amount'] = number_format((float)$data['amount'], 2, '.', '');
@@ -339,7 +333,6 @@ class Forte
                 }
             }
 
-            
             $data['expire_month'] = $data['ExpirationMonth'];
             $data['expire_year']  = substr($data['ExpirationYear'], -2);
             $postUrl = $this->ForteUrl.'/organizations/org_'.$this->organizationID.'/locations/loc_'.$this->locationID.'/transactions';
@@ -347,9 +340,6 @@ class Forte
          
             try {
                 $res = $this->sendCurlRequest($postUrl, $postdata);
-				echo "<pre>";
-				print_r($res);
-				die();
             } catch (\Guzzle\Http\Exception\CurlException $e) {
                 log::info($e->getMessage());
                 $response['status']         = 'fail';
@@ -530,9 +520,6 @@ class Forte
 		$Response = array();
 		$Response['status']= 'success';
         $account = Account::find($data['AccountID']);
-        echo "<pre> i am here in paymentwith profile";
-        print_r($account);
-        die();
 		$CurrencyCode = Currency::getCurrency($account->CurrencyId);
 		if (empty($CurrencyCode)) {
 			$Response['status']='failed';
