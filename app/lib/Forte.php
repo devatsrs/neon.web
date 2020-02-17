@@ -427,6 +427,15 @@ class Forte
 	}
     public function sendCurlRequest($url,$postData) 
     {
+        $httpHeader = [
+            'Authorization: Basic ' . $this->authToken,
+            'X-Forte-Auth-Organization-id: org_' . $this->organizationID,
+            'Accept:application/json',
+            'Content-type: application/json'
+        ];
+        echo "<pre>";
+        print_r($httpHeader);
+        die();
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_VERBOSE, 1);
@@ -435,12 +444,7 @@ class Forte
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');  //POST, GET, PUT or DELETE (Create, Read, Update or Delete)
 
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($postData));   //disable this line for GETs and DELETEs
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-        'Authorization: Basic ' . $this->authToken,
-        'X-Forte-Auth-Organization-id: org_' . $this->organizationID,
-        'Accept:application/json',
-        'Content-type: application/json'
-        ));
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $httpHeader);
 
         $response = curl_exec($ch);
         $info = curl_getinfo($ch);
