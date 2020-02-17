@@ -227,7 +227,10 @@ class Forte
         
         $postUrl = $this->ForteUrl.'/organizations/org_'.$this->organizationID.'/locations/loc_'.$this->locationID.'/transactions';
         $transaction = $this->payInvoice($postUrl, $Fortedata);
-        
+        echo "i am here";
+        print_r($transaction);
+
+        die();
         if ($transaction['status']=='success') {
             $Status = TransactionLog::SUCCESS;
             $Notes  = 'Forte transaction_id ' . $transaction['transaction_id'];
@@ -483,7 +486,8 @@ class Forte
             'Accept:application/json',
             'Content-type: application/json'
         ];
-
+        echo $url;
+        die();
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_VERBOSE, 1);
