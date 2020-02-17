@@ -75,14 +75,14 @@ class Forte
             'account_holder'            => $data['AccountHolderName']
         ];
      
-        $card = [
-            'card_type' => $data['cardType'],
-            'name_on_card' => $data['AccountHolderName'],
-            'account_number' => $data['AccountNumber'],
-            'expire_month' => $data['expireMonth'],
-            'expire_year' => $data['expireYear'],
-            'card_verification_value' => $data['CVVNumber']
-        ];
+        // $card = [
+        //     'card_type' => $data['cardType'],
+        //     'name_on_card' => $data['AccountHolderName'],
+        //     'account_number' => $data['AccountNumber'],
+        //     'expire_month' => $data['expireMonth'],
+        //     'expire_year' => $data['expireYear'],
+        //     'card_verification_value' => $data['CVVNumber']
+        // ];
         //Credit Card Info
         $params = [
             'action'                    => $data['action'],  //sale, authorize, credit, void, capture, inquiry, verify, force, reverse
@@ -105,7 +105,7 @@ class Forte
                 'action'                    => $data['action'],  //sale, authorize, credit, void, capture, inquiry, verify, force, reverse
                 'authorization_amount'      => $data['amount'],
                 'billing_address'           => $address,
-                'card'                    => $card     //change to 'echeck' => $echeck for an ACH transaction
+                'card'                    => $echeck     //change to 'echeck' => $echeck for an ACH transaction
             ];
          }else {
             $params = [
