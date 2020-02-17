@@ -228,7 +228,7 @@ class Forte
         $postUrl = $this->ForteUrl.'/organizations/org_'.$this->organizationID.'/locations/loc_'.$this->locationID.'/transactions';
         $transaction = $this->payInvoice($postUrl, $Fortedata);
         echo "<pre> i am hwre";
-        print_r($transaction);
+        print_r($Fortedata);
         die();
         if ($transaction['status']=='success') {
             $Status = TransactionLog::SUCCESS;
