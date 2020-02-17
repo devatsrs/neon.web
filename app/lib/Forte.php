@@ -227,7 +227,7 @@ class Forte
         
         $postUrl = $this->ForteUrl.'/organizations/org_'.$this->organizationID.'/locations/loc_'.$this->locationID.'/transactions';
         $transaction = $this->payInvoice($postUrl, $Fortedata);
-        echo "i am here";
+        echo "i am here payment with profile";
         print_r($transaction);
 
         die();
@@ -276,7 +276,6 @@ class Forte
             $InvoiceCurrency    = Currency::getCurrency($CurrencyID);
             $accountname = empty($account->AccountName)?'':$account->AccountName;
             $data['customer_name'] = $accountname;
-            //$data['GrandTotal'] = 70;
             if (is_int($data['GrandTotal'])) {
                 $data['amount'] = str_replace(',', '', str_replace('.', '', $data['GrandTotal']));
                 $data['amount'] = number_format((float)$Amount, 2, '.', '');
@@ -288,7 +287,9 @@ class Forte
                 }
             }
             $postData = $this->getApiData($data);
-          
+            echo "i am here";
+            print_r($postData);
+           
             try {
                 $res = $this->sendCurlRequest($postUrl, $postdata);
             } catch (\Guzzle\Http\Exception\CurlException $e) {
@@ -296,7 +297,8 @@ class Forte
                 $response['status']         = 'fail';
                 $response['error']          = $e->getMessage();
             }
-
+            echo "here in else";
+            die();
             if(!empty($res['status']) && $res['status']==1 && $res['responseData']['responseCode']==0){
                 $response['status']         = 'success';
                 $response['note']           = 'Forte transaction_id '.$res['transactionID'];
