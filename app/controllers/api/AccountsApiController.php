@@ -2327,10 +2327,21 @@ class AccountsApiController extends ApiController {
 						$BillingSetting['billing_class'] = $dataAccountBilling['BillingType']  == 1? "Prepaid":"Postpaid";
 						$BillingSetting['billing_class'] = strtolower($BillingSetting['billing_class'] .'-'. $data['PaymentMethod']);
 						Log::info("PaymentMethod " .  $BillingSetting['billing_class'] . ' ' . $billingCompanyID);
-						$BillingClassSql = BillingClass::where('Name', $BillingSetting['billing_class'])
-							->where('CompanyID', '=', $billingCompanyID);
-						//dd($dataAccountBilling['BillingType']);
+						$BillingClassSql = DB::table('tblBillingClass as b1')->leftJoin('tblBillingClass as b2',function ($join) use($billingCompanyID){
+			                $join->on('b1.BillingClassID', '=', 'b2.ParentBillingClassID');
+			                $join->on('b1.IsGlobal','=', DB::raw('1'));
+			                $join->on('b2.CompanyID','=', DB::raw($billingCompanyID));
+		            	})->select(['b1.*'])
+		                ->where(function($q) use($billingCompanyID) {
+		                    $q->where('b1.CompanyID', $billingCompanyID)
+		                        ->orWhere('b1.IsGlobal', '1');
+		                })->where('b1.Name' , $BillingSetting['billing_class'])
+		                ->whereNull('b2.BillingClassID');
 						$BillingClass = $BillingClassSql->first();
+						$BillingClass = json_decode(json_encode($BillingClass), True);
+
+						// BillingClass::where('Name', $BillingSetting['billing_class'])
+						// 	->where('CompanyID', '=', $billingCompanyID);
 						if (!isset($BillingClass)) {
 							return Response::json(["ErrorMessage" => Codes::$Code1017[1]], Codes::$Code1017[0]);
 						}else {
@@ -2622,7 +2633,17 @@ class AccountsApiController extends ApiController {
 					$account->update($TaxRateID);
 
 					$dataAccountBilling['BillingType'] = $BillingSetting['billing_type'];
-					$BillingClassSql = BillingClass::where('BillingClassID', $BillingSetting['billing_class'])->where('CompanyID','=',$billingCompanyID);
+					$BillingClassSql = DB::table('tblBillingClass as b1')->leftJoin('tblBillingClass as b2',function ($join) use($CompanyID){
+			                $join->on('b1.BillingClassID', '=', 'b2.ParentBillingClassID');
+			                $join->on('b1.IsGlobal','=', DB::raw('1'));
+			                $join->on('b2.CompanyID','=', DB::raw($CompanyID));
+		            	})->select(['b1.*'])
+		                ->where(function($q) use($CompanyID) {
+		                    $q->where('b1.CompanyID', $CompanyID)
+		                        ->orWhere('b1.IsGlobal', '1');
+		                })->where('b1.BillingClassID' , $BillingSetting['billing_class'])
+		                ->whereNull('b2.BillingClassID');
+					// BillingClass::where('BillingClassID', $BillingSetting['billing_class'])->where('CompanyID','=',$billingCompanyID);
 					$BillingClass = $BillingClassSql->first();
 					if (!isset($BillingClass)) {
 						return Response::json(["ErrorMessage" => Codes::$Code1017[1]],Codes::$Code1017[0]);
@@ -3787,9 +3808,19 @@ class AccountsApiController extends ApiController {
 				$BillingSetting['billing_class'] = $dataAccountBilling['BillingType']  == 1? "Prepaid":"Postpaid";
 				$BillingSetting['billing_class'] = strtolower($BillingSetting['billing_class'] .'-'. $accountInfo->PaymentMethod);
 				Log::info("PaymentMethod " .  $BillingSetting['billing_class'] . ' ' . $CompanyID);
-				$BillingClassSql = BillingClass::where('Name', $BillingSetting['billing_class'])
-					->where('CompanyID', '=', $CompanyID);
+				$BillingClassSql =  DB::table('tblBillingClass as b1')->leftJoin('tblBillingClass as b2',function ($join) use($CompanyID){
+	                $join->on('b1.BillingClassID', '=', 'b2.ParentBillingClassID');
+	                $join->on('b1.IsGlobal','=', DB::raw('1'));
+	                $join->on('b2.CompanyID','=', DB::raw($CompanyID));
+            	})->select(['b1.*'])
+                ->where(function($q) use($CompanyID) {
+                    $q->where('b1.CompanyID', $CompanyID)
+                        ->orWhere('b1.IsGlobal', '1');
+                })->where('b1.Name' , $BillingSetting['billing_class'])
+                ->whereNull('b2.BillingClassID');
 				$BillingClass = $BillingClassSql->first();
+				$BillingClass = json_decode(json_encode($BillingClass), True);
+				// dd($BillingClass);
 				if (!isset($BillingClass)) {
 					return Response::json(["ErrorMessage" => Codes::$Code1017[1]], Codes::$Code1017[0]);
 				}else {
@@ -3798,7 +3829,18 @@ class AccountsApiController extends ApiController {
 
 				$dataAccountBilling['BillingType'] = $BillingSetting['billing_type'];
 			
-				$BillingClassSql = BillingClass::where('BillingClassID', $BillingSetting['billing_class'])->where('CompanyID','=',$CompanyID);
+				$BillingClassSql = DB::table('tblBillingClass as b1')->leftJoin('tblBillingClass as b2',function ($join) use($CompanyID){
+	                $join->on('b1.BillingClassID', '=', 'b2.ParentBillingClassID');
+	                $join->on('b1.IsGlobal','=', DB::raw('1'));
+	                $join->on('b2.CompanyID','=', DB::raw($CompanyID));
+            	})->select(['b1.*'])
+                ->where(function($q) use($CompanyID) {
+                    $q->where('b1.CompanyID', $CompanyID)
+                        ->orWhere('b1.IsGlobal', '1');
+                })->where('b1.BillingClassID' , $BillingSetting['billing_class'])
+                ->whereNull('b2.BillingClassID');
+
+                //BillingClass::where('BillingClassID', $BillingSetting['billing_class'])->where('CompanyID','=',$CompanyID);
 				$BillingClass = $BillingClassSql->first();
 				if (!isset($BillingClass)) {
 					return Response::json(["ErrorMessage" => Codes::$Code1017[1]],Codes::$Code1017[0]);
@@ -3837,7 +3879,7 @@ class AccountsApiController extends ApiController {
 				$AccountBillingType['AccountID'] = $accountInfo->AccountID;
 				$AccountBillingType['BillingType'] = $accountData['BillingTypeID'];
                 $LogType = AccountBillingTypeLog::where('AccountID' ,$accountInfo->AccountID)->orderby('AccountBillingTypeLogID' , 'desc')->first();
-                if($LogType){
+                if(isset($LogType) && !empty($LogType)){
                     if($LogType->BillingType != $accountData['BillingTypeID']){
                          $AccountBillingType['OldBillingType'] = $LogType->BillingType;
                         AccountBillingTypeLog::create($AccountBillingType);
@@ -3848,7 +3890,7 @@ class AccountsApiController extends ApiController {
 
 				AccountBilling::storeFirstTimeInvoicePeriod($accountInfo->AccountID, 0);
 				
-			}else{
+			}else if(isset($accountData['BillingTypeID']) && !empty($accountData['BillingTypeID'])){
 				$AccountBillingType['AccountID'] = $accountInfo->AccountID;
 				$AccountBillingType['BillingType'] = $accountData['BillingTypeID'];
 				if(isset($accountData['BillingTypeID']) && !empty($accountData['BillingTypeID'])){
