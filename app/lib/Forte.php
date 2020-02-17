@@ -214,11 +214,11 @@ class Forte
 	}
     public function paymentWithProfile($data)
     {
+        $transactiondata = $Fortedata = $transactionResponse = [];
         $account = Account::find($data['AccountID']);
         $CustomerProfile                = AccountPaymentProfile::find($data['AccountPaymentProfileID']);
         $ForteObj                       = json_decode($CustomerProfile->Options);
-        $Fortedata                      = [];
-        $transactionResponse            = [];
+        
 
         $Fortedata['InvoiceNumber']  = $data['InvoiceNumber'];
         $Fortedata['GrandTotal']     = $data['outstanginamount'];
@@ -240,10 +240,10 @@ class Forte
         $transactionResponse['transaction_notes']   = $Notes;
         $transactionResponse['PaymentMethod']       = 'CREDIT CARD';
         $transactionResponse['failed_reason']       = $Notes;
-        $transactionResponse['transaction_id']      = $transaction['transaction_id'];
+        $transactionResponse['transaction_id']      = isset($transaction['transaction_id']) ? $transaction['transaction_id'] : '';
         $transactionResponse['Response']            = $transaction;
 
-        $transactiondata = [];
+      
         $transactiondata['CompanyID']   = $account->CompanyId;
         $transactiondata['AccountID']   = $account->AccountID;
         $transactiondata['Notes']       = $Notes;
