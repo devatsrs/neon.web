@@ -270,9 +270,6 @@ class Forte
 
     public function payInvoice($postUrl, $data)
     {
-        echo "<pre>";
-        print_r($data);
-        die('i am heresssss');
         $profileOptions = [];
         try {
             $Account            = Account::join('tblAccountPaymentProfile','tblAccount.AccountID','=','tblAccountPaymentProfile.AccountID')->select('tblAccount.*', 'tblAccountPaymentProfile.Options')->where('tblAccount.AccountID', '=', $data['AccountID'])->first();
@@ -297,7 +294,9 @@ class Forte
 			$data['RoutingNumber'] = $profileOptions['RoutingNumber'];
 			$data['AccountNumber'] = $profileOptions['AccountNumber'];
 			$data['AccountHolderName'] = $profileOptions['AccountHolderName'];
-           
+            echo "<pre>";
+            print_r($data);
+            die('i am heresssss');
             $postData = $this->getApiData($data);
 			
             try {
