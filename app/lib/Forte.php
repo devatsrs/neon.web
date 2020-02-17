@@ -272,6 +272,10 @@ class Forte
 
     public function payInvoice($postUrl, $data)
     {
+        echo "i am here";
+        print_r($data);
+        echo "here in else";
+        die();
         try {
             $Account            = Account::find($data['AccountID']);
             $CurrencyID         = $Account->CurrencyId;
@@ -289,8 +293,7 @@ class Forte
                 }
             }
             $postData = $this->getApiData($data);
-            echo "i am here";
-            print_r($postData);
+            
            
             try {
                 $res = $this->sendCurlRequest($postUrl, $postdata);
@@ -299,8 +302,7 @@ class Forte
                 $response['status']         = 'fail';
                 $response['error']          = $e->getMessage();
             }
-            echo "here in else";
-            die();
+           
             if(!empty($res['status']) && $res['status']==1 && $res['responseData']['responseCode']==0){
                 $response['status']         = 'success';
                 $response['note']           = 'Forte transaction_id '.$res['transactionID'];
