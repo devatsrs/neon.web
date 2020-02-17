@@ -105,7 +105,7 @@ class Forte
                 'action'                    => $data['action'],  //sale, authorize, credit, void, capture, inquiry, verify, force, reverse
                 'authorization_amount'      => $data['amount'],
                 'billing_address'           => $address,
-                'card'                    => $echeck     //change to 'echeck' => $echeck for an ACH transaction
+                'echeck'                    => $echeck     //change to 'echeck' => $echeck for an ACH transaction
             ];
          }else {
             $params = [
@@ -286,14 +286,15 @@ class Forte
                 if($this->forteDataLive == 1) {
                     $data['amount'] = $data['GrandTotal']; // for live
                 }else {
-                    $data['mount'] = number_format(round($data['GrandTotal']), 2, '.', ''); // for testing
+                    $data['amount'] = number_format(round($data['GrandTotal']), 2, '.', ''); // for testing
                 }
             }
 			$profileOptions = json_decode($optionsData, true);
 			$data['AccountHolderType'] = $profileOptions['AccountHolderType'];
 			$data['RoutingNumber'] = $profileOptions['RoutingNumber'];
 			$data['AccountNumber'] = $profileOptions['AccountNumber'];
-			$data['AccountHolderName'] = $profileOptions['AccountHolderName'];
+            $data['AccountHolderName'] = $profileOptions['AccountHolderName'];
+            
             echo "<pre>";
             print_r($data);
             die('i am heresssss');
