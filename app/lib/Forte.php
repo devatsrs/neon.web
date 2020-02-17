@@ -74,6 +74,8 @@ class Forte
             'account_number'            => $data['AccountNumber'],
             'account_holder'            => $data['AccountHolderName']
         ];
+        echo "<pre>";
+        print_r($echeck);
         $card = [
             'card_type' => $data['cardType'],
             'name_on_card' => $data['AccountHolderName'],
@@ -414,6 +416,9 @@ class Forte
 
     public function createForteProfile($data)
     {
+        echo "<pre> createForteProfile";
+        print_r($data);
+        die();
         try {
             $postdata = [
                 "organization_id"   => "org_".$this->organizationID,
