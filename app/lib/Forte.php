@@ -215,6 +215,9 @@ class Forte
 	}
     public function paymentWithProfile($data)
     {
+        echo "<pre>";
+        print_r($data);
+        die();
         $transactiondata = $Fortedata = $transactionResponse = [];
         $account = Account::find($data['AccountID']);
         $CustomerProfile                = AccountPaymentProfile::find($data['AccountPaymentProfileID']);
