@@ -164,9 +164,7 @@ class InvoicesCustomerController extends \BaseController {
         $PaymentData['AccountPaymentProfileID'] = $AccountPaymentProfileID;
         $PaymentData['InvoiceIDs'] = $Invoiceids;
         $CustomerProfile = AccountPaymentProfile::find($AccountPaymentProfileID);
-        echo "<pre>";
-        print_r($CustomerProfile);
-        die('line no: '.__LINE__);
+
         $outstanginamount = Account::getOutstandingInvoiceAmount($CompanyID,$account->AccountID,$Invoiceids, get_round_decimal_places($account->AccountID));
         if ($outstanginamount > 0 ) {
             if (!empty($CustomerProfile)) {

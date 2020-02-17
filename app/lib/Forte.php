@@ -529,7 +529,10 @@ class Forte
     {
 		$Response = array();
 		$Response['status']= 'success';
-		$account = Account::find($data['AccountID']);
+        $account = Account::find($data['AccountID']);
+        echo "<pre> i am here in paymentwith profile";
+        print_r($account);
+        die();
 		$CurrencyCode = Currency::getCurrency($account->CurrencyId);
 		if (empty($CurrencyCode)) {
 			$Response['status']='failed';
