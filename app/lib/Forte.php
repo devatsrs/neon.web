@@ -274,7 +274,7 @@ class Forte
         try {
             $Account            = Account::join('tblAccountPaymentProfile','tblAccount.AccountID','=','tblAccountPaymentProfile.AccountID')->select('tblAccount.*', 'tblAccountPaymentProfile.Options')->where('tblAccount.AccountID', '=', $data['AccountID'])->first();
             $CurrencyID         = $Account->CurrencyId;
-            echo "<pre>".$account->AccountName;
+            echo "<pre>";
             print_r($Account);
             die('i am heresssss');
             $InvoiceCurrency    = Currency::getCurrency($CurrencyID);
