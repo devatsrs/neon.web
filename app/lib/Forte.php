@@ -192,7 +192,7 @@ class Forte
                 $response['error']          = $e->getMessage();
             }
 
-            if(!empty($res['status']) && $res['status']==1 && $res['responseData']['responseCode']==0){
+            if(!empty($res['status']) && $res['status']==1){
                 $response['status']         = 'success';
                 $response['note']           = 'Forte transaction_id '.$res['transactionID'];
                 $response['transaction_id'] = $res['transactionID'];
@@ -223,11 +223,13 @@ class Forte
         $Fortedata['InvoiceNumber']  = $data['InvoiceNumber'];
         $Fortedata['GrandTotal']     = $data['outstanginamount'];
         $Fortedata['AccountID']      = $data['AccountID'];
-        $Fortedata['cardID']         = $ForteObj->cardID;
         $Fortedata['action']         = 'sale';
         
         $postUrl = $this->ForteUrl.'/organizations/org_'.$this->organizationID.'/locations/loc_'.$this->locationID.'/transactions';
         $transaction = $this->payInvoice($postUrl, $Fortedata);
+        echo "<pre>";
+        print_r($transaction);
+        die();
         if ($transaction['status']=='success') {
             $Status = TransactionLog::SUCCESS;
             $Notes  = 'Forte transaction_id ' . $transaction['transaction_id'];
@@ -333,20 +335,23 @@ class Forte
             }
 
             
-            //$data['expire_month'] = $data['ExpirationMonth'];
-            //$data['expire_year']  = substr($data['ExpirationYear'], -2);
+            $data['expire_month'] = $data['ExpirationMonth'];
+            $data['expire_year']  = substr($data['ExpirationYear'], -2);
             $postUrl = $this->ForteUrl.'/organizations/org_'.$this->organizationID.'/locations/loc_'.$this->locationID.'/transactions';
             $postData = $this->getApiData($data);
-            //$jsonData = json_encode($postData);
+         
             try {
                 $res = $this->sendCurlRequest($postUrl, $postdata);
+				echo "<pre>";
+				print_r($res);
+				die();
             } catch (\Guzzle\Http\Exception\CurlException $e) {
                 log::info($e->getMessage());
                 $response['status']         = 'fail';
                 $response['error']          = $e->getMessage();
             }
 
-            if (!empty($res['status']) && $res['status']==1 && $res['responseData']['responseCode']==0) {
+            if (!empty($res['status']) && $res['status']==1) {
                 $response['status']         = 'success';
                 $response['note']           = 'Forte transaction_id '.$res['transactionID'];
                 $response['transaction_id'] = $res['transactionID'];
@@ -383,12 +388,15 @@ class Forte
             $isDefault = 0;
         }
         $ForteResponse = $this->createForteProfile($data);
+		
         if ($ForteResponse["status"] == "success") {
             $option = [
-                'cardID' => $ForteResponse['cardID'],'cardKey' => $ForteResponse['response']['responseData']['cardKey'],'ivrCardID' => $ForteResponse['response']['responseData']['ivrCardID']
+                'bankaccount_token' => $ForteResponse['response']['responseData']->bankaccount_token,
+				'organization_id' => $ForteResponse['response']['responseData']->organization_id,
+				'routing_number' => $ForteResponse['response']['responseData']->routing_number,
+				'account_type' => $ForteResponse['response']['responseData']->account_type,
             ];
             $CardDetail = [
-                'Title' => $data['Title'],
                 'Options' => json_encode($option),
                 'Status' => 1,
                 'isDefault' => $isDefault,
@@ -426,13 +434,11 @@ class Forte
                 $response['error']          = $e->getMessage();
             }
             
-            if(!empty($res['status']) && $res['status']==1 && $res['responseData']['responseCode']==0) {
+            if(!empty($res['status']) && $res['status']==1) {
                 $response['status']         = 'success';
-                $response['cardID']         = $res['responseData']['cardID'];
                 $response['response']       = $res;
             } else {
                 $response['status']         = 'fail';
-                $response['error']          = $res['responseData']['responseMessage'];
                 $response['response']       = $res;
                 Log::info(print_r($res,true));
             }
@@ -509,6 +515,7 @@ class Forte
 			'response' => $data->response->response_desc,
             'responseData' => $data
             ];
+			
         return $res;
     }
     public function paymentValidateWithProfile($data)
