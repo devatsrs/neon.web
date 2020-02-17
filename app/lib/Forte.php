@@ -287,10 +287,15 @@ class Forte
                 }
             }
             $postData = $this->getApiData($data);
+            echo "<pre> postData ....";
+            print_r($postData);
             //echo "<pre>";print_r($data);exit;
             //$jsonData = json_encode($postData);
             try {
                 $res = $this->sendCurlRequest($postUrl, $postdata);
+                echo "<pre> res....";
+                print_r($res);
+                //die();
             } catch (\Guzzle\Http\Exception\CurlException $e) {
                 log::info($e->getMessage());
                 $response['status']         = 'fail';
