@@ -175,7 +175,7 @@ class Forte
                 $data['amount'] = str_replace(',', '', str_replace('.', '', $data['GrandTotal']));
                 $data['amount'] = number_format((float)$Amount, 2, '.', '');
             } else {
-                if($this->ForteLive == 1) {
+                if($this->forteDataLive == 1) {
                     $data['amount'] = $data['GrandTotal']; // for live
                 }else {
                     $data['mount'] = number_format(round($data['GrandTotal']), 2, '.', ''); // for testing
@@ -227,7 +227,7 @@ class Forte
         
         $postUrl = $this->ForteUrl.'/organizations/org_'.$this->organizationID.'/locations/loc_'.$this->locationID.'/transactions';
         $transaction = $this->payInvoice($postUrl, $Fortedata);
-        echo "<pre>";
+        echo "<pre> i am hwre";
         print_r($transaction);
         die();
         if ($transaction['status']=='success') {
@@ -280,7 +280,7 @@ class Forte
                 $data['amount'] = str_replace(',', '', str_replace('.', '', $data['GrandTotal']));
                 $data['amount'] = number_format((float)$Amount, 2, '.', '');
             } else {
-                if($this->ForteLive == 1) {
+                if($this->forteDataLive == 1) {
                     $data['amount'] = $data['GrandTotal']; // for live
                 }else {
                     $data['mount'] = number_format(round($data['GrandTotal']), 2, '.', ''); // for testing
@@ -327,7 +327,7 @@ class Forte
                 $data['amount'] = str_replace(',', '', str_replace('.', '', $data['GrandTotal']));
                 $data['amount'] = number_format((float)$data['amount'], 2, '.', '');
             } else {
-                if ($this->ForteLive == 1) {
+                if ($this->forteDataLive == 1) {
                     $data['amount'] = $data['GrandTotal']; // for live
                 } else {
                     $data['amount'] = number_format(round($data['GrandTotal']), 2, '.', ''); // for testing
@@ -485,6 +485,8 @@ class Forte
 	}
     public function sendCurlRequest($url,$postData) 
     {
+        echo $url;
+        die('i amgte');
         $httpHeader = [
             'Authorization: Basic '.$this->authToken,
             'X-Forte-Auth-Organization-id: org_'.$this->organizationID,
