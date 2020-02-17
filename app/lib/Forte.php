@@ -428,15 +428,12 @@ class Forte
     public function sendCurlRequest($url,$postData) 
     {
         $httpHeader = [
-            'url' => $url,
             'Authorization: Basic '.$this->authToken,
             'X-Forte-Auth-Organization-id: org_'.$this->organizationID,
             'Accept:application/json',
             'Content-type: application/json'
         ];
-        echo "<pre>";
-        print_r($httpHeader);
-        die();
+
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_VERBOSE, 1);
