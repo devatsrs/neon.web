@@ -272,10 +272,6 @@ class Forte
 
     public function payInvoice($postUrl, $data)
     {
-        echo "i am here";
-        print_r($data);
-        echo "here in else";
-        die();
         try {
             $Account            = Account::find($data['AccountID']);
             $CurrencyID         = $Account->CurrencyId;
@@ -292,9 +288,12 @@ class Forte
                     $data['mount'] = number_format(round($data['GrandTotal']), 2, '.', ''); // for testing
                 }
             }
+            echo "i am here";
+            print_r($data);
+            echo "here in else";
+            die();
             $postData = $this->getApiData($data);
             
-           
             try {
                 $res = $this->sendCurlRequest($postUrl, $postdata);
             } catch (\Guzzle\Http\Exception\CurlException $e) {
