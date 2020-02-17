@@ -500,26 +500,15 @@ class Forte
         $info = curl_getinfo($ch);
         curl_close($ch);
         $data = json_decode($response);
-        
         // Validate the response - the only successful code is 0
-        $status = ((int)$info['http_code'] === 0) ? true : false;
-
+        $status = ((int)$info['http_code'] === 201) ? true : false;
         // Make the response a little more useable
-        // $res = [
-        //     'status' => $status,
-        //     'transactionID' => (isset($data['transactionID']) ? $data['transactionID'] : null),
-        //     'responseData' => $data
-        //     ];
-            echo "<pre>";
-            print_r($response);
-            echo "<br>";
-            echo "<pre>";
-            print_r($info);
-            echo "<br>";
-            echo "<pre>";
-            print_r($data);
-           
-            die();
+         $res = [
+            'status' => $status,
+            'transactionID' => (isset($data->transactionID) ? $data->transactionID : null),
+			'response' => $data->response->response_desc,
+            'responseData' => $data
+            ];
         return $res;
     }
     public function paymentValidateWithProfile($data)
