@@ -214,9 +214,6 @@ class Forte
 	}
     public function paymentWithProfile($data)
     {
-        echo "<pre> paymentWithProfile";
-        print_r($data);
-        die();
         $account = Account::find($data['AccountID']);
         $CustomerProfile                = AccountPaymentProfile::find($data['AccountPaymentProfileID']);
         $ForteObj                       = json_decode($CustomerProfile->Options);
@@ -480,8 +477,6 @@ class Forte
 	}
     public function sendCurlRequest($url,$postData) 
     {
-        echo $url;
-        die('i amgte');
         $httpHeader = [
             'Authorization: Basic '.$this->authToken,
             'X-Forte-Auth-Organization-id: org_'.$this->organizationID,
@@ -527,7 +522,7 @@ class Forte
 		}
 		$CustomerProfile = AccountPaymentProfile::find($data['AccountPaymentProfileID']);
 		$StripeObj = json_decode($CustomerProfile->Options);
-		if (empty($StripeObj->VerifyStatus) || $StripeObj->VerifyStatus!== 'verified') {
+		if (empty($StripeObj)) {
 			$Response['status']= 'failed';
 			$Response['message']= cus_lang("PAYMENT_MSG_BANK_ACCOUNT_NOT_VERIFIED");
 		}
