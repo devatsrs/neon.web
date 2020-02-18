@@ -222,7 +222,7 @@ class Forte
                 if($this->forteDataLive == 1) {
                     $data['amount'] = $data['GrandTotal']; // for live
                 }else {
-                    $data['amount'] = number_format(round($data['GrandTotal']), 2, '.', ''); // for testing
+                    $data['amount'] = number_format($data['GrandTotal'], 2, '.', ''); // for testing
                 }
             }
 			$profileOptions = json_decode($optionsData, true);
@@ -409,7 +409,7 @@ class Forte
                 if ($this->forteDataLive == 1) {
                     $data['amount'] = $data['GrandTotal']; // for live
                 } else {
-                    $data['amount'] = number_format(round($data['GrandTotal']), 2, '.', ''); // for testing
+                    $data['amount'] = number_format($data['GrandTotal'], 2, '.', ''); // for testing
                 }
             }
 
@@ -462,7 +462,7 @@ class Forte
                 if($this->forteDataLive == 1) {
                     $data['amount'] = $data['GrandTotal']; // for live
                 }else {
-                    $data['mount'] = number_format(round($data['GrandTotal']), 2, '.', ''); // for testing
+                    $data['mount'] = number_format($data['GrandTotal'], 2, '.', ''); // for testing
                 }
             }
             $data['action'] = 'verify';
