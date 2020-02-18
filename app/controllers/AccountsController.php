@@ -609,7 +609,8 @@ class AccountsController extends \BaseController {
 
                 AccountBilling::insertUpdateBilling($account->AccountID, $data,$ServiceID);
                 $AccountBillingType['BillingType'] = $data['BillingType'];
-                $AccountBillingType['AccountID'] = $account->AccountID;
+                $AccountBillingType['AccountID']   = $account->AccountID;
+                $AccountBillingType['Date']        = date('Y-m-d');
                 AccountBillingTypeLog::create($AccountBillingType);
                 if($ManualBilling ==0) {
                     AccountBilling::storeFirstTimeInvoicePeriod($account->AccountID, $ServiceID);
@@ -1513,11 +1514,22 @@ class AccountsController extends \BaseController {
                 AccountBilling::insertUpdateBilling($id, $data,$ServiceID,$invoice_count);
                 $AccountBillingType['BillingType'] = $data['BillingType'];
                 $AccountBillingType['AccountID'] = $id;
-                $LogType = AccountBillingTypeLog::where('AccountID' ,$id)->orderby('AccountBillingTypeLogID' , 'desc')->first();
+                $AccountBillingType['Date'] = date("Y-m-d");
+                $LogType = AccountBillingTypeLog::where('AccountID' ,$id)
+                    ->orderby('AccountBillingTypeLogID', 'desc')->first();
+
                 if(isset($LogType) && !empty($LogType)){
                     if($LogType->BillingType != $AccountBillingType['BillingType']){
-                         $AccountBillingType['OldBillingType'] = $LogType->BillingType;
-                        AccountBillingTypeLog::create($AccountBillingType);
+                        $AccountBillingType['OldBillingType'] = $LogType->BillingType;
+
+                        // If Dates are same then update
+                        if($LogType->Date == $AccountBillingType['Date']){
+                            $LogID = $LogType->AccountBillingTypeLogID;
+                            AccountBillingTypeLog::where('AccountBillingTypeLogID',$LogID)
+                                ->update($AccountBillingType);
+                        } else
+                            AccountBillingTypeLog::create($AccountBillingType);
+
                         AccountBilling::changeBillingPeriod($id,$data['BillingType']);
                     }
                 }else{
