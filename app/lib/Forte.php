@@ -59,8 +59,7 @@ class Forte
                         $lastName =  $name;
                     } else {
                         $lastName .=  ' '.$name; 
-                    }
-                   
+                    } 
                 }
             } 
         }
@@ -91,7 +90,6 @@ class Forte
             ];
             $address['phone'] = $data['Mobile'];
             $address['physicalAddress'] =  $physicalAddress;
-
             $params = [
                 'action'                    => $data['action'],  //sale, authorize, credit, void, capture, inquiry, verify, force, reverse
                 'authorization_amount'      => $data['amount'],
@@ -143,7 +141,7 @@ class Forte
 		$Country = $account->Country;
 		if (!empty($Country)) {
 			$CountryCode = Country::where(['Country'=>$Country])->pluck('ISO2');
-		} else{
+		} else {
 			$CountryCode = '';
 		}
 		if (empty($CountryCode)) {
@@ -162,7 +160,6 @@ class Forte
         $CustomerProfile                = AccountPaymentProfile::find($data['AccountPaymentProfileID']);
         $ForteObj                       = json_decode($CustomerProfile->Options);
         
-
         $Fortedata['InvoiceNumber']  = $data['InvoiceNumber'];
         $Fortedata['GrandTotal']     = $data['outstanginamount'];
         $Fortedata['AccountID']      = $data['AccountID'];
@@ -181,12 +178,11 @@ class Forte
         }
 
         $transactionResponse['transaction_notes']   = $Notes;
-        $transactionResponse['PaymentMethod']       = 'CREDIT CARD';
+        $transactionResponse['PaymentMethod']       = 'BANK TRANSFER';
         $transactionResponse['failed_reason']       = $Notes;
         $transactionResponse['transaction_id']      = isset($transaction['transaction_id']) ? $transaction['transaction_id'] : '';
         $transactionResponse['Response']            = $transaction;
 
-      
         $transactiondata['CompanyID']   = $account->CompanyId;
         $transactiondata['AccountID']   = $account->AccountID;
         $transactiondata['Notes']       = $Notes;
@@ -235,7 +231,6 @@ class Forte
 			$data['AccountNumber'] = $profileOptions['AccountNumber'];
             $data['AccountHolderName'] = $profileOptions['AccountHolderName'];
             
-           
             $postData = $this->getApiData($data);
 
             try {
@@ -266,8 +261,6 @@ class Forte
         }
         return $response;
     }
-
-    
 
     public function createProfile($data) 
     {
