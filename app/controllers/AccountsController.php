@@ -663,7 +663,7 @@ class AccountsController extends \BaseController {
             $AccountDetails['AccountID'] = $account->AccountID;
             AccountDetails::create($AccountDetails);
 
-            if ($data['IsAffiliateAccount'] == 1 && !empty($data['AffiliateAccounts'])) {
+            if ($data['IsAffiliateAccount'] == 1 && !empty($AffiliateAccount)) {
                 $AffiliateAccount['AccountID'] = $account->AccountID;
                 AffiliateAccount::create($AffiliateAccount);
             }
@@ -1622,7 +1622,7 @@ class AccountsController extends \BaseController {
                 AccountDetails::create($AccountDetails);
             }
 
-            if ($data['IsAffiliateAccount'] == 1 && !empty($data['AffiliateAccounts'])) {
+            if ($data['IsAffiliateAccount'] == 1 && !empty($AffiliateAccount)) {
                 $Affiliate = AffiliateAccount::where('AccountID',$id);
                 if($Affiliate){
                     $Affiliate->update($AffiliateAccount);
