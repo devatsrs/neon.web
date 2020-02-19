@@ -1624,7 +1624,8 @@ class AccountsController extends \BaseController {
 
             if ($data['IsAffiliateAccount'] == 1 && !empty($AffiliateAccount)) {
                 $Affiliate = AffiliateAccount::where('AccountID',$id);
-                if($Affiliate){
+                $AffiliateCheck = $Affiliate->first();
+                if($AffiliateCheck != false){
                     $Affiliate->update($AffiliateAccount);
                 }else{
                     $AffiliateAccount['AccountID'] = $id;
