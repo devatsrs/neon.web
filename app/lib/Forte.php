@@ -82,21 +82,22 @@ class Forte
         ];
         if($data['action'] == 'verify') {
             $physicalAddress = [
-                'street_line1'=> $data['Address1'],
-                'street_line2'=> $data['Address2'],
-                'locality'=> $data['City'],
-                'region'=> $data['State'],
-                'postal_code'=> $data['PostCode']
+                'street_line1'  => $data['Address1'],
+                'street_line2'  => $data['Address2'],
+                'locality'      => $data['City'],
+                'region'        => $data['State'],
+                'postal_code'   => $data['PostCode']
             ];
+
             $address['phone'] = $data['Mobile'];
-            $address['physicalAddress'] =  $physicalAddress;
+            $address['physicalAddress'] = $physicalAddress;
             $params = [
                 'action'                    => $data['action'],  //sale, authorize, credit, void, capture, inquiry, verify, force, reverse
                 'authorization_amount'      => $data['amount'],
                 'billing_address'           => $address,
                 'echeck'                    => $echeck     //change to 'echeck' => $echeck for an ACH transaction
             ];
-         }else {
+         } else {
             $params = [
                 'action'                    => $data['action'],  //sale, authorize, credit, void, capture, inquiry, verify, force, reverse
                 'authorization_amount'      => $data['amount'],
@@ -107,6 +108,7 @@ class Forte
         
         return $params;
     }
+
     public function doValidation($data)
     {
 		$ValidationResponse = [];
@@ -124,7 +126,8 @@ class Forte
 			foreach ($validator->messages()->all() as $error){
 				$errors .= $error."<br>";
 			}
-			$ValidationResponse['status'] = 'failed';
+    
+            $ValidationResponse['status'] = 'failed';
 			$ValidationResponse['message'] = $errors;
 			return $ValidationResponse;
         }
@@ -133,22 +136,26 @@ class Forte
 		$account = Account::find($CustomerID);
 		$CurrencyCode = Currency::getCurrency($account->CurrencyId);
 		if (empty($CurrencyCode)) {
-			$ValidationResponse['status'] = 'failed';
+			$ValidationResponse['status']  = 'failed';
 			$ValidationResponse['message'] = cus_lang("PAYMENT_MSG_NO_ACCOUNT_CURRENCY_AVAILABLE");
 			return $ValidationResponse;
 		}
-		$data['currency'] = strtolower($CurrencyCode);
+        
+        $data['currency'] = strtolower($CurrencyCode);
 		$Country = $account->Country;
-		if (!empty($Country)) {
+        
+        if (!empty($Country)) {
 			$CountryCode = Country::where(['Country'=>$Country])->pluck('ISO2');
 		} else {
 			$CountryCode = '';
 		}
-		if (empty($CountryCode)) {
+        
+        if (empty($CountryCode)) {
 			$ValidationResponse['status'] = 'failed';
 			$ValidationResponse['message'] = cus_lang("PAYMENT_MSG_NO_ACCOUNT_COUNTRY_AVAILABLE");
 			return $ValidationResponse;
-		}
+        }
+        
 		$ValidationResponse['status'] = 'success';
 		return $ValidationResponse;
 	}
@@ -267,7 +274,7 @@ class Forte
         $CustomerID         = $data['AccountID'];
         $CompanyID          = $data['CompanyID'];
         $PaymentGatewayID   = $data['PaymentGatewayID'];
-        $isDefault = 1;
+        $isDefault          = 1;
         $count = AccountPaymentProfile::where(['AccountID' => $CustomerID])
             ->where(['CompanyID' => $CompanyID])
             ->where(['PaymentGatewayID' => $PaymentGatewayID])
@@ -277,7 +284,11 @@ class Forte
         if ($count>0) {
             $isDefault = 0;
         }
+
         $ForteResponse = $this->createForteProfile($data);
+        echo "<pre> imran";
+        print_r($ForteResponse);
+        die();
 		
         if ($ForteResponse["status"] == "success") {
             $option = [
@@ -307,15 +318,37 @@ class Forte
 
     public function createForteProfile($data)
     {
+        $Account            = Account::join('tblAccountPaymentProfile','tblAccount.AccountID','=','tblAccountPaymentProfile.AccountID')->select('tblAccount.*', 'tblAccountPaymentProfile.Options')->where('tblAccount.AccountID', '=', $data['AccountID'])->first();
         try {
             $postData = [
-                "organization_id"   => "org_".$this->organizationID,
-                'account_number'    => $data['AccountNumber'],
-                'routing_number'    => $data['RoutingNumber'],
-                'account_type'      => $data['AccountHolderType'],
-                'label'             => $data['AccountHolderName']
+                "first_name"        => $Account->FirstName,
+                "last_name"         => $Account->LastName,
+                "addresses"         => [
+                    "label"     => !empty($Account->Phone)?$Account->Phone:'',
+                    "email"     => $Account->Email,
+                    "physical_address"     => [
+                        'street_line1'  => $Account->Address1,
+                        'street_line2'  => $Account->Address2,
+                        'locality'      => $Account->City,
+                        'region'        => $Account->State,
+                        'postal_code'   => $Account->PostCode
+                    ]
+
+                ],
+                "paymethod"         => [
+                    "label"     => $data['AccountHolderName'],
+                    "echeck"    => [
+                        "sec_code"           => "WEB",
+                        'account_type'       => $data['AccountHolderType'],
+                        'routing_number'     => $data['RoutingNumber'],
+                        'account_number'     => $data['AccountNumber'],
+                        'account_holder'     => $data['AccountHolderName']
+                    ]
+                ] 
             ];
+
             $postUrl = $this->ForteUrl.'/organizations/org_'.$this->organizationID.'/bankaccounts';
+            
             try {
                 $res = $this->sendCurlRequest($postUrl, $postData);
             } catch (\Guzzle\Http\Exception\CurlException $e) {
