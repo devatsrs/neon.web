@@ -2703,6 +2703,7 @@ class AccountsApiController extends ApiController {
 					AccountBilling::storeFirstTimeInvoicePeriod($account->AccountID, 0);
 					$AccountBillingType['AccountID']    = $account->AccountID;
 					$AccountBillingType['BillingType']  = $accountData['BillingTypeID'];
+					$AccountBillingType['Date']  		= date("Y-m-d");
 					AccountBillingTypeLog::create($AccountBillingType);
 
 				}
@@ -3876,13 +3877,23 @@ class AccountsApiController extends ApiController {
 
 				AccountBilling::insertUpdateBilling($accountInfo->AccountID, $dataAccountBilling, 0);
 				
-				$AccountBillingType['AccountID'] = $accountInfo->AccountID;
+				$AccountBillingType['AccountID']   = $accountInfo->AccountID;
 				$AccountBillingType['BillingType'] = $accountData['BillingTypeID'];
-                $LogType = AccountBillingTypeLog::where('AccountID' ,$accountInfo->AccountID)->orderby('AccountBillingTypeLogID' , 'desc')->first();
+				$AccountBillingType['Date']        = date('Y-m-d');
+                $LogType = AccountBillingTypeLog::where('AccountID' ,$accountInfo->AccountID)
+					->orderby('AccountBillingTypeLogID' , 'desc')->first();
                 if(isset($LogType) && !empty($LogType)){
                     if($LogType->BillingType != $accountData['BillingTypeID']){
                          $AccountBillingType['OldBillingType'] = $LogType->BillingType;
-                        AccountBillingTypeLog::create($AccountBillingType);
+
+						// If Dates are same then update
+						if($LogType->Date == $AccountBillingType['Date']){
+							$LogID = $LogType->AccountBillingTypeLogID;
+							AccountBillingTypeLog::where('AccountBillingTypeLogID',$LogID)
+								->update($AccountBillingType);
+						} else
+                        	AccountBillingTypeLog::create($AccountBillingType);
+
 						AccountBilling::changeBillingPeriod($accountInfo->AccountID,$accountData['BillingTypeID']);
                     }
                 }else{
