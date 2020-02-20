@@ -1003,7 +1003,7 @@ class ImportsController extends \BaseController {
                 return json_encode(["status" => "failed", "message" => $result['message']]);
             }
             DB::commit();
-            @unlink($temp_path . $file_name);
+            //@unlink($temp_path . $file_name);
             return json_encode(["status" => "success", "message" => "File Uploaded, File is added to queue for processing. You will be notified once file upload is completed. "]);
         } catch (Exception $ex) {
             DB::rollback();
