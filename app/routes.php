@@ -366,7 +366,9 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/import/account/getAccountInfoFromQuickbook',  'ImportsController@getAccountInfoFromQuickbook');
 	Route::any('/import/account/ajax_get_missing_quickbookaccounts',  'ImportsController@ajax_get_missing_quickbookaccounts');
 	Route::any('/import/account/add_missing_quickbookaccounts',  'ImportsController@add_missing_quickbookaccounts');
-
+	Route::any('/import' , 'ImportsController@importindex');
+	Route::any('/import/storeimportfiles' , 'ImportsController@storeimportfiles');
+	
 	//import ips
 	Route::any('/import/ips',  'ImportsController@import_ips');
 	Route::any('/import/ips_download_sample_excel_file',  'ImportsController@ips_download_sample_excel_file');
