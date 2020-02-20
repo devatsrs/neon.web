@@ -979,7 +979,7 @@ class ImportsController extends \BaseController {
         }
         $temp_path          = CompanyConfiguration::get('TEMP_PATH').'/' ;
         $destinationPath    = CompanyConfiguration::get('UPLOAD_PATH') . '/' . $amazonPath;
-        copy($temp_path . $file_name, $destinationPath . $file_name);
+        //copy($temp_path . $file_name, $destinationPath . $file_name);
         if (!AmazonS3::upload($destinationPath . $file_name, $amazonPath)) {
             return Response::json(array("status" => "failed", "message" => "Failed to upload file."));
         }
