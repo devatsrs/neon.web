@@ -950,7 +950,7 @@ class ImportsController extends \BaseController {
                 $file_name_without_ext = GUID::generate();
                 $file_name = $file_name_without_ext . '.' . $excel->getClientOriginalExtension();
                 $excel->move($upload_path, $file_name);
-                $file_name = $upload_path . '/' . $file_name;
+                $file_name = $upload_path  . $file_name;
             } else {
                 return Response::json(array("status" => "failed", "message" => "Please select excel or csv file."));
             }
@@ -961,16 +961,7 @@ class ImportsController extends \BaseController {
         }
         if (!empty($file_name)) {
          
-       
-        
-
-        // $dir = $jobtype = '';
-        // if($data['ImportType'] == 'Account') {
-        //     $dir  = 'Accounts';
-        // } 
-
-
-
+    
        
         if($data['importtype'] == 'Account') {
             $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['ACCOUNTS_IMPORT']);
