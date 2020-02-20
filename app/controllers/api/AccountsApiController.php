@@ -4277,9 +4277,11 @@ class AccountsApiController extends ApiController {
 					'Numbers.'.$key.'.InboundTariffCategoryID'	=> 'required|numeric',
 					'Numbers.'.$key.'.PackageContractID'		=> 'required|numeric',
 					'Numbers.'.$key.'.NumberContractID'			=> 'required|numeric',
-					'Numbers.'.$key.'.ContractStartDate'		=> 'required|date|date_format:Y-m-d|after:'.date('Y-m-d',strtotime("-1 days")),
+					'Numbers.'.$key.'.ContractStartDate'		=> 'required|date|date_format:Y-m-d',
+					//'Numbers.'.$key.'.ContractStartDate'		=> 'required|date|date_format:Y-m-d|after:'.date('Y-m-d',strtotime("-1 days")),
 					'Numbers.'.$key.'.ContractEndDate'			=> 'required|date|date_format:Y-m-d|after:Numbers.'.$key.'.ContractStartDate',
-					'Numbers.'.$key.'.PackageStartDate'			=> 'required|date|date_format:Y-m-d|after:'.date('Y-m-d',strtotime("-1 days")),
+					'Numbers.'.$key.'.PackageStartDate'			=> 'required|date|date_format:Y-m-d',
+					//'Numbers.'.$key.'.PackageStartDate'			=> 'required|date|date_format:Y-m-d|after:'.date('Y-m-d',strtotime("-1 days")),
 					'Numbers.'.$key.'.PackageEndDate'			=> 'required|date|date_format:Y-m-d|after:Numbers.'.$key.'.PackageStartDate',
 				);
 
