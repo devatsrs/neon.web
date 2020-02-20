@@ -53,6 +53,8 @@ class AmazonS3 {
         'PRODUCT_ATTACHMENTS'=>'ProductAttachment',
         'PARTNER_LOGO' =>  'PartnerLogos',
         'TRANSLATION_IMPORT' => 'TranslationsImport',
+        'ACCOUNTS_IMPORT'    =>  'AccountsImport',
+        'SERVICE_IMPORT'     =>   'ServiceImport'
     );
 
     // Instantiate an S3 client

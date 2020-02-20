@@ -938,7 +938,12 @@ class ImportsController extends \BaseController {
         $data = Input::all();
         //dd($data);
         if (Input::hasFile('excel')) {
-            $upload_path = AmazonS3::generate_upload_path(AmazonS3::$dir['ACCOUNTS_IMPORT']);
+            if($data['importtype'] == 'Account') {
+                $upload_path = AmazonS3::generate_upload_path(AmazonS3::$dir['ACCOUNTS_IMPORT']);
+            }else if($data['importtype'] == 'Service'){
+                $upload_path = AmazonS3::generate_upload_path(AmazonS3::$dir['SERVICE_IMPORT']);
+            }
+            
             $excel = Input::file('excel');
             $ext = $excel->getClientOriginalExtension();
             if (in_array(strtolower($ext), array("csv", "xls", "xlsx"))) {
