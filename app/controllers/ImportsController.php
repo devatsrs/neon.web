@@ -971,14 +971,18 @@ class ImportsController extends \BaseController {
 
 
 
-        // $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir[$dir]);
-        // $file_name          = basename($data['TemplateFile']);
-        // $temp_path          = CompanyConfiguration::get('TEMP_PATH').'/' ;
-        // $destinationPath    = CompanyConfiguration::get('UPLOAD_PATH') . '/' . $amazonPath;
-        // copy($temp_path . $file_name, $destinationPath . $file_name);
-        // if (!AmazonS3::upload($destinationPath . $file_name, $amazonPath)) {
-        //     return Response::json(array("status" => "failed", "message" => "Failed to upload file."));
-        // }
+       
+        if($data['importtype'] == 'Account') {
+            $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['ACCOUNTS_IMPORT']);
+        }else if($data['importtype'] == 'Service'){
+            $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['SERVICE_IMPORT']);
+        }
+        $temp_path          = CompanyConfiguration::get('TEMP_PATH').'/' ;
+        $destinationPath    = CompanyConfiguration::get('UPLOAD_PATH') . '/' . $amazonPath;
+        copy($temp_path . $file_name, $destinationPath . $file_name);
+        if (!AmazonS3::upload($destinationPath . $file_name, $amazonPath)) {
+            return Response::json(array("status" => "failed", "message" => "Failed to upload file."));
+        }
         
         $save = array();
 
