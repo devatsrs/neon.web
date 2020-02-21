@@ -943,6 +943,8 @@ class ImportsController extends \BaseController {
             }else if($data['importtype'] == 'Service'){
                 $upload_path = AmazonS3::generate_upload_path(AmazonS3::$dir['SERVICE_IMPORT']);
             }
+
+            $upload_path = CompanyConfiguration::get('TEMP_PATH').'/' . $upload_path;
             
             $excel = Input::file('excel');
             $ext = $excel->getClientOriginalExtension();
@@ -960,21 +962,7 @@ class ImportsController extends \BaseController {
             return Response::json(array("status" => "failed", "message" => "Please select a file."));
         }
         if (!empty($file_name)) {
-         
-    
-       
-        if($data['importtype'] == 'Account') {
-            $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['ACCOUNTS_IMPORT']);
-        }else if($data['importtype'] == 'Service'){
-            $amazonPath = AmazonS3::generate_upload_path(AmazonS3::$dir['SERVICE_IMPORT']);
-        }
-        $temp_path          = CompanyConfiguration::get('TEMP_PATH').'/' ;
-        $destinationPath    = CompanyConfiguration::get('UPLOAD_PATH') . '/' . $amazonPath;
-        //copy($temp_path . $file_name, $destinationPath . $file_name);
-        if (!AmazonS3::upload($destinationPath . $file_name, $amazonPath)) {
-            return Response::json(array("status" => "failed", "message" => "Failed to upload file."));
-        }
-        
+             
         $save = array();
 
         $fullPath               = $file_name; //$destinationPath . $file_name;
