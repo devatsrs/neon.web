@@ -363,4 +363,50 @@ class AccountBilling extends \Eloquent {
     public static function getBillingByAccountService($AccountID,$AccountServiceID=0){
         return AccountBilling::where(array('AccountID'=>$AccountID,'AccountServiceID'=>$AccountServiceID))->first();
     }
+
+    public static function changeBillingPeriod($AccountID,$type){
+        // Account Service Level
+        $ServiceBillings = DB::table('tblServiceBilling')->where(['AccountID'=>$AccountID,'AccountSubscriptionID'=>0])->where('AccountServiceID','>',0)->get();
+        if(!empty($ServiceBillings)){
+            foreach($ServiceBillings as $ServiceBilling) {
+                //$ServiceBilling = json_decode(json_encode($ServiceBillings), true);
+                $UpdateData = array();
+                if($type==AccountBilling::BILLINGTYPE_POSTPAID){
+                    $UpdateData['BillingType'] = $type;
+                    $UpdateData['BillingCycleType'] = 'monthly';
+                    $UpdateData['BillingCycleValue'] = '';
+                    $StartDate = $ServiceBilling->LastCycleDate;
+                    $UpdateData['NextCycleDate'] = next_billing_date($UpdateData['BillingCycleType'], $UpdateData['BillingCycleValue'], strtotime($StartDate));
+                    $UpdateData['updated_at'] = date('Y-m-d H:i:s');
+                }
+                if($type==AccountBilling::BILLINGTYPE_PREPAID){
+                    $AccountServicePackageID = $ServiceBilling->AccountServicePackageID;
+                    $CLIRateTableID = $ServiceBilling->CLIRateTableID;
+                    if(!empty($AccountServicePackageID)){
+                        $UpdateData['BillingType'] = $type;
+                        $UpdateData['BillingCycleValue'] = AccountServicePackage::where(['AccountServicePackageID'=>$AccountServicePackageID])->pluck('PackageStartDate');
+                        $UpdateData['BillingCycleType'] = 'monthly_anniversary';
+                        $StartDate = $ServiceBilling->LastCycleDate;
+                        $UpdateData['NextCycleDate'] = next_billing_date($UpdateData['BillingCycleType'], $UpdateData['BillingCycleValue'], strtotime($StartDate));
+                        $UpdateData['updated_at'] = date('Y-m-d H:i:s');
+                    }else{
+                        if($CLIRateTableID > 0 ){
+                            $UpdateData['BillingType'] = $type;
+                            $UpdateData['BillingCycleValue'] = CLIRateTable::where(['CLIRateTableID'=>$CLIRateTableID])->pluck('NumberStartDate');
+                            $UpdateData['BillingCycleType'] = 'monthly_anniversary';
+                            $StartDate = $ServiceBilling->LastCycleDate;
+                            $UpdateData['NextCycleDate'] = next_billing_date($UpdateData['BillingCycleType'], $UpdateData['BillingCycleValue'], strtotime($StartDate));
+                            $UpdateData['updated_at'] = date('Y-m-d H:i:s');
+                        }
+                    }
+                }
+                DB::table('tblServiceBilling')->where(['ServiceBillingID'=>$ServiceBilling->ServiceBillingID])->update($UpdateData);
+            }
+        }
+        // Account Level
+        $UpdateData = array();
+        $UpdateData['BillingType'] = $type;
+        $UpdateData['updated_at'] = date('Y-m-d H:i:s');
+        DB::table('tblServiceBilling')->where(['AccountID'=>$AccountID,'AccountServiceID'=>0])->update($UpdateData);
+    }
 }

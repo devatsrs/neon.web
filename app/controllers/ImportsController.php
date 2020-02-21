@@ -900,4 +900,97 @@ class ImportsController extends \BaseController {
             return json_encode(["status" => "failed", "message" => " Exception: " . $ex->getMessage()]);
         }
     }
+
+    public function importindex(){
+        return View::make('import.index');
+    }
+
+    public function import_check_upload() {
+        try {
+            ini_set('max_execution_time', 0);
+            $data = Input::all();
+            if (Input::hasFile('excel')) {
+                $upload_path = CompanyConfiguration::get('TEMP_PATH');
+                $excel = Input::file('excel');
+                $ext = $excel->getClientOriginalExtension();
+                if (in_array(strtolower($ext), array("csv", "xls", "xlsx"))) {
+                    $file_name_without_ext = GUID::generate();
+                    $file_name = $file_name_without_ext . '.' . $excel->getClientOriginalExtension();
+                    $excel->move($upload_path, $file_name);
+                    $file_name = $upload_path . '/' . $file_name;
+                } else {
+                    return Response::json(array("status" => "failed", "message" => "Please select excel or csv file."));
+                }
+            } else if (!empty($data['TemplateFile'])) {
+                $file_name = $data['TemplateFile'];
+            } else {
+                return Response::json(array("status" => "failed", "message" => "Please select a file."));
+            }
+            if (!empty($file_name)) {
+                return Response::json(array("status" => "success", "message" => 'File upload successfully'));
+            }
+        }catch(Exception $ex) {
+            return Response::json(array("status" => "failed", "message" => $ex->getMessage()));
+        }
+    }
+
+    public function storeimportfiles() {
+        $data = Input::all();
+        //dd($data);
+        if (Input::hasFile('excel')) {
+            if($data['importtype'] == 'Account') {
+                $upload_path = AmazonS3::generate_upload_path(AmazonS3::$dir['ACCOUNTS_IMPORT']);
+            }else if($data['importtype'] == 'Service'){
+                $upload_path = AmazonS3::generate_upload_path(AmazonS3::$dir['SERVICE_IMPORT']);
+            }
+
+            $upload_path = CompanyConfiguration::get('TEMP_PATH').'/' . $upload_path;
+            
+            $excel = Input::file('excel');
+            $ext = $excel->getClientOriginalExtension();
+            if (in_array(strtolower($ext), array("csv", "xls", "xlsx"))) {
+                $file_name_without_ext = GUID::generate();
+                $file_name = $file_name_without_ext . '.' . $excel->getClientOriginalExtension();
+                $excel->move($upload_path, $file_name);
+                $file_name = $upload_path  . $file_name;
+            } else {
+                return Response::json(array("status" => "failed", "message" => "Please select excel or csv file."));
+            }
+        } else if (!empty($data['TemplateFile'])) {
+            $file_name = $data['TemplateFile'];
+        } else {
+            return Response::json(array("status" => "failed", "message" => "Please select a file."));
+        }
+        if (!empty($file_name)) {
+             
+        $save = array();
+
+        $fullPath               = $file_name; //$destinationPath . $file_name;
+        $save['full_path']      = $fullPath;
+
+        if($data['importtype'] == 'Account') {
+            $jobtype = 'AI';
+        }else if($data['importtype'] == 'Service'){
+            $jobtype = 'SI';
+        }
+        
+    }
+
+        //Inserting Job Log
+        try {
+            DB::beginTransaction();
+            //remove unnecesarry object
+            $result = Job::logJob($jobtype, $save);
+            if ($result['status'] != "success") {
+                DB::rollback();
+                return json_encode(["status" => "failed", "message" => $result['message']]);
+            }
+            DB::commit();
+            //@unlink($temp_path . $file_name);
+            return json_encode(["status" => "success", "message" => "File Uploaded, File is added to queue for processing. You will be notified once file upload is completed. "]);
+        } catch (Exception $ex) {
+            DB::rollback();
+            return json_encode(["status" => "failed", "message" => " Exception: " . $ex->getMessage()]);
+        }
+    }
 }
