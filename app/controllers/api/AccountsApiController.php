@@ -4354,7 +4354,7 @@ class AccountsApiController extends ApiController {
 
 				$ServiceTemplate = DB::select($ServiceTemplate_q);
 				if(empty($ServiceTemplate[0])) {
-					return Response::json(["ErrorMessage" => "Product not found. ProductID: " . $data['ProductID']], Codes::$Code400[0]);
+					return Response::json(["ErrorMessage" => "Product not found. ProductID: " . $number_data['ProductID']], Codes::$Code400[0]);
 				}
 				$ProductData[$key]['ServiceTemplate'] = $ServiceTemplate = $ServiceTemplate[0];
 
