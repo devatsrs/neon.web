@@ -76,7 +76,8 @@ class CronJobController extends \BaseController {
 	{
         if( $id > 0 ) {
             $CronJob = CronJob::findOrFail($id);
-            $isvalid = CronJob::validate($id);
+            $CompanyID = $CronJob->CompanyID;
+            $isvalid = CronJob::validate($id,$CompanyID);
             if($isvalid['valid']==1){
                 //If user inactivate the cron job , cron job needs to terminate.
                 if(isset($isvalid['data']["Status"]) && $CronJob->Status == 1 && $isvalid['data']["Status"] == 0){
