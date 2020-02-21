@@ -1880,6 +1880,10 @@ Route::group(array('before' => 'guest'), function () {
 		return View::make('test.transcheck');
 	});
 
+	// New API by Vasim Seta at 2020-02-17
+	Route::get('importdata/uploadtemplatefile', 'DataImportController@index');
+	Route::post('importdata/uploadtemplatefile', 'DataImportController@uploadTemplateFile');
+
 });
 
 Route::any('terms', "HomeController@terms");
