@@ -103,8 +103,8 @@ tfoot {
           @else
             <h1 class="text-right flip">@lang('routes.CUST_PANEL_PAGE_INVOICE_PDF_LBL_INVOICE_NO') {{$Invoice->FullInvoiceNumber}}</h1>
           @endif
-          <div class="date text-right flip">@lang('routes.CUST_PANEL_PAGE_INVOICE_PDF_LBL_INVOICE_DATE') {{ date(invoice_date_fomat($Reseller->InvoiceDateFormat),strtotime($Invoice->IssueDate))}}</div>
-          <div class="date text-right flip">@lang('routes.CUST_PANEL_PAGE_INVOICE_PDF_LBL_DUE_DATE') {{date(invoice_date_fomat($Reseller->InvoiceDateFormat),strtotime($Invoice->IssueDate.' +'.$PaymentDueInDays.' days'))}}</div>
+          <div class="date text-right flip">@lang('routes.CUST_PANEL_PAGE_INVOICE_PDF_LBL_INVOICE_DATE') {{ date(invoice_date_fomat(@$Reseller->InvoiceDateFormat),strtotime($Invoice->IssueDate))}}</div>
+          <div class="date text-right flip">@lang('routes.CUST_PANEL_PAGE_INVOICE_PDF_LBL_DUE_DATE') {{date(invoice_date_fomat(@$Reseller->InvoiceDateFormat),strtotime($Invoice->IssueDate.' +'.$PaymentDueInDays.' days'))}}</div>
           @if(!empty($MultiCurrencies))
             @foreach($MultiCurrencies as $multiCurrency)
               <div class="text-right flip">@lang('routes.CUST_PANEL_PAGE_INVOICE_PDF_TBL_GRAND_TOTAL_IN') {{$multiCurrency['Title']}} : {{$multiCurrency['Amount']}}</div>

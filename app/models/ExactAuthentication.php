@@ -66,6 +66,7 @@ class ExactAuthentication extends \Eloquent {
         "One-Off"       => "One-Off",
         "Outpayment"    => "Outpayment",
         "topup"         => "TopUp",
+        "Credit-Note"   => "Credit-Note",
     );
 
     public static function getAllMappingElements(){

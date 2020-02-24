@@ -1853,22 +1853,10 @@ class AccountsApiController extends ApiController {
 			}
 
 			if ($data['IsAffiliateAccount'] == 1) {
-				$rules = [];
-				$rules['AffiliateAccounts'] = 'required';
-				
-
-				$validator = Validator::make($data, $rules);
-				if ($validator->fails()) {
-					$errors = "";
-					foreach ($validator->messages()->all() as $error) {
-						$errors .= $error . "<br>";
+				if(isset($data['AffiliateAccounts']) && !empty($data['AffiliateAccounts'])){
+					if(!preg_match('/^[0-9,]+$/', $data['AffiliateAccounts'])){
+						return Response::json(array("ErrorMessage" => Codes::$Code1066[1]),Codes::$Code1066[0]);
 					}
-					return Response::json(["ErrorMessage" => $errors],Codes::$Code400[0]);
-				}
-
-
-				if(!preg_match('/^[0-9,]+$/', $data['AffiliateAccounts'])){
-					return Response::json(array("ErrorMessage" => Codes::$Code1066[1]),Codes::$Code1066[0]);
 				}
 			}
 
@@ -2083,7 +2071,7 @@ class AccountsApiController extends ApiController {
 				}
 			}
 
-			if($data['IsCustomer'] == 1 || $data['AffiliateAccounts'] == 1){
+			if($data['IsCustomer'] == 1 || $data['IsAffiliateAccount'] == 1){
 				$ResellerID = DynamicFieldsValue::where(['DynamicFieldsID' => 93 , 'FieldValue' => $data['PartnerID']])->first();
 				if(!$ResellerID){
 					return Response::json(["ErrorMessage" => Codes::$Code1059[1]],Codes::$Code1059[0]);
@@ -2330,15 +2318,30 @@ class AccountsApiController extends ApiController {
 
 
 				if ($data['Billing'] == 1) {
+					$billingCompanyID = isset($data['CompanyID']) ? $data['CompanyID'] : 1 ;
+					if($data['IsReseller'] == 1){
+						$billingCompanyID = $CompanyID;
+					}
 					$dataAccountBilling['BillingType'] = $BillingSetting['billing_type'];
 					if (isset($data['PaymentMethod'])) {
 						$BillingSetting['billing_class'] = $dataAccountBilling['BillingType']  == 1? "Prepaid":"Postpaid";
 						$BillingSetting['billing_class'] = strtolower($BillingSetting['billing_class'] .'-'. $data['PaymentMethod']);
-						Log::info("PaymentMethod " .  $BillingSetting['billing_class'] . ' ' . $CompanyID);
-						$BillingClassSql = BillingClass::where('Name', $BillingSetting['billing_class'])
-							->where('CompanyID', '=', $CompanyID);
-						//dd($dataAccountBilling['BillingType']);
+						Log::info("PaymentMethod " .  $BillingSetting['billing_class'] . ' ' . $billingCompanyID);
+						$BillingClassSql = DB::table('tblBillingClass as b1')->leftJoin('tblBillingClass as b2',function ($join) use($billingCompanyID){
+			                $join->on('b1.BillingClassID', '=', 'b2.ParentBillingClassID');
+			                $join->on('b1.IsGlobal','=', DB::raw('1'));
+			                $join->on('b2.CompanyID','=', DB::raw($billingCompanyID));
+		            	})->select(['b1.*'])
+		                ->where(function($q) use($billingCompanyID) {
+		                    $q->where('b1.CompanyID', $billingCompanyID)
+		                        ->orWhere('b1.IsGlobal', '1');
+		                })->where('b1.Name' , $BillingSetting['billing_class'])
+		                ->whereNull('b2.BillingClassID');
 						$BillingClass = $BillingClassSql->first();
+						$BillingClass = json_decode(json_encode($BillingClass), True);
+
+						// BillingClass::where('Name', $BillingSetting['billing_class'])
+						// 	->where('CompanyID', '=', $billingCompanyID);
 						if (!isset($BillingClass)) {
 							return Response::json(["ErrorMessage" => Codes::$Code1017[1]], Codes::$Code1017[0]);
 						}else {
@@ -2598,6 +2601,10 @@ class AccountsApiController extends ApiController {
 					AccountPaymentAutomation::create($AccountPaymentAutomation);
 				}
 				if ($data['Billing'] == 1) {
+					$billingCompanyID = $data['CompanyID'];
+					if($data['IsReseller'] == 1){
+						$billingCompanyID = $CompanyID;
+					}
 					$TaxRateCalculation = [];
 					$TaxRateID = [];
 					$TaxRateCalculation['CompanyID'] = $CompanyID;
@@ -2626,7 +2633,17 @@ class AccountsApiController extends ApiController {
 					$account->update($TaxRateID);
 
 					$dataAccountBilling['BillingType'] = $BillingSetting['billing_type'];
-					$BillingClassSql = BillingClass::where('BillingClassID', $BillingSetting['billing_class'])->where('CompanyID','=',$CompanyID);
+					$BillingClassSql = DB::table('tblBillingClass as b1')->leftJoin('tblBillingClass as b2',function ($join) use($CompanyID){
+			                $join->on('b1.BillingClassID', '=', 'b2.ParentBillingClassID');
+			                $join->on('b1.IsGlobal','=', DB::raw('1'));
+			                $join->on('b2.CompanyID','=', DB::raw($CompanyID));
+		            	})->select(['b1.*'])
+		                ->where(function($q) use($CompanyID) {
+		                    $q->where('b1.CompanyID', $CompanyID)
+		                        ->orWhere('b1.IsGlobal', '1');
+		                })->where('b1.BillingClassID' , $BillingSetting['billing_class'])
+		                ->whereNull('b2.BillingClassID');
+					// BillingClass::where('BillingClassID', $BillingSetting['billing_class'])->where('CompanyID','=',$billingCompanyID);
 					$BillingClass = $BillingClassSql->first();
 					if (!isset($BillingClass)) {
 						return Response::json(["ErrorMessage" => Codes::$Code1017[1]],Codes::$Code1017[0]);
@@ -2684,6 +2701,10 @@ class AccountsApiController extends ApiController {
 
 					AccountBilling::insertUpdateBilling($account->AccountID, $dataAccountBilling, 0);
 					AccountBilling::storeFirstTimeInvoicePeriod($account->AccountID, 0);
+					$AccountBillingType['AccountID']    = $account->AccountID;
+					$AccountBillingType['BillingType']  = $accountData['BillingTypeID'];
+					$AccountBillingType['Date']  		= date("Y-m-d");
+					AccountBillingTypeLog::create($AccountBillingType);
 
 				}
 				if($data['IsReseller']==1) {
@@ -3437,6 +3458,7 @@ class AccountsApiController extends ApiController {
 					}
 				}
 			}
+
 			
 			if(isset($accountData['AutoTopup']) && $accountData['AutoTopup'] > 1){
 				return Response::json(["ErrorMessage" => 'Auto Top Up Value Should Be 0 Or 1'], Codes::$Code400[0]);
@@ -3761,6 +3783,143 @@ class AccountsApiController extends ApiController {
 					AccountPayout::create($CardDetail);
 				}
 			}
+
+			if (isset($accountData['BillingTypeID']) && !empty($accountData['BillingTypeID']) && !empty($accountInfo->PaymentMethod)) {
+			
+				$BillingCycleTypeID[0] = "daily";
+				$BillingCycleTypeID[1] = "fortnightly";
+				$BillingCycleTypeID[2] = "in_specific_days";
+				$BillingCycleTypeID[3] = "manual";
+				$BillingCycleTypeID[4] = "monthly";
+				$BillingCycleTypeID[5] = "monthly_anniversary";
+				$BillingCycleTypeID[6] = "quarterly";
+				$BillingCycleTypeID[7] = "weekly";
+				$BillingCycleTypeID[8] = "yearly";
+
+				$BillingSetting['billing_type'] = isset($accountData['BillingTypeID']) ? $accountData['BillingTypeID'] : '';
+				$BillingSetting['billing_class']= isset($accountData['BillingClassID']) ? $accountData['BillingClassID'] : '';
+				$BillingSetting['billing_cycle']= isset($accountData['BillingCycleTypeID']) ? $accountData['BillingCycleTypeID'] : '';
+				$BillingSetting['billing_cycle_options']= isset($accountData['BillingCycleValue']) ? $accountData['BillingCycleValue'] :'';
+				$BillingSetting['billing_start_date']=  isset($accountData['BillingStartDate']) ? $accountData['BillingStartDate'] : '';
+				$BillingSetting['NextInvoiceDate']= isset($accountData['NextInvoiceDate']) ? $accountData['NextInvoiceDate'] : '';
+
+
+				$dataAccountBilling['BillingType'] = $BillingSetting['billing_type'];
+				//dd('hi990');
+				$BillingSetting['billing_class'] = $dataAccountBilling['BillingType']  == 1? "Prepaid":"Postpaid";
+				$BillingSetting['billing_class'] = strtolower($BillingSetting['billing_class'] .'-'. $accountInfo->PaymentMethod);
+				Log::info("PaymentMethod " .  $BillingSetting['billing_class'] . ' ' . $CompanyID);
+				$BillingClassSql =  DB::table('tblBillingClass as b1')->leftJoin('tblBillingClass as b2',function ($join) use($CompanyID){
+	                $join->on('b1.BillingClassID', '=', 'b2.ParentBillingClassID');
+	                $join->on('b1.IsGlobal','=', DB::raw('1'));
+	                $join->on('b2.CompanyID','=', DB::raw($CompanyID));
+            	})->select(['b1.*'])
+                ->where(function($q) use($CompanyID) {
+                    $q->where('b1.CompanyID', $CompanyID)
+                        ->orWhere('b1.IsGlobal', '1');
+                })->where('b1.Name' , $BillingSetting['billing_class'])
+                ->whereNull('b2.BillingClassID');
+				$BillingClass = $BillingClassSql->first();
+				$BillingClass = json_decode(json_encode($BillingClass), True);
+				// dd($BillingClass);
+				if (!isset($BillingClass)) {
+					return Response::json(["ErrorMessage" => Codes::$Code1017[1]], Codes::$Code1017[0]);
+				}else {
+					$BillingSetting['billing_class'] = $BillingClass['BillingClassID'];
+				}
+
+				$dataAccountBilling['BillingType'] = $BillingSetting['billing_type'];
+			
+				$BillingClassSql = DB::table('tblBillingClass as b1')->leftJoin('tblBillingClass as b2',function ($join) use($CompanyID){
+	                $join->on('b1.BillingClassID', '=', 'b2.ParentBillingClassID');
+	                $join->on('b1.IsGlobal','=', DB::raw('1'));
+	                $join->on('b2.CompanyID','=', DB::raw($CompanyID));
+            	})->select(['b1.*'])
+                ->where(function($q) use($CompanyID) {
+                    $q->where('b1.CompanyID', $CompanyID)
+                        ->orWhere('b1.IsGlobal', '1');
+                })->where('b1.BillingClassID' , $BillingSetting['billing_class'])
+                ->whereNull('b2.BillingClassID');
+
+                //BillingClass::where('BillingClassID', $BillingSetting['billing_class'])->where('CompanyID','=',$CompanyID);
+				$BillingClass = $BillingClassSql->first();
+				if (!isset($BillingClass)) {
+					return Response::json(["ErrorMessage" => Codes::$Code1017[1]],Codes::$Code1017[0]);
+				}
+
+				$dataAccountBilling['BillingClassID'] = $BillingClass->BillingClassID;
+				$dataAccountBilling['BillingTimezone'] = $BillingClass->BillingTimezone;
+				$dataAccountBilling['SendInvoiceSetting'] = empty($BillingClass->SendInvoiceSetting) ? 'after_admin_review' : $BillingClass->SendInvoiceSetting;
+
+				//get from billing class id over
+				$dataAccountBilling['BillingCycleType'] = '';
+				$dataAccountBilling['BillingCycleValue'] = empty($BillingSetting['billing_cycle_options']) ? '' : $BillingSetting['billing_cycle_options'];
+				// set as first invoice generate
+				$BillingCycleValue = '';
+				if (isset($BillingSetting['billing_start_date']) && $BillingSetting['billing_start_date'] != '') {
+					$BillingStartDate = $BillingSetting['billing_start_date'];
+				} else {
+					$BillingStartDate = date('Y-m-d');
+				}
+
+				$NextBillingDate = next_billing_date($BillingCycleTypeID[4], $BillingCycleValue, strtotime($BillingStartDate));
+				$NextChargedDate = date('Y-m-d', strtotime('-1 day', strtotime($NextBillingDate)));
+
+				$dataAccountBilling['LastInvoiceDate'] = $BillingStartDate;
+				$dataAccountBilling['LastChargeDate'] = $BillingStartDate;
+				if (isset($BillingSetting['NextInvoiceDate']) && $BillingSetting['NextInvoiceDate'] != '') {
+					$NextBillingDate = $BillingSetting['NextInvoiceDate'];
+				}
+
+				$dataAccountBilling['NextInvoiceDate'] = $NextBillingDate;
+				$dataAccountBilling['NextChargeDate'] = $NextChargedDate;
+				$dataAccountBilling['BillingCycleType'] = $BillingCycleTypeID[4];
+
+				AccountBilling::insertUpdateBilling($accountInfo->AccountID, $dataAccountBilling, 0);
+				
+				$AccountBillingType['AccountID']   = $accountInfo->AccountID;
+				$AccountBillingType['BillingType'] = $accountData['BillingTypeID'];
+				$AccountBillingType['Date']        = date('Y-m-d');
+                $LogType = AccountBillingTypeLog::where('AccountID' ,$accountInfo->AccountID)
+					->orderby('AccountBillingTypeLogID' , 'desc')->first();
+                if(isset($LogType) && !empty($LogType)){
+                    if($LogType->BillingType != $accountData['BillingTypeID']){
+                         $AccountBillingType['OldBillingType'] = $LogType->BillingType;
+
+						// If Dates are same then update
+						if($LogType->Date == $AccountBillingType['Date']){
+							$LogID = $LogType->AccountBillingTypeLogID;
+							AccountBillingTypeLog::where('AccountBillingTypeLogID',$LogID)
+								->update($AccountBillingType);
+						} else
+                        	AccountBillingTypeLog::create($AccountBillingType);
+
+						AccountBilling::changeBillingPeriod($accountInfo->AccountID,$accountData['BillingTypeID']);
+                    }
+                }else{
+                    AccountBillingTypeLog::create($AccountBillingType);
+                }
+
+				AccountBilling::storeFirstTimeInvoicePeriod($accountInfo->AccountID, 0);
+				
+			}else if(isset($accountData['BillingTypeID']) && !empty($accountData['BillingTypeID'])){
+				$AccountBillingType['AccountID'] = $accountInfo->AccountID;
+				$AccountBillingType['BillingType'] = $accountData['BillingTypeID'];
+				if(isset($accountData['BillingTypeID']) && !empty($accountData['BillingTypeID'])){
+					AccountBilling::where('AccountID' , $accountInfo->AccountID)->update(['BillingType' => $accountData['BillingTypeID']]);
+					$LogType = AccountBillingTypeLog::where('AccountID' ,$accountInfo->AccountID)->orderby('AccountBillingTypeLogID' , 'desc')->first();
+					if($LogType){
+						if($LogType->BillingType != $accountData['BillingTypeID']){
+							$AccountBillingType['OldBillingType'] = $LogType->BillingType;
+							AccountBillingTypeLog::create($AccountBillingType);
+							AccountBilling::changeBillingPeriod($accountInfo->AccountID,$accountData['BillingTypeID']);
+						}
+					}else{
+						AccountBillingTypeLog::create($AccountBillingType);
+					}
+				}
+			}
+
 			$AccountSuccessMessage['AccountID'] = $accountInfo->AccountID;
 
 			DB::commit();
@@ -4118,9 +4277,11 @@ class AccountsApiController extends ApiController {
 					'Numbers.'.$key.'.InboundTariffCategoryID'	=> 'required|numeric',
 					'Numbers.'.$key.'.PackageContractID'		=> 'required|numeric',
 					'Numbers.'.$key.'.NumberContractID'			=> 'required|numeric',
-					'Numbers.'.$key.'.ContractStartDate'		=> 'required|date|date_format:Y-m-d|after:'.date('Y-m-d',strtotime("-1 days")),
+					'Numbers.'.$key.'.ContractStartDate'		=> 'required|date|date_format:Y-m-d',
+					//'Numbers.'.$key.'.ContractStartDate'		=> 'required|date|date_format:Y-m-d|after:'.date('Y-m-d',strtotime("-1 days")),
 					'Numbers.'.$key.'.ContractEndDate'			=> 'required|date|date_format:Y-m-d|after:Numbers.'.$key.'.ContractStartDate',
-					'Numbers.'.$key.'.PackageStartDate'			=> 'required|date|date_format:Y-m-d|after:'.date('Y-m-d',strtotime("-1 days")),
+					'Numbers.'.$key.'.PackageStartDate'			=> 'required|date|date_format:Y-m-d',
+					//'Numbers.'.$key.'.PackageStartDate'			=> 'required|date|date_format:Y-m-d|after:'.date('Y-m-d',strtotime("-1 days")),
 					'Numbers.'.$key.'.PackageEndDate'			=> 'required|date|date_format:Y-m-d|after:Numbers.'.$key.'.PackageStartDate',
 				);
 
@@ -4193,7 +4354,7 @@ class AccountsApiController extends ApiController {
 
 				$ServiceTemplate = DB::select($ServiceTemplate_q);
 				if(empty($ServiceTemplate[0])) {
-					return Response::json(["ErrorMessage" => "Product not found. ProductID: " . $data['ProductID']], Codes::$Code400[0]);
+					return Response::json(["ErrorMessage" => "Product not found. ProductID: " . $number_data['ProductID']], Codes::$Code400[0]);
 				}
 				$ProductData[$key]['ServiceTemplate'] = $ServiceTemplate = $ServiceTemplate[0];
 
@@ -4724,6 +4885,144 @@ class AccountsApiController extends ApiController {
 		}
 	}
 
+	// New API to update account service package by vasim seta @2020-02-24
+	public function updateAccountServicePackage() {
+		if(parent::checkJson() === false) {
+			return Response::json(["ErrorMessage"=>"Content type must be: application/json"],Codes::$Code400[0]);
+		}
+		$CompanyID=0;
+		$AccountID=0;
+		$AccountFindType = '';
+		$today = date('Y-m-d');
+		try {
+			$post_vars = json_decode(file_get_contents("php://input"));
+			$data=json_decode(json_encode($post_vars),true);
+			$countValues = count($data);
+			if ($countValues == 0) {
+				return Response::json(["ErrorMessage"=>"Invalid Request"],Codes::$Code400[0]);
+			}
+		}catch(Exception $ex) {
+			Log::info('Exception in updateAccountServicePackage API. Invalid JSON' . $ex->getTraceAsString());
+			return Response::json(["ErrorMessage"=>"Invalid Request"],Codes::$Code400[0]);
+		}
+
+
+		if(!empty($data['AccountID'])) {
+			if(is_numeric(trim($data['AccountID']))) {
+				$AccountID = $data['AccountID'];
+				$AccountFindType = 'AccountID';
+			}else {
+				return Response::json(["ErrorMessage"=>"AccountID must be a Number."],Codes::$Code400[0]);
+			}
+
+		}else if(!empty($data['AccountNo'])){
+			$accountNo = trim($data['AccountNo']);
+			if(empty($accountNo)){
+				return Response::json(["ErrorMessage"=>"AccountNo can not be empty"],Codes::$Code400[0]);
+			}
+			$AccountID = Account::where(["Number" => $data['AccountNo']])->pluck('AccountID');
+			$AccountFindType = 'AccountNo';
+		}else if(!empty($data['AccountDynamicField'])){
+			$AccountID = Account::findAccountBySIAccountRef($data['AccountDynamicField']);
+			$AccountFindType = 'AccountDynamicField';
+		}else{
+			return Response::json(["ErrorMessage"=>"AccountID or AccountNo or AccountDynamicField Required."],Codes::$Code400[0]);
+		}
+
+
+		$rules = array(
+			'OrderID'							=> 'required|numeric',
+			'NumberContractID'					=> 'required|numeric',
+			'NumberPurchased'					=> 'required|numeric',
+			'ContractEndDate'					=> 'required|date|date_format:Y-m-d|after:'.date('Y-m-d',strtotime("-1 days")),
+		);
+
+		$msg = array(
+			'OrderID.required'  				=> "The OrderID field is required.",
+			'OrderID.numeric'  					=> "The OrderID must be a number.",
+			'NumberContractID.required'  		=> "The NumberContractID field is required.",
+			'NumberContractID.numeric'  		=> "The NumberContractID must be a number.",
+			'NumberPurchased.required'  		=> "The NumberPurchased field is required.",
+			'NumberPurchased.numeric'  			=> "The NumberPurchased must be a number.",
+			'ContractEndDate.required'			=> "The ContractEndDate field is required.",
+			'ContractEndDate.after'				=> "Past dates not allowed for ContractEndDate.",
+		);
+
+		$validator = Validator::make($data, $rules, $msg);
+		if ($validator->fails()) {
+			$errors = "";
+			foreach ($validator->messages()->all() as $error) {
+				$errors .= $error . "<br>";
+			}
+			return Response::json(["ErrorMessage" => $errors],Codes::$Code400[0]);
+		}
+
+		$Account = Account::find($AccountID);
+		if($Account) {
+			$CompanyID = $Account->CompanyId;
+			$AccountID = $Account->AccountID;
+		} else {
+			// Account Not Found Error
+			return Response::json(["ErrorMessage" => "Account Not Found."], Codes::$Code400[0]);
+		}
+
+		$AccountService = AccountService::where(['AccountID'=>$AccountID,'ServiceOrderID'=>$data['OrderID'],'Status'=>1,'CancelContractStatus'=>0]);
+		// if AccountService exist
+		if($AccountService->count() > 0) {
+			$AccountService = $AccountService->first();
+
+			$CLIRateTable = CLIRateTable::where([
+				'CompanyID' 		=> $CompanyID,
+				'AccountID' 		=> $AccountID,
+				'AccountServiceID' 	=> $AccountService->AccountServiceID,
+				'ContractID' 		=> $data['NumberContractID'],
+				'CLI' 				=> $data['NumberPurchased']/*,
+				'Status' 			=> 1*/
+			]);
+
+			// if number exist
+			if($CLIRateTable->count() > 0) {
+				try {
+					DB::beginTransaction();
+					$CLIRateTable = $CLIRateTable->first();
+					$AccountServicePackage = AccountServicePackage::where(["AccountServicePackageID"=>$CLIRateTable->AccountServicePackageID]);
+
+					if($AccountServicePackage->count() > 0) {
+						$AccountServicePackage = $AccountServicePackage->first();
+						if(strtotime($data['ContractEndDate']) < strtotime($AccountServicePackage->PackageStartDate)) {
+							// if given EndDate is < existing NumberStartDate then end it same day
+							$data['ContractEndDate'] = $CLIRateTable->PackageStartDate;
+						}
+						$update_data = [];
+						// if EndDate is today or if EndDate is future and ends on same day as StartDate
+						if($data['ContractEndDate'] == $today || (strtotime($data['ContractEndDate']) > strtotime($today) && $data['ContractEndDate'] == $AccountServicePackage->PackageStartDate)) {
+							$update_data['Status'] = 0;
+						}
+						$update_data['PackageEndDate'] = $data['ContractEndDate'];
+						$AccountServicePackage->update($update_data);
+
+						DB::commit();
+						return Response::json(["SuccessMessage" => "Package updated successfully."],Codes::$Code200[0]);
+					} else {
+						$package_error = 'Package Not found against Number: '. $data['NumberPurchased'] . ', Account: '.$AccountFindType.': '.json_encode($data[$AccountFindType]).', OrderID: '. $data['OrderID'];
+						return Response::json(["ErrorMessage" => $package_error],Codes::$Code400[0]);
+					}
+				} catch(Exception $e) {
+					DB::rollback();
+					Log::info($e->getTraceAsString());
+					$response = array("ErrorMessage" => "Something Went Wrong. \n" . $e->getMessage());
+					return Response::json($response, Codes::$Code500[0]);
+				}
+			} else {
+				$number_error = 'Number '. $data['NumberPurchased'] . ' not found against '.$AccountFindType.': '.json_encode($data[$AccountFindType]).', OrderID: '. $data['OrderID'];
+				return Response::json(["ErrorMessage" => $number_error],Codes::$Code400[0]);
+			}
+		} else {
+			$error = 'Account Service not found for OrderID: '. $data['OrderID'];
+			return Response::json(["ErrorMessage" => $error],Codes::$Code400[0]);
+		}
+	}
+
 	// New API to update account service package by vasim seta @2020-01-02
 	public function updateServicePackage() {
 		if(parent::checkJson() === false) {
@@ -4859,6 +5158,14 @@ class AccountsApiController extends ApiController {
 					$data_cli['Prefix'] 				= $CLIRateTable->Prefix;
 					$data_cli['VendorID'] 				= $CLIRateTable->VendorID;
 					$data_cli['AccountServicePackageID']= $TestCLIRateTable->AccountServicePackageID;
+					$data_cli['AccessDiscountPlanID']			= $CLIRateTable->AccessDiscountPlanID;
+					$data_cli['TerminationDiscountPlanID']		= $CLIRateTable->TerminationDiscountPlanID;
+					$data_cli['PackageID']						= $CLIRateTable->PackageID;
+					$data_cli['PackageRateTableID']				= $CLIRateTable->PackageRateTableID;
+					$data_cli['Status']							= $CLIRateTable->Status;
+					$data_cli['DIDCategoryID']					= $CLIRateTable->DIDCategoryID;
+					$data_cli['SpecialRateTableID']				= $CLIRateTable->SpecialRateTableID;
+					$data_cli['SpecialTerminationRateTableID']	= $CLIRateTable->SpecialTerminationRateTableID;
 
 					$update_data['Status'] 			= 0;
 					$update_data['NumberEndDate'] 	= $data['UpdatePackageDate'];
@@ -5080,6 +5387,9 @@ class AccountsApiController extends ApiController {
 					$data_pkg['PackageEndDate'] 	= $OldAccountServicePackage->PackageEndDate;
 					$data_pkg['RateTableID'] 		= $OldAccountServicePackage->RateTableID;
 					$data_pkg['Status'] 			= 1;
+					$data_pkg['PackageDiscountPlanID']		= $OldAccountServicePackage->PackageDiscountPlanID;
+					$data_pkg['SpecialPackageRateTableID']	= $OldAccountServicePackage->SpecialPackageRateTableID;
+					$data_pkg['VendorID']					= $OldAccountServicePackage->VendorID;
 
 					$AccountServicePackage = AccountServicePackage::create($data_pkg);
 
@@ -5102,12 +5412,25 @@ class AccountsApiController extends ApiController {
 					$data_cli['Prefix'] 				= $OldCLIRateTable->Prefix;
 					$data_cli['VendorID'] 				= $OldCLIRateTable->VendorID;
 					$data_cli['AccountServicePackageID']= $AccountServicePackage->AccountServicePackageID;
+					$data_cli['AccessDiscountPlanID']			= $OldCLIRateTable->AccessDiscountPlanID;
+					$data_cli['TerminationDiscountPlanID']		= $OldCLIRateTable->TerminationDiscountPlanID;
+					$data_cli['PackageID']						= $OldCLIRateTable->PackageID;
+					$data_cli['PackageRateTableID']				= $OldCLIRateTable->PackageRateTableID;
+					$data_cli['Status']							= $OldCLIRateTable->Status;
+					$data_cli['DIDCategoryID']					= $OldCLIRateTable->DIDCategoryID;
+					$data_cli['SpecialRateTableID']				= $OldCLIRateTable->SpecialRateTableID;
+					$data_cli['SpecialTerminationRateTableID']	= $OldCLIRateTable->SpecialTerminationRateTableID;
 
 					if($data['ContractStartDate'] == date('Y-m-d')) {
 						$update_data['Status'] = 0;
+						$update_package_data['Status'] = 0;
 					}
+					// End Number to old customer
 					$update_data['NumberEndDate'] 	= $data['ContractStartDate'];
 					$OldCLIRateTable->update($update_data);
+					// End Package to Number of old customer
+					$update_package_data['PackageEndDate'] 	= $data['ContractStartDate'];
+					$OldAccountServicePackage->update($update_package_data);
 
 					CLIRateTable::create($data_cli);
 
@@ -5182,7 +5505,8 @@ class AccountsApiController extends ApiController {
 
 		$rules = array(
 			'OrderID'							=> 'required|numeric',
-			'NumberContractID'					=> 'required|numeric',
+			'TestNumberContractID'				=> 'required|numeric',
+			'FinalNumberContractID'				=> 'required|numeric',
 			'TestNumberPurchased'				=> 'required|numeric',
 			'FinalNumberPurchased'				=> 'required|numeric',
 		);
@@ -5190,8 +5514,10 @@ class AccountsApiController extends ApiController {
 		$msg = array(
 			'OrderID.required'  				=> "The OrderID field is required.",
 			'OrderID.numeric'  					=> "The OrderID must be a number.",
-			'NumberContractID.required'  		=> "The NumberContractID field is required.",
-			'NumberContractID.numeric'  		=> "The NumberContractID must be a number.",
+			'TestNumberContractID.required'  	=> "The TestNumberContractID field is required.",
+			'TestNumberContractID.numeric'  	=> "The TestNumberContractID must be a number.",
+			'FinalNumberContractID.required'  	=> "The FinalNumberContractID field is required.",
+			'FinalNumberContractID.numeric'  	=> "The FinalNumberContractID must be a number.",
 			'TestNumberPurchased.required'  	=> "The TestNumberPurchased field is required.",
 			'TestNumberPurchased.numeric'  		=> "The TestNumberPurchased must be a number.",
 			'FinalNumberPurchased.required'  	=> "The FinalNumberPurchased field is required.",
@@ -5217,7 +5543,7 @@ class AccountsApiController extends ApiController {
 				'CompanyID' 		=> $CompanyID,
 				'AccountID' 		=> $AccountID,
 				'AccountServiceID' 	=> $AccountService->AccountServiceID,
-				'ContractID' 		=> $data['NumberContractID'],
+				'ContractID' 		=> $data['TestNumberContractID'],
 				'CLI' 				=> $data['TestNumberPurchased'],
 				'Status' 			=> 1
 			]);
@@ -5249,24 +5575,32 @@ class AccountsApiController extends ApiController {
 					DB::beginTransaction();
 
 					$data_cli = [];
-					$data_cli['CompanyID'] 				= $CLIRateTable->CompanyID;
-					$data_cli['AccountID'] 				= $CLIRateTable->AccountID;
-					$data_cli['AccountServiceID'] 		= $CLIRateTable->AccountServiceID;
-					$data_cli['NumberStartDate'] 		= $today;
-					$data_cli['NumberEndDate'] 			= $CLIRateTable->NumberEndDate;
-					$data_cli['ServiceID'] 				= $CLIRateTable->ServiceID;
-					$data_cli['CLI'] 					= $data['FinalNumberPurchased'];
-					$data_cli['ContractID'] 			= $CLIRateTable->ContractID;
-					$data_cli['RateTableID'] 			= $CLIRateTable->RateTableID;
-					$data_cli['TerminationRateTableID'] = $CLIRateTable->TerminationRateTableID;
-					$data_cli['CountryID'] 				= $CLIRateTable->CountryID;
-					$data_cli['City'] 					= $CLIRateTable->City;
-					$data_cli['Tariff'] 				= $CLIRateTable->Tariff;
-					$data_cli['NoType'] 				= $CLIRateTable->NoType;
-					$data_cli['PrefixWithoutCountry'] 	= $CLIRateTable->PrefixWithoutCountry;
-					$data_cli['Prefix'] 				= $CLIRateTable->Prefix;
-					$data_cli['VendorID'] 				= $CLIRateTable->VendorID;
-					$data_cli['AccountServicePackageID']= $CLIRateTable->AccountServicePackageID;
+					$data_cli['CompanyID'] 						= $CLIRateTable->CompanyID;
+					$data_cli['AccountID'] 						= $CLIRateTable->AccountID;
+					$data_cli['AccountServiceID'] 				= $CLIRateTable->AccountServiceID;
+					$data_cli['NumberStartDate'] 				= $today;
+					$data_cli['NumberEndDate'] 					= $CLIRateTable->NumberEndDate;
+					$data_cli['ServiceID'] 						= $CLIRateTable->ServiceID;
+					$data_cli['CLI'] 							= $data['FinalNumberPurchased'];
+					$data_cli['ContractID'] 					= $data['FinalNumberContractID'];
+					$data_cli['RateTableID'] 					= $CLIRateTable->RateTableID;
+					$data_cli['TerminationRateTableID'] 		= $CLIRateTable->TerminationRateTableID;
+					$data_cli['CountryID'] 						= $CLIRateTable->CountryID;
+					$data_cli['City'] 							= $CLIRateTable->City;
+					$data_cli['Tariff'] 						= $CLIRateTable->Tariff;
+					$data_cli['NoType'] 						= $CLIRateTable->NoType;
+					$data_cli['PrefixWithoutCountry'] 			= $CLIRateTable->PrefixWithoutCountry;
+					$data_cli['Prefix'] 						= $CLIRateTable->Prefix;
+					$data_cli['VendorID'] 						= $CLIRateTable->VendorID;
+					$data_cli['AccountServicePackageID']		= $CLIRateTable->AccountServicePackageID;
+					$data_cli['AccessDiscountPlanID']			= $CLIRateTable->AccessDiscountPlanID;
+					$data_cli['TerminationDiscountPlanID']		= $CLIRateTable->TerminationDiscountPlanID;
+					$data_cli['PackageID']						= $CLIRateTable->PackageID;
+					$data_cli['PackageRateTableID']				= $CLIRateTable->PackageRateTableID;
+					$data_cli['Status']							= $CLIRateTable->Status;
+					$data_cli['DIDCategoryID']					= $CLIRateTable->DIDCategoryID;
+					$data_cli['SpecialRateTableID']				= $CLIRateTable->SpecialRateTableID;
+					$data_cli['SpecialTerminationRateTableID']	= $CLIRateTable->SpecialTerminationRateTableID;
 
 					$update_data['Status'] 			= 0;
 					$update_data['NumberEndDate'] 	= $today;

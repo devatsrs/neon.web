@@ -76,7 +76,8 @@ class CronJobAppController extends \BaseController {
 	{
         if( $id > 0 ) {
             $CronJob = CronJobApp::findOrFail($id);
-            $isvalid = CronJobApp::validate($id);
+            $CompanyID = $CronJob->CompanyID;
+            $isvalid = CronJobApp::validate($id,$CompanyID);
             if($isvalid['valid']==1){
                 //If user inactivate the cron job , cron job needs to terminate.
                 if(isset($isvalid['data']["Status"]) && $CronJob->Status == 1 && $isvalid['data']["Status"] == 0){
@@ -369,7 +370,7 @@ class CronJobAppController extends \BaseController {
         if(empty($CronJobID)){
             return Response::json(array("status" => "failed", "message" => "Invalid CronJobID." ));
         } else if(CronJobApp::find($CronJobID)->update(["Status"=>$Status])){
-            CronJobLogApp::createLog($CronJobID,["CronJobStatus"=>CronJob::CRON_SUCCESS, "Message" => $Status_to . " by " . User::get_user_full_name()]);
+            CronJobLogApp::createLog($CronJobID,["CronJobStatus"=>CronJobApp::CRON_SUCCESS, "Message" => $Status_to . " by " . User::get_user_full_name()]);
             return Response::json(array("status" => "success", "message" => $Status_to ));
         }else {
             return Response::json(array("status" => "failed", "message" => "Failed to Stop the Cron Job." ));

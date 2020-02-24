@@ -179,9 +179,9 @@
           <div class="col-md-1"></div>
           <div class="col-md-9"> @foreach($categories as $key => $CategoriesData)
             <?php
-				$active = IntegrationConfiguration::where(array('CompanyId'=>$companyID,"ParentIntegrationID"=>$CategoriesData['IntegrationID'],"status"=>1))->first();
-				if($CategoriesData['Slug']=='billinggateway' && $GatewayConfiguration>0){$active['Status'] =1;} 
-			  ?>
+        $active = IntegrationConfiguration::where(array('CompanyId'=>$companyID,"ParentIntegrationID"=>$CategoriesData['IntegrationID'],"status"=>1))->first();
+        if($CategoriesData['Slug']=='billinggateway' && $GatewayConfiguration>0){$active['Status'] =1;} 
+        ?>
               <div class="col-md-4">
             <input type="radio" name="category" class="category" data-id="{{$CategoriesData['Slug']}}" catid="{{$CategoriesData['IntegrationID']}}" value="{{$CategoriesData['Slug']}}" id="{{$CategoriesData['Slug']}}" @if($key==0) checked @endif />
             <label  for="{{$CategoriesData['Slug']}}" class="newredio @if($key==0) active @endif @if(isset($active['Status']) && $active['Status']==1) wizard-active @endif   "> 
@@ -197,20 +197,20 @@
           <div class="col-md-1"></div>
           <div class="col-md-9">
             <?php
-		  	foreach($categories as $key => $CategoriesData) {
-				if($CategoriesData['Slug']!==SiteIntegration::$GatewaySlug){
-				
-		  	 //$subcategories = Integration::where(["CompanyID" => $companyID,"ParentID"=>$CategoriesData['IntegrationID']])->orderBy('Title', 'asc')->get();
-		  	 $subcategories = Integration::where(["ParentID"=>$CategoriesData['IntegrationID']])->orderBy('Title', 'asc')->get();
-			 	foreach($subcategories as $key => $subcategoriesData){
-					$active = IntegrationConfiguration::where(array('CompanyId'=>$companyID,"IntegrationID"=>$subcategoriesData['IntegrationID']))->first();				
-					 
-			  ?>
+        foreach($categories as $key => $CategoriesData) {
+        if($CategoriesData['Slug']!==SiteIntegration::$GatewaySlug){
+        
+         //$subcategories = Integration::where(["CompanyID" => $companyID,"ParentID"=>$CategoriesData['IntegrationID']])->orderBy('Title', 'asc')->get();
+         $subcategories = Integration::where(["ParentID"=>$CategoriesData['IntegrationID']])->orderBy('Title', 'asc')->get();
+        foreach($subcategories as $key => $subcategoriesData){
+          $active = IntegrationConfiguration::where(array('CompanyId'=>$companyID,"IntegrationID"=>$subcategoriesData['IntegrationID']))->first();        
+           
+        ?>
             <div class="col-md-4 subcategoryblock sub{{$CategoriesData['Slug']}}">
               <input parent_id="{{$subcategoriesData['ParentID']}}"  class="subcategory" type="radio" name="subcategoryfld" data-id="key-{{$key}}" subcatid="{{$subcategoriesData['IntegrationID']}}" value="{{$subcategoriesData['Slug']}}" id="{{$subcategoriesData['Slug']}}" @if($key==0) checked @endif />
               <label data-subcatid="{{$subcategoriesData['IntegrationID']}}" data-title="{{$subcategoriesData['Title']}}" data-id="subcategorycontent{{$subcategoriesData['Slug']}}" parent_Slug="{{$CategoriesData['Slug']}}" ForeignID="{{$subcategoriesData['ForeignID']}}" for="{{$subcategoriesData['Slug']}}" class="newredio manageSubcat secondstep @if($key==0) active @endif @if(isset($active['Status']) && $active['Status']==1) wizard-active @endif">
                 <?php 
-			  if(File::exists(public_path().'/assets/images/'.$subcategoriesData['Slug'].'.png')){	?>
+        if(File::exists(public_path().'/assets/images/'.$subcategoriesData['Slug'].'.png')){  ?>
                 <img class="integrationimage" src="<?php  URL::to('/'); ?>assets/images/{{$subcategoriesData['Slug']}}.png" />
                 <?php } ?>
                 <a><b>
@@ -223,16 +223,16 @@
               </label>
             </div>
             <?php 
-			}
-		}
-			else{ //billing gateway
-			foreach($Gateway as $key => $Gateway_data){
-				?>
+      }
+    }
+      else{ //billing gateway
+      foreach($Gateway as $key => $Gateway_data){
+        ?>
              <div class="col-md-4 subcategoryblock sub{{$CategoriesData['Slug']}}">
               <input parent_id="{{$CategoriesData['ParentID']}}"  class="subcategory" type="radio" name="subcategoryfld" data-id="key-{{$key}}" subcatid="{{$Gateway_data['GatewayID']}}" value="{{$Gateway_data['Name']}}" id="{{$Gateway_data['Name']}}" @if($key==0) checked @endif />
               <label data-subcatid="{{$Gateway_data['GatewayID']}}" data-title="{{$Gateway_data['Title']}}" data-id="subcategorycontent{{$Gateway_data['Name']}}" parent_Slug="{{$CategoriesData['Slug']}}" ForeignID="{{$Gateway_data['GatewayID']}}"  for="{{$Gateway_data['Name']}}" class="newredio manageSubcat secondstep @if($key==0) active @endif @if(isset($active['Status']) && $active['Status']==1) wizard-active @endif">
                 <?php 
-			  if(File::exists(public_path().'/assets/images/'.$Gateway_data['Name'].'.png')){	?>
+        if(File::exists(public_path().'/assets/images/'.$Gateway_data['Name'].'.png')){ ?>
                 <img class="integrationimage" src="<?php  URL::to('/'); ?>assets/images/{{$Gateway_data['Name']}}.png" />
                 <?php }else{ ?>
                 <img class="integrationimage" src="<?php  URL::to('/'); ?>assets/images/defaultGateway.png" />
@@ -241,9 +241,9 @@
               </label>
             </div>
                 <?php
-			}
-			
-			} } ?>
+      }
+      
+      } } ?>
           </div>
           <div class="col-md-1"></div>
       </div>
@@ -251,9 +251,9 @@
     <div class="tab-pane" id="tab2-3">
     <!-- fresh desk start -->
     <?php 
-		$FreshDeskDbData = IntegrationConfiguration::GetIntegrationDataBySlug(SiteIntegration::$freshdeskSlug);
-		$FreshdeskData   = isset($FreshDeskDbData->Settings)?json_decode($FreshDeskDbData->Settings):"";
-		 ?>
+    $FreshDeskDbData = IntegrationConfiguration::GetIntegrationDataBySlug(SiteIntegration::$freshdeskSlug);
+    $FreshdeskData   = isset($FreshDeskDbData->Settings)?json_decode($FreshDeskDbData->Settings):"";
+     ?>
       <div class="subcategorycontent" id="subcategorycontent{{$FreshDeskDbData->Slug}}">
         <div class="row">
         <div class="col-md-6">
@@ -376,9 +376,9 @@
 
         <!-- Mandril start -->
        <?php 
-	   		$ManrdilDbData   = IntegrationConfiguration::GetIntegrationDataBySlug(SiteIntegration::$mandrillSlug);
-			$ManrdilData     = isset($ManrdilDbData->Settings)?json_decode($ManrdilDbData->Settings):"";
-		 ?>
+        $ManrdilDbData   = IntegrationConfiguration::GetIntegrationDataBySlug(SiteIntegration::$mandrillSlug);
+      $ManrdilData     = isset($ManrdilDbData->Settings)?json_decode($ManrdilDbData->Settings):"";
+     ?>
       <div class="subcategorycontent" id="subcategorycontent{{$ManrdilDbData->Slug}}">       
         <div class="row">
           <div class="col-md-6">
@@ -430,9 +430,9 @@
       <!-- Mandril end -->    
       <!-- Amazon start -->
        <?php 
-		$AmazonDbData = IntegrationConfiguration::GetIntegrationDataBySlug(SiteIntegration::$AmazoneSlug);
-		$AmazonData   = isset($AmazonDbData->Settings)?json_decode($AmazonDbData->Settings):"";
-		 ?>
+    $AmazonDbData = IntegrationConfiguration::GetIntegrationDataBySlug(SiteIntegration::$AmazoneSlug);
+    $AmazonData   = isset($AmazonDbData->Settings)?json_decode($AmazonDbData->Settings):"";
+     ?>
       <div class="subcategorycontent" id="subcategorycontent{{isset($AmazonDbData->Slug)?$AmazonDbData->Slug:''}}">        
         <div class="row">
           <div class="col-md-6">
@@ -499,9 +499,9 @@
       <!-- Amazon end -->   
       <!-- EmailTracking start -->
        <?php 
-		$EmailTrackingDBData = IntegrationConfiguration::GetIntegrationDataBySlug(SiteIntegration::$imapSlug);
-		$EmailTrackingData   = isset($EmailTrackingDBData->Settings)?json_decode($EmailTrackingDBData->Settings):"";
-		 ?>
+    $EmailTrackingDBData = IntegrationConfiguration::GetIntegrationDataBySlug(SiteIntegration::$imapSlug);
+    $EmailTrackingData   = isset($EmailTrackingDBData->Settings)?json_decode($EmailTrackingDBData->Settings):"";
+     ?>
       <div class="subcategorycontent" id="subcategorycontent{{isset($EmailTrackingDBData->Slug)?$EmailTrackingDBData->Slug:''}}">        
         <div class="row">
           <div class="col-md-6">
@@ -539,9 +539,9 @@
       <!-- EmailTracking end -->    
        <!-- Outlook calendar start -->
        <?php 
-		$outlookcalendarDBData = IntegrationConfiguration::GetIntegrationDataBySlug(SiteIntegration::$outlookcalenarSlug);
-		$outlookcalendarData   = isset($outlookcalendarDBData->Settings)?json_decode($outlookcalendarDBData->Settings):"";
-		 ?>
+    $outlookcalendarDBData = IntegrationConfiguration::GetIntegrationDataBySlug(SiteIntegration::$outlookcalenarSlug);
+    $outlookcalendarData   = isset($outlookcalendarDBData->Settings)?json_decode($outlookcalendarDBData->Settings):"";
+     ?>
       <div class="subcategorycontent" id="subcategorycontent{{isset($outlookcalendarDBData->Slug)?$outlookcalendarDBData->Slug:''}}">        
         <div class="row">
             <div class="col-md-6">
@@ -582,7 +582,7 @@
         $QuickBookDbData = IntegrationConfiguration::GetIntegrationDataBySlug(SiteIntegration::$QuickBookSlug);
         $QuickBookData   = isset($QuickBookDbData->Settings)?json_decode($QuickBookDbData->Settings,true):"";
         ?>
-        <div class="subcategorycontent" id="subcategorycontent{{$QuickBookDbData->Slug}}">
+        <div class="subcategorycontent" id="subcategorycontent{{isset($QuickBookDbData->Slug) ? $QuickBookDbData->Slug : ''}}">
             <!-- quickbook form start-->
 
             <div class="panel panel-primary" data-collapsed="0">
@@ -724,7 +724,7 @@
         $QuickBookDesktopDbData = IntegrationConfiguration::GetIntegrationDataBySlug(SiteIntegration::$QuickBookDesktopSlug);
         $QBDesktopData   = isset($QuickBookDesktopDbData->Settings)?json_decode($QuickBookDesktopDbData->Settings,true):"";
         ?>
-        <div class="subcategorycontent" id="subcategorycontent{{$QuickBookDesktopDbData->Slug}}">
+        <div class="subcategorycontent" id="subcategorycontent{{isset($QuickBookDesktopDbData->Slug) ? $QuickBookDesktopDbData->Slug : ''}}">
             <!-- quickbook form start-->
 
             <div class="panel panel-primary" data-collapsed="0">
@@ -793,7 +793,7 @@
         $XeroDbData = IntegrationConfiguration::GetIntegrationDataBySlug(SiteIntegration::$XeroSlug);
         $XeroData   = isset($XeroDbData->Settings)?json_decode($XeroDbData->Settings,true):"";
         ?>
-        <div class="subcategorycontent" id="subcategorycontent{{$XeroDbData->Slug}}">
+        <div class="subcategorycontent" id="subcategorycontent{{isset($XeroDbData->Slug) ? $XeroDbData->Slug : ''}}">
             <!-- Xero form start-->
 
             <div class="panel panel-primary" data-collapsed="0">
@@ -949,6 +949,47 @@
                     </div>
                 </div>
             </div>
+            
+            <?php
+            $CompanyID = User::get_companyID();
+            $Companies = Reseller::where(array("tblReseller.Status"=>1,"tblAccount.Status"=>1))
+                    ->join('tblAccount' , 'tblAccount.AccountID' , '=' , 'tblReseller.AccountID')
+                    ->Join('tblCompany' , 'tblCompany.CompanyID' , '=' , 'tblReseller.ChildCompanyID')
+                    ->where(['tblReseller.CompanyID' => $CompanyID])
+                    ->get(['tblCompany.CompanyName', 'tblCompany.CompanyID']);
+
+            $MainCompany = Company::find($CompanyID);
+            ?>
+            <div class="panel panel-primary" data-collapsed="0">
+                <div class="panel-heading">
+                    <div class="panel-title">
+                        Division (For Invoice Posting)
+                    </div>
+                    <div class="panel-options">
+                        <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
+                    </div>
+                </div>
+                <div class="panel-body">
+                    <div class="col-md-6  margin-top">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">{{$MainCompany->CompanyName}}:</label>
+                            <div class="col-sm-8">
+                                <input type="text" class="form-control" name="Division[{{$MainCompany->CompanyID}}]" value="{{isset($ExactData['Division'][$MainCompany->CompanyID])?$ExactData['Division'][$MainCompany->CompanyID]:""}}" />
+                            </div>
+                        </div>
+                    </div>
+                    <?php foreach($Companies as $Company) { ?>
+                    <div class="col-md-6  margin-top">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">{{$Company->CompanyName}}:</label>
+                            <div class="col-sm-8">
+                                <input type="text" class="form-control" name="Division[{{$Company->CompanyID}}]" value="{{isset($ExactData['Division'][$Company->CompanyID])?$ExactData['Division'][$Company->CompanyID]:""}}" />
+                            </div>
+                        </div>
+                    </div>
+                    <?php } ?>
+                </div>
+            </div>
 
             @foreach(ExactAuthentication::$MappingTypes as $MappingKey => $MappingText)
                 <div class="panel panel-primary" data-collapsed="0">
@@ -1030,44 +1071,44 @@
                 return false;
             },
             onNext: function(tab, navigation, index) {
-	            activetab = tab.attr('id');			
+              activetab = tab.attr('id');     
                 if(activetab=='st1'){
                     //$('.itype').hide();
-					$('.itype .firstStep').hide();
-					$('.itype .SecondStep').show();
+          $('.itype .firstStep').hide();
+          $('.itype .SecondStep').show();
                     var importfrom  = $("#rootwizard-2 input[name='category']:checked").val();
-					var catid   	= $("#rootwizard-2 input[name='category']:checked").attr('catid');
-					$('.subcategoryblock').hide();
-					$('.sub'+importfrom).show();
-					$('.sub'+importfrom+' .newredio').eq(0).addClass('active');
-					$('.sub'+importfrom+' .subcategory').eq(0).click();
-				    $("#firstcategory").val(importfrom);
-					$("#firstcategoryid").val(catid);
-					console.log(importfrom+' '+catid);
+          var catid     = $("#rootwizard-2 input[name='category']:checked").attr('catid');
+          $('.subcategoryblock').hide();
+          $('.sub'+importfrom).show();
+          $('.sub'+importfrom+' .newredio').eq(0).addClass('active');
+          $('.sub'+importfrom+' .subcategory').eq(0).click();
+            $("#firstcategory").val(importfrom);
+          $("#firstcategoryid").val(catid);
+          console.log(importfrom+' '+catid);
                 }
 
                 if(activetab=='st2'){
-					$('.itype .firstStep').hide();
-					$('.itype .SecondStep').show();
-					 var importcat   = 	$("#rootwizard-2 input[name='subcategoryfld']:checked").val();
- 					 var subcatid    = 	$("#rootwizard-2 input[name='subcategoryfld']:checked").attr('subcatid');
-					 var parent_id   = 	$("#rootwizard-2 input[name='subcategoryfld']:checked").attr('parent_id');
-					 var ForeignID   = 	$("#rootwizard-2 input[name='subcategoryfld']:checked").attr('ForeignID');
+          $('.itype .firstStep').hide();
+          $('.itype .SecondStep').show();
+           var importcat   =  $("#rootwizard-2 input[name='subcategoryfld']:checked").val();
+           var subcatid    =  $("#rootwizard-2 input[name='subcategoryfld']:checked").attr('subcatid');
+           var parent_id   =  $("#rootwizard-2 input[name='subcategoryfld']:checked").attr('parent_id');
+           var ForeignID   =  $("#rootwizard-2 input[name='subcategoryfld']:checked").attr('ForeignID');
 
-					 console.log(importcat+' '+subcatid+' '+parent_id);
-					 if(parent_id==5 && ForeignID!=0){ ///gateway 
-					 	//window.location = baseurl+'/gateway?id='+ForeignID;	
-					    window.open(baseurl+'/gateway/'+ForeignID, '_blank');
-						return false;
-					 }					
+           console.log(importcat+' '+subcatid+' '+parent_id);
+           if(parent_id==5 && ForeignID!=0){ ///gateway 
+            //window.location = baseurl+'/gateway?id='+ForeignID; 
+              window.open(baseurl+'/gateway/'+ForeignID, '_blank');
+            return false;
+           }          
                 }
             },
             onPrevious: function(tab, navigation, index) {
                 activetab = tab.attr('id');
                 if(activetab=='st2'){
                    // location.reload();
-				   $('.itype .firstStep').show();
-				   $('.itype .SecondStep').hide();
+           $('.itype .firstStep').show();
+           $('.itype .SecondStep').hide();
                 }
             }
         });
@@ -1079,7 +1120,7 @@
             var quickbookconfirm = true;
             var check = false;
             var sec_cat = $("#SubcategoryForm input[name='secondcategory']").val();
-	        var formData = new FormData($(this)[0]);
+          var formData = new FormData($(this)[0]);
             if(sec_cat=='QuickBook'){
                 $('#SubcategoryForm input:text').each(function()
                 {
@@ -1131,25 +1172,25 @@
                 return false;
             }
         });
-		
-		
-		$('.manageSubcat').click(function(e) {
+    
+    
+    $('.manageSubcat').click(function(e) {
             $('#SubcategoryModal .modal-dialog').removeClass('modal-lg');
-			$('#SubcategoryModalContent').html('');
-            SubCatID		 = 	$(this).attr('data-id');
-			var DataTitle		 = 	$(this).attr('data-title');	
-			var SubCatid	 	 =	$(this).attr("data-subcatid");		 
-			var SubcatContent 	 = 	$('#'+SubCatID).html(); 				
-			var parent_slug   	 = 	$(this).attr('parent_Slug');
-			var ForeignID   	 = 	$(this).attr('ForeignID');
+      $('#SubcategoryModalContent').html('');
+            SubCatID     =  $(this).attr('data-id');
+      var DataTitle    =  $(this).attr('data-title'); 
+      var SubCatid     =  $(this).attr("data-subcatid");     
+      var SubcatContent    =  $('#'+SubCatID).html();         
+      var parent_slug      =  $(this).attr('parent_Slug');
+      var ForeignID      =  $(this).attr('ForeignID');
 
-			$('#SubcategoryModalContent').html(SubcatContent);
-			$('#SubcategoryModal .modal-title').html(DataTitle);
-			
-			 if(parent_slug=='billinggateway' && ForeignID!=0){ ///gateway 
-				window.open(baseurl+'/gateway/'+ForeignID, '_blank');
-				return false;
-			 }
+      $('#SubcategoryModalContent').html(SubcatContent);
+      $('#SubcategoryModal .modal-title').html(DataTitle);
+      
+       if(parent_slug=='billinggateway' && ForeignID!=0){ ///gateway 
+        window.open(baseurl+'/gateway/'+ForeignID, '_blank');
+        return false;
+       }
 
             if(parent_slug=='accounting'){
                 $('#SubcategoryModal .modal-dialog').addClass('modal-lg');
@@ -1168,35 +1209,35 @@
                 $('#exact-connect').hide();
             }
 
-			$('#'+SubCatID).find('.subcatstatus').each(function(index, element) {
+      $('#'+SubCatID).find('.subcatstatus').each(function(index, element) {
                 if($(this).prop('checked') == true)
-			    {
-					biuldSwicth('#'+$(this).attr('Divid'),$(this).attr('name'),'#SubcategoryModal','checked');
-				}
-				else
-				{
-					biuldSwicth('#'+$(this).attr('Divid'),$(this).attr('name'),'#SubcategoryModal','');
-				}
+          {
+          biuldSwicth('#'+$(this).attr('Divid'),$(this).attr('name'),'#SubcategoryModal','checked');
+        }
+        else
+        {
+          biuldSwicth('#'+$(this).attr('Divid'),$(this).attr('name'),'#SubcategoryModal','');
+        }
             });
 
             makeSwitch(SubCatID);
 
-			//var StatusValue  = $('#'+SubCatID).find('.subcatstatus:checked').val();
-			
-			//alert(StatusValue);
-			/*return false;
-			if(StatusValue==1) {
-				biuldSwicth('.make','Status','#SubcategoryModal','checked');
-			}else{
-				biuldSwicth('.make','Status','#SubcategoryModal','');
-			}*/
-			
-			
-			$("#secondcategory").val(DataTitle);
-			$("#secondcategoryid").val(SubCatid);			
-			$('#SubcategoryModal').modal('show');	
-			
-			 $('[data-toggle="popover"]').each(function(i, el)
+      //var StatusValue  = $('#'+SubCatID).find('.subcatstatus:checked').val();
+      
+      //alert(StatusValue);
+      /*return false;
+      if(StatusValue==1) {
+        biuldSwicth('.make','Status','#SubcategoryModal','checked');
+      }else{
+        biuldSwicth('.make','Status','#SubcategoryModal','');
+      }*/
+      
+      
+      $("#secondcategory").val(DataTitle);
+      $("#secondcategoryid").val(SubCatid);     
+      $('#SubcategoryModal').modal('show'); 
+      
+       $('[data-toggle="popover"]').each(function(i, el)
                 {
                     var $this = $(el),
                         placement = attrDefault($this, 'placement', 'right'),
@@ -1215,19 +1256,19 @@
                         $popover.addClass(popover_class);
                     });
                 });
-			
+      
         });
 
-		$(document).on("click",'#TestImapConnection',function(e){
-			$(this).button('loading');
-			var email    = 	$('#EmailTrackingEmail').val();
-			var server   = 	$('#EmailTrackingServer').val();
-			var password = 	$('#EmailTrackingPassword').val();
-			
+    $(document).on("click",'#TestImapConnection',function(e){
+      $(this).button('loading');
+      var email    =  $('#EmailTrackingEmail').val();
+      var server   =  $('#EmailTrackingServer').val();
+      var password =  $('#EmailTrackingPassword').val();
+      
             e.preventDefault();
-	       var formData = new FormData($('#SubcategoryForm')[0]);
-			
-			 $.ajax({
+         var formData = new FormData($('#SubcategoryForm')[0]);
+      
+       $.ajax({
                 url:"{{URL::to('/integration/checkimapconnection')}}", //Server script to process data
                 type: 'POST',
                 dataType: 'json',
@@ -1236,7 +1277,7 @@
                 },
                 success: function(response) {
                     $(".save_template").button('reset');
-					$('.test-connection').button('reset');
+          $('.test-connection').button('reset');
                     if (response.status == 'success') {
                         toastr.success(response.message, "Success", toastr_opts);                       
                     } else {
@@ -1248,8 +1289,8 @@
                 cache: false,
                 contentType: false,
                 processData: false
-            });		
-		});
+            });   
+    });
 
         $('#exact-connect').on('click', function() {
             $('#exact-connect-form').submit();

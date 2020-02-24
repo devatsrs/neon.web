@@ -33,11 +33,16 @@ class CronJob extends \Eloquent {
         }
     }
 //@Todo:
-    public static function validate($id=0){
+    public static function validate($id=0 ,  $CronCompanyID = 0){
         $valid = array('valid'=>0,'message'=>'Some thing wrong with cron model validation','data'=>'');
         $data = Input::all();
-        $companyID = User::get_companyID();
-        $data['CompanyID'] = $companyID;
+        if($CronCompanyID != 0){
+            $companyID = $CronCompanyID;
+            $data['CompanyID'] = $CronCompanyID;
+        }else{
+            $companyID = User::get_companyID();
+            $data['CompanyID'] = $companyID;
+        }
 
         if(isset($data['JobTitle']) && trim($data['JobTitle']) == ''){
             $valid['message'] = Response::json(array("status" => "failed", "message" => "Job Title is required"));

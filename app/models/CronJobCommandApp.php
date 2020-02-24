@@ -11,7 +11,7 @@ class CronJobCommandApp extends \Eloquent {
 
     public static function getCommands(){
         $CompanyID = User::get_companyID();
-        $row = CronJobCommandApp::where(["Status"=> 1,'CompanyID'=>$CompanyID])->orderBy('Title', 'asc')->lists('Title', 'CronJobCommandID');
+        $row = CronJobCommandApp::where(["Status"=> 1])->orderBy('Title', 'asc')->lists('Title', 'CronJobCommandID');
         if(!empty($row)){
             $row = array(""=> "Select")+$row;
         }

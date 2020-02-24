@@ -337,10 +337,7 @@ class AccountsController extends \BaseController {
             //Account::$rules['AffiliateAccounts'] = 'required';
         }
 
-        if ($data['IsAffiliateAccount'] == 1) {
-            if(empty($data['AffiliateAccounts'])){
-                return Response::json(array("status" => "failed", "message" => "Please Select Atleast One Affiliate Account."));
-            }
+        if ($data['IsAffiliateAccount'] == 1 && !empty($data['AffiliateAccounts'])) {
             $AffiliateAccount = array();
             $AffiliateAccount['AffiliateAccounts'] = implode(",",$data['AffiliateAccounts']);
             unset($data['AffiliateAccounts']);
@@ -611,6 +608,10 @@ class AccountsController extends \BaseController {
                 }
 
                 AccountBilling::insertUpdateBilling($account->AccountID, $data,$ServiceID);
+                $AccountBillingType['BillingType'] = $data['BillingType'];
+                $AccountBillingType['AccountID']   = $account->AccountID;
+                $AccountBillingType['Date']        = date('Y-m-d');
+                AccountBillingTypeLog::create($AccountBillingType);
                 if($ManualBilling ==0) {
                     AccountBilling::storeFirstTimeInvoicePeriod($account->AccountID, $ServiceID);
                 }
@@ -662,7 +663,7 @@ class AccountsController extends \BaseController {
             $AccountDetails['AccountID'] = $account->AccountID;
             AccountDetails::create($AccountDetails);
 
-            if ($data['IsAffiliateAccount'] == 1) {
+            if ($data['IsAffiliateAccount'] == 1 && !empty($AffiliateAccount)) {
                 $AffiliateAccount['AccountID'] = $account->AccountID;
                 AffiliateAccount::create($AffiliateAccount);
             }
@@ -779,11 +780,8 @@ class AccountsController extends \BaseController {
 
         //Account oppertunity data
         $boards 					= 	 CRMBoard::getTaskBoard(); //opperturnity variables start
-        if(count($boards)<1){
-
-            $message 				= 	 "No Task Board Found. PLease create task board first";
-        }else{
-            $boards					=	  $boards[0];
+        if(count($boards) > 0){
+              $boards                   =     $boards[0];
         }
         $accounts 					= 	 Account::getAccountIDList();
         $leadOrAccountID 			= 	 '';
@@ -1147,10 +1145,7 @@ class AccountsController extends \BaseController {
             Account::$rules['CommissionPercentage'] = 'required';
         }
 
-        if ($data['IsAffiliateAccount'] == 1) {
-            if(empty($data['AffiliateAccounts'])){
-                return Response::json(array("status" => "failed", "message" => "Please Select Atleast One Affiliate Account."));
-            }
+        if ($data['IsAffiliateAccount'] == 1 && !empty($data['AffiliateAccounts'])) {
             $AffiliateAccount = array();
             $AffiliateAccount['AffiliateAccounts'] = implode(",",$data['AffiliateAccounts']);
             unset($data['AffiliateAccounts']);
@@ -1517,6 +1512,29 @@ class AccountsController extends \BaseController {
                     }
                 }
                 AccountBilling::insertUpdateBilling($id, $data,$ServiceID,$invoice_count);
+                $AccountBillingType['BillingType'] = $data['BillingType'];
+                $AccountBillingType['AccountID'] = $id;
+                $AccountBillingType['Date'] = date("Y-m-d");
+                $LogType = AccountBillingTypeLog::where('AccountID' ,$id)
+                    ->orderby('AccountBillingTypeLogID', 'desc')->first();
+
+                if(isset($LogType) && !empty($LogType)){
+                    if($LogType->BillingType != $AccountBillingType['BillingType']){
+                        $AccountBillingType['OldBillingType'] = $LogType->BillingType;
+
+                        // If Dates are same then update
+                        if($LogType->Date == $AccountBillingType['Date']){
+                            $LogID = $LogType->AccountBillingTypeLogID;
+                            AccountBillingTypeLog::where('AccountBillingTypeLogID',$LogID)
+                                ->update($AccountBillingType);
+                        } else
+                            AccountBillingTypeLog::create($AccountBillingType);
+
+                        AccountBilling::changeBillingPeriod($id,$data['BillingType']);
+                    }
+                }else{
+                    AccountBillingTypeLog::create($AccountBillingType);
+                }
                 if($ManualBilling == 0){
                     AccountBilling::storeFirstTimeInvoicePeriod($id, $ServiceID);
                 }
@@ -1604,16 +1622,20 @@ class AccountsController extends \BaseController {
                 AccountDetails::create($AccountDetails);
             }
 
-            if ($data['IsAffiliateAccount'] == 1) {
+            if ($data['IsAffiliateAccount'] == 1 && !empty($AffiliateAccount)) {
                 $Affiliate = AffiliateAccount::where('AccountID',$id);
-                if($Affiliate){
+                $AffiliateCheck = $Affiliate->first();
+                if($AffiliateCheck != false){
                     $Affiliate->update($AffiliateAccount);
                 }else{
                     $AffiliateAccount['AccountID'] = $id;
                     AffiliateAccount::create($AffiliateAccount);
                 }
                 
-                
+            }
+
+            if ($data['IsAffiliateAccount'] == 1 && empty($AffiliateAccount)) {
+                $Affiliate = AffiliateAccount::where('AccountID',$id)->update(['AffiliateAccounts' => '']);
             }
 
             if(!empty($data['PaymentMethod'])) {
@@ -3605,4 +3627,5 @@ insert into tblInvoiceCompany (InvoiceCompany,CompanyID,DubaiCompany,CustomerID,
 
         return $accountService;
         }
+
 }

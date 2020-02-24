@@ -366,7 +366,9 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/import/account/getAccountInfoFromQuickbook',  'ImportsController@getAccountInfoFromQuickbook');
 	Route::any('/import/account/ajax_get_missing_quickbookaccounts',  'ImportsController@ajax_get_missing_quickbookaccounts');
 	Route::any('/import/account/add_missing_quickbookaccounts',  'ImportsController@add_missing_quickbookaccounts');
-
+	Route::any('/import' , 'ImportsController@importindex');
+	Route::any('/import/storeimportfiles' , 'ImportsController@storeimportfiles');
+	
 	//import ips
 	Route::any('/import/ips',  'ImportsController@import_ips');
 	Route::any('/import/ips_download_sample_excel_file',  'ImportsController@ips_download_sample_excel_file');
@@ -1880,6 +1882,10 @@ Route::group(array('before' => 'guest'), function () {
 		return View::make('test.transcheck');
 	});
 
+	// New API by Vasim Seta at 2020-02-17
+	Route::get('importdata/uploadtemplatefile', 'DataImportController@index');
+	Route::post('importdata/uploadtemplatefile', 'DataImportController@uploadTemplateFile');
+
 });
 
 Route::any('terms', "HomeController@terms");
@@ -1952,6 +1958,7 @@ Route::group(array('before' => 'auth.api', 'prefix' => 'api'), function()
 	Route::post('addNewAccountService', 'AccountsApiController@addNewAccountService');
 	Route::post('updateTariff', 'AccountsApiController@updateTariff');
 	Route::post('updateAccountService', 'AccountsApiController@updateAccountService');
+	Route::post('updateAccountServicePackage', 'AccountsApiController@updateAccountServicePackage');
 	Route::post('updateServicePackage', 'AccountsApiController@updateServicePackage');
 	Route::post('transferServiceNumber', 'AccountsApiController@transferServiceNumber');
 	Route::post('updateFinalNumber', 'AccountsApiController@updateFinalNumber');
