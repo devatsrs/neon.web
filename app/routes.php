@@ -1958,6 +1958,7 @@ Route::group(array('before' => 'auth.api', 'prefix' => 'api'), function()
 	Route::post('addNewAccountService', 'AccountsApiController@addNewAccountService');
 	Route::post('updateTariff', 'AccountsApiController@updateTariff');
 	Route::post('updateAccountService', 'AccountsApiController@updateAccountService');
+	Route::post('updateAccountServicePackage', 'AccountsApiController@updateAccountServicePackage');
 	Route::post('updateServicePackage', 'AccountsApiController@updateServicePackage');
 	Route::post('transferServiceNumber', 'AccountsApiController@transferServiceNumber');
 	Route::post('updateFinalNumber', 'AccountsApiController@updateFinalNumber');

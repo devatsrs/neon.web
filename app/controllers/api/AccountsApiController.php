@@ -4885,6 +4885,144 @@ class AccountsApiController extends ApiController {
 		}
 	}
 
+	// New API to update account service package by vasim seta @2020-02-24
+	public function updateAccountServicePackage() {
+		if(parent::checkJson() === false) {
+			return Response::json(["ErrorMessage"=>"Content type must be: application/json"],Codes::$Code400[0]);
+		}
+		$CompanyID=0;
+		$AccountID=0;
+		$AccountFindType = '';
+		$today = date('Y-m-d');
+		try {
+			$post_vars = json_decode(file_get_contents("php://input"));
+			$data=json_decode(json_encode($post_vars),true);
+			$countValues = count($data);
+			if ($countValues == 0) {
+				return Response::json(["ErrorMessage"=>"Invalid Request"],Codes::$Code400[0]);
+			}
+		}catch(Exception $ex) {
+			Log::info('Exception in updateAccountServicePackage API. Invalid JSON' . $ex->getTraceAsString());
+			return Response::json(["ErrorMessage"=>"Invalid Request"],Codes::$Code400[0]);
+		}
+
+
+		if(!empty($data['AccountID'])) {
+			if(is_numeric(trim($data['AccountID']))) {
+				$AccountID = $data['AccountID'];
+				$AccountFindType = 'AccountID';
+			}else {
+				return Response::json(["ErrorMessage"=>"AccountID must be a Number."],Codes::$Code400[0]);
+			}
+
+		}else if(!empty($data['AccountNo'])){
+			$accountNo = trim($data['AccountNo']);
+			if(empty($accountNo)){
+				return Response::json(["ErrorMessage"=>"AccountNo can not be empty"],Codes::$Code400[0]);
+			}
+			$AccountID = Account::where(["Number" => $data['AccountNo']])->pluck('AccountID');
+			$AccountFindType = 'AccountNo';
+		}else if(!empty($data['AccountDynamicField'])){
+			$AccountID = Account::findAccountBySIAccountRef($data['AccountDynamicField']);
+			$AccountFindType = 'AccountDynamicField';
+		}else{
+			return Response::json(["ErrorMessage"=>"AccountID or AccountNo or AccountDynamicField Required."],Codes::$Code400[0]);
+		}
+
+
+		$rules = array(
+			'OrderID'							=> 'required|numeric',
+			'NumberContractID'					=> 'required|numeric',
+			'NumberPurchased'					=> 'required|numeric',
+			'ContractEndDate'					=> 'required|date|date_format:Y-m-d|after:'.date('Y-m-d',strtotime("-1 days")),
+		);
+
+		$msg = array(
+			'OrderID.required'  				=> "The OrderID field is required.",
+			'OrderID.numeric'  					=> "The OrderID must be a number.",
+			'NumberContractID.required'  		=> "The NumberContractID field is required.",
+			'NumberContractID.numeric'  		=> "The NumberContractID must be a number.",
+			'NumberPurchased.required'  		=> "The NumberPurchased field is required.",
+			'NumberPurchased.numeric'  			=> "The NumberPurchased must be a number.",
+			'ContractEndDate.required'			=> "The ContractEndDate field is required.",
+			'ContractEndDate.after'				=> "Past dates not allowed for ContractEndDate.",
+		);
+
+		$validator = Validator::make($data, $rules, $msg);
+		if ($validator->fails()) {
+			$errors = "";
+			foreach ($validator->messages()->all() as $error) {
+				$errors .= $error . "<br>";
+			}
+			return Response::json(["ErrorMessage" => $errors],Codes::$Code400[0]);
+		}
+
+		$Account = Account::find($AccountID);
+		if($Account) {
+			$CompanyID = $Account->CompanyId;
+			$AccountID = $Account->AccountID;
+		} else {
+			// Account Not Found Error
+			return Response::json(["ErrorMessage" => "Account Not Found."], Codes::$Code400[0]);
+		}
+
+		$AccountService = AccountService::where(['AccountID'=>$AccountID,'ServiceOrderID'=>$data['OrderID'],'Status'=>1,'CancelContractStatus'=>0]);
+		// if AccountService exist
+		if($AccountService->count() > 0) {
+			$AccountService = $AccountService->first();
+
+			$CLIRateTable = CLIRateTable::where([
+				'CompanyID' 		=> $CompanyID,
+				'AccountID' 		=> $AccountID,
+				'AccountServiceID' 	=> $AccountService->AccountServiceID,
+				'ContractID' 		=> $data['NumberContractID'],
+				'CLI' 				=> $data['NumberPurchased']/*,
+				'Status' 			=> 1*/
+			]);
+
+			// if number exist
+			if($CLIRateTable->count() > 0) {
+				try {
+					DB::beginTransaction();
+					$CLIRateTable = $CLIRateTable->first();
+					$AccountServicePackage = AccountServicePackage::where(["AccountServicePackageID"=>$CLIRateTable->AccountServicePackageID]);
+
+					if($AccountServicePackage->count() > 0) {
+						$AccountServicePackage = $AccountServicePackage->first();
+						if(strtotime($data['ContractEndDate']) < strtotime($AccountServicePackage->PackageStartDate)) {
+							// if given EndDate is < existing NumberStartDate then end it same day
+							$data['ContractEndDate'] = $CLIRateTable->PackageStartDate;
+						}
+						$update_data = [];
+						// if EndDate is today or if EndDate is future and ends on same day as StartDate
+						if($data['ContractEndDate'] == $today || (strtotime($data['ContractEndDate']) > strtotime($today) && $data['ContractEndDate'] == $AccountServicePackage->PackageStartDate)) {
+							$update_data['Status'] = 0;
+						}
+						$update_data['PackageEndDate'] = $data['ContractEndDate'];
+						$AccountServicePackage->update($update_data);
+
+						DB::commit();
+						return Response::json(["SuccessMessage" => "Package updated successfully."],Codes::$Code200[0]);
+					} else {
+						$package_error = 'Package Not found against Number: '. $data['NumberPurchased'] . ', Account: '.$AccountFindType.': '.json_encode($data[$AccountFindType]).', OrderID: '. $data['OrderID'];
+						return Response::json(["ErrorMessage" => $package_error],Codes::$Code400[0]);
+					}
+				} catch(Exception $e) {
+					DB::rollback();
+					Log::info($e->getTraceAsString());
+					$response = array("ErrorMessage" => "Something Went Wrong. \n" . $e->getMessage());
+					return Response::json($response, Codes::$Code500[0]);
+				}
+			} else {
+				$number_error = 'Number '. $data['NumberPurchased'] . ' not found against '.$AccountFindType.': '.json_encode($data[$AccountFindType]).', OrderID: '. $data['OrderID'];
+				return Response::json(["ErrorMessage" => $number_error],Codes::$Code400[0]);
+			}
+		} else {
+			$error = 'Account Service not found for OrderID: '. $data['OrderID'];
+			return Response::json(["ErrorMessage" => $error],Codes::$Code400[0]);
+		}
+	}
+
 	// New API to update account service package by vasim seta @2020-01-02
 	public function updateServicePackage() {
 		if(parent::checkJson() === false) {
@@ -5285,9 +5423,14 @@ class AccountsApiController extends ApiController {
 
 					if($data['ContractStartDate'] == date('Y-m-d')) {
 						$update_data['Status'] = 0;
+						$update_package_data['Status'] = 0;
 					}
+					// End Number to old customer
 					$update_data['NumberEndDate'] 	= $data['ContractStartDate'];
 					$OldCLIRateTable->update($update_data);
+					// End Package to Number of old customer
+					$update_package_data['PackageEndDate'] 	= $data['ContractStartDate'];
+					$OldAccountServicePackage->update($update_package_data);
 
 					CLIRateTable::create($data_cli);
 
