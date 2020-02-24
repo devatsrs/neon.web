@@ -4354,7 +4354,7 @@ class AccountsApiController extends ApiController {
 
 				$ServiceTemplate = DB::select($ServiceTemplate_q);
 				if(empty($ServiceTemplate[0])) {
-					return Response::json(["ErrorMessage" => "Product not found. ProductID: " . $data['ProductID']], Codes::$Code400[0]);
+					return Response::json(["ErrorMessage" => "Product not found. ProductID: " . $number_data['ProductID']], Codes::$Code400[0]);
 				}
 				$ProductData[$key]['ServiceTemplate'] = $ServiceTemplate = $ServiceTemplate[0];
 
@@ -5020,6 +5020,14 @@ class AccountsApiController extends ApiController {
 					$data_cli['Prefix'] 				= $CLIRateTable->Prefix;
 					$data_cli['VendorID'] 				= $CLIRateTable->VendorID;
 					$data_cli['AccountServicePackageID']= $TestCLIRateTable->AccountServicePackageID;
+					$data_cli['AccessDiscountPlanID']			= $CLIRateTable->AccessDiscountPlanID;
+					$data_cli['TerminationDiscountPlanID']		= $CLIRateTable->TerminationDiscountPlanID;
+					$data_cli['PackageID']						= $CLIRateTable->PackageID;
+					$data_cli['PackageRateTableID']				= $CLIRateTable->PackageRateTableID;
+					$data_cli['Status']							= $CLIRateTable->Status;
+					$data_cli['DIDCategoryID']					= $CLIRateTable->DIDCategoryID;
+					$data_cli['SpecialRateTableID']				= $CLIRateTable->SpecialRateTableID;
+					$data_cli['SpecialTerminationRateTableID']	= $CLIRateTable->SpecialTerminationRateTableID;
 
 					$update_data['Status'] 			= 0;
 					$update_data['NumberEndDate'] 	= $data['UpdatePackageDate'];
@@ -5241,6 +5249,9 @@ class AccountsApiController extends ApiController {
 					$data_pkg['PackageEndDate'] 	= $OldAccountServicePackage->PackageEndDate;
 					$data_pkg['RateTableID'] 		= $OldAccountServicePackage->RateTableID;
 					$data_pkg['Status'] 			= 1;
+					$data_pkg['PackageDiscountPlanID']		= $OldAccountServicePackage->PackageDiscountPlanID;
+					$data_pkg['SpecialPackageRateTableID']	= $OldAccountServicePackage->SpecialPackageRateTableID;
+					$data_pkg['VendorID']					= $OldAccountServicePackage->VendorID;
 
 					$AccountServicePackage = AccountServicePackage::create($data_pkg);
 
@@ -5263,6 +5274,14 @@ class AccountsApiController extends ApiController {
 					$data_cli['Prefix'] 				= $OldCLIRateTable->Prefix;
 					$data_cli['VendorID'] 				= $OldCLIRateTable->VendorID;
 					$data_cli['AccountServicePackageID']= $AccountServicePackage->AccountServicePackageID;
+					$data_cli['AccessDiscountPlanID']			= $OldCLIRateTable->AccessDiscountPlanID;
+					$data_cli['TerminationDiscountPlanID']		= $OldCLIRateTable->TerminationDiscountPlanID;
+					$data_cli['PackageID']						= $OldCLIRateTable->PackageID;
+					$data_cli['PackageRateTableID']				= $OldCLIRateTable->PackageRateTableID;
+					$data_cli['Status']							= $OldCLIRateTable->Status;
+					$data_cli['DIDCategoryID']					= $OldCLIRateTable->DIDCategoryID;
+					$data_cli['SpecialRateTableID']				= $OldCLIRateTable->SpecialRateTableID;
+					$data_cli['SpecialTerminationRateTableID']	= $OldCLIRateTable->SpecialTerminationRateTableID;
 
 					if($data['ContractStartDate'] == date('Y-m-d')) {
 						$update_data['Status'] = 0;
@@ -5343,7 +5362,8 @@ class AccountsApiController extends ApiController {
 
 		$rules = array(
 			'OrderID'							=> 'required|numeric',
-			'NumberContractID'					=> 'required|numeric',
+			'TestNumberContractID'				=> 'required|numeric',
+			'FinalNumberContractID'				=> 'required|numeric',
 			'TestNumberPurchased'				=> 'required|numeric',
 			'FinalNumberPurchased'				=> 'required|numeric',
 		);
@@ -5351,8 +5371,10 @@ class AccountsApiController extends ApiController {
 		$msg = array(
 			'OrderID.required'  				=> "The OrderID field is required.",
 			'OrderID.numeric'  					=> "The OrderID must be a number.",
-			'NumberContractID.required'  		=> "The NumberContractID field is required.",
-			'NumberContractID.numeric'  		=> "The NumberContractID must be a number.",
+			'TestNumberContractID.required'  	=> "The TestNumberContractID field is required.",
+			'TestNumberContractID.numeric'  	=> "The TestNumberContractID must be a number.",
+			'FinalNumberContractID.required'  	=> "The FinalNumberContractID field is required.",
+			'FinalNumberContractID.numeric'  	=> "The FinalNumberContractID must be a number.",
 			'TestNumberPurchased.required'  	=> "The TestNumberPurchased field is required.",
 			'TestNumberPurchased.numeric'  		=> "The TestNumberPurchased must be a number.",
 			'FinalNumberPurchased.required'  	=> "The FinalNumberPurchased field is required.",
@@ -5378,7 +5400,7 @@ class AccountsApiController extends ApiController {
 				'CompanyID' 		=> $CompanyID,
 				'AccountID' 		=> $AccountID,
 				'AccountServiceID' 	=> $AccountService->AccountServiceID,
-				'ContractID' 		=> $data['NumberContractID'],
+				'ContractID' 		=> $data['TestNumberContractID'],
 				'CLI' 				=> $data['TestNumberPurchased'],
 				'Status' 			=> 1
 			]);
@@ -5410,24 +5432,32 @@ class AccountsApiController extends ApiController {
 					DB::beginTransaction();
 
 					$data_cli = [];
-					$data_cli['CompanyID'] 				= $CLIRateTable->CompanyID;
-					$data_cli['AccountID'] 				= $CLIRateTable->AccountID;
-					$data_cli['AccountServiceID'] 		= $CLIRateTable->AccountServiceID;
-					$data_cli['NumberStartDate'] 		= $today;
-					$data_cli['NumberEndDate'] 			= $CLIRateTable->NumberEndDate;
-					$data_cli['ServiceID'] 				= $CLIRateTable->ServiceID;
-					$data_cli['CLI'] 					= $data['FinalNumberPurchased'];
-					$data_cli['ContractID'] 			= $CLIRateTable->ContractID;
-					$data_cli['RateTableID'] 			= $CLIRateTable->RateTableID;
-					$data_cli['TerminationRateTableID'] = $CLIRateTable->TerminationRateTableID;
-					$data_cli['CountryID'] 				= $CLIRateTable->CountryID;
-					$data_cli['City'] 					= $CLIRateTable->City;
-					$data_cli['Tariff'] 				= $CLIRateTable->Tariff;
-					$data_cli['NoType'] 				= $CLIRateTable->NoType;
-					$data_cli['PrefixWithoutCountry'] 	= $CLIRateTable->PrefixWithoutCountry;
-					$data_cli['Prefix'] 				= $CLIRateTable->Prefix;
-					$data_cli['VendorID'] 				= $CLIRateTable->VendorID;
-					$data_cli['AccountServicePackageID']= $CLIRateTable->AccountServicePackageID;
+					$data_cli['CompanyID'] 						= $CLIRateTable->CompanyID;
+					$data_cli['AccountID'] 						= $CLIRateTable->AccountID;
+					$data_cli['AccountServiceID'] 				= $CLIRateTable->AccountServiceID;
+					$data_cli['NumberStartDate'] 				= $today;
+					$data_cli['NumberEndDate'] 					= $CLIRateTable->NumberEndDate;
+					$data_cli['ServiceID'] 						= $CLIRateTable->ServiceID;
+					$data_cli['CLI'] 							= $data['FinalNumberPurchased'];
+					$data_cli['ContractID'] 					= $data['FinalNumberContractID'];
+					$data_cli['RateTableID'] 					= $CLIRateTable->RateTableID;
+					$data_cli['TerminationRateTableID'] 		= $CLIRateTable->TerminationRateTableID;
+					$data_cli['CountryID'] 						= $CLIRateTable->CountryID;
+					$data_cli['City'] 							= $CLIRateTable->City;
+					$data_cli['Tariff'] 						= $CLIRateTable->Tariff;
+					$data_cli['NoType'] 						= $CLIRateTable->NoType;
+					$data_cli['PrefixWithoutCountry'] 			= $CLIRateTable->PrefixWithoutCountry;
+					$data_cli['Prefix'] 						= $CLIRateTable->Prefix;
+					$data_cli['VendorID'] 						= $CLIRateTable->VendorID;
+					$data_cli['AccountServicePackageID']		= $CLIRateTable->AccountServicePackageID;
+					$data_cli['AccessDiscountPlanID']			= $CLIRateTable->AccessDiscountPlanID;
+					$data_cli['TerminationDiscountPlanID']		= $CLIRateTable->TerminationDiscountPlanID;
+					$data_cli['PackageID']						= $CLIRateTable->PackageID;
+					$data_cli['PackageRateTableID']				= $CLIRateTable->PackageRateTableID;
+					$data_cli['Status']							= $CLIRateTable->Status;
+					$data_cli['DIDCategoryID']					= $CLIRateTable->DIDCategoryID;
+					$data_cli['SpecialRateTableID']				= $CLIRateTable->SpecialRateTableID;
+					$data_cli['SpecialTerminationRateTableID']	= $CLIRateTable->SpecialTerminationRateTableID;
 
 					$update_data['Status'] 			= 0;
 					$update_data['NumberEndDate'] 	= $today;

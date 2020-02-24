@@ -1632,7 +1632,10 @@ class AccountsController extends \BaseController {
                     AffiliateAccount::create($AffiliateAccount);
                 }
                 
-                
+            }
+
+            if ($data['IsAffiliateAccount'] == 1 && empty($AffiliateAccount)) {
+                $Affiliate = AffiliateAccount::where('AccountID',$id)->update(['AffiliateAccounts' => '']);
             }
 
             if(!empty($data['PaymentMethod'])) {
