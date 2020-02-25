@@ -393,6 +393,9 @@ class ActiveCallApiController extends ApiController {
 			$AccountID = Account::where(["Number" => $data['AccountNo']])->pluck('AccountID');
 		}else if(!empty($data['AccountDynamicField'])){
 			$AccountID = Account::findAccountBySIAccountRef($data['AccountDynamicField']);
+            if(empty($AccountID)){
+                return Response::json(["ErrorMessage"=>"Account not found."],Codes::$Code400[0]);
+            }
 		}else{
 			return Response::json(["ErrorMessage"=>"AccountID or AccountNo or AccountDynamicField is required."],Codes::$Code400[0]);
         }
