@@ -3137,8 +3137,8 @@ class AccountsApiController extends ApiController {
 			}
 
 			if($accountInfo->IsReseller != 1){
-				if (isset($accountData['IsAffiliateAccount']) && $accountData['IsAffiliateAccount'] != "") {
-					if ($accountData['IsAffiliateAccount'] != 0 && $accountData['IsAffiliateAccount'] != 1) {
+				if (isset($accountData['IsAffiliateAccount']) && $accountData['IsAffiliateAccount'] !== "") {
+					if ($accountData['IsAffiliateAccount'] != "0" && $accountData['IsAffiliateAccount'] != "1") {
 						return Response::json(["ErrorMessage" => Codes::$Code1065[1]],Codes::$Code1065[0]);
 					}
 					$data['IsAffiliateAccount'] = $accountData['IsAffiliateAccount'];
