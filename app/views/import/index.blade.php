@@ -42,7 +42,7 @@
                                 <!-- <input id="checkbox_import_rate" name="checkbox_import_rate" value="1" checked="" type="checkbox"/> --> Import Type
                             </label>
                             <div class="col-sm-4">
-                                {{ Form::select('importtype', ['' => 'Select','Account' => 'Account' , 'Service' => 'Service' , 'Package' => 'Package'], "" , array("class"=>"select2","id"=>"importtype")) }}
+                                {{ Form::select('importtype', ['' => 'Select','Account' => 'Account' , 'Service' => 'Service' , 'CDR' => 'CDR'], "" , array("class"=>"select2","id"=>"importtype")) }}
                             </div>
                         </div>
                         <div class="form-group">
@@ -121,6 +121,8 @@
                             $('.btn.upload').button('reset');
                             if (response.status == 'success') {
                                 toastr.success(response.message, "Error", toastr_opts);
+                               $('#excel').val('');
+                                $(document.body).find(".file-input-name").empty()
                             } else {
                                 toastr.error(response.message, "Error", toastr_opts);
                             }
