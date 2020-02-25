@@ -1883,8 +1883,8 @@ Route::group(array('before' => 'guest'), function () {
 	});
 
 	// New API by Vasim Seta at 2020-02-17
-	Route::get('importdata/uploadtemplatefile', 'DataImportController@index');
-	Route::post('importdata/uploadtemplatefile', 'DataImportController@uploadTemplateFile');
+	Route::get('import_legacy_rates', 'DataImportController@index');
+	Route::post('import_legacy_rates', 'DataImportController@uploadTemplateFile');
 
 });
 

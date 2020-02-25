@@ -60,6 +60,7 @@
         <li class="{{ active_url_class("accounts") }} {{ active_url_class("accountservices") }}"> <a href="{{URL::to('/accounts')}}" class="first"> <i class="fa fa-users"></i> <span>&nbsp;Accounts</span> </a></li>
       @endif
     @endif
+    <li class="{{ active_url_class("import_legacy_rates") }}"> <a href="{{URL::to('/import_legacy_rates')}}"><i class="fa fa-codepen"></i>   <span>&nbsp;Import Legacy Rates</span> </a> </li>
     <li class="{{ active_url_class("import") }}"> <a href="{{URL::to('/import')}}"><i class="fa fa-codepen"></i>   <span>&nbsp;Import</span> </a> </li>
     {{-- @if(User::checkCategoryPermission('Reseller','View'))
     <li class="{{ active_url_class("reseller") }}"> <a href="{{URL::to('/reseller')}}">  <i class="entypo-users"></i><span>Partner</span> </a> </li>
