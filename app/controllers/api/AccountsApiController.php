@@ -3136,6 +3136,15 @@ class AccountsApiController extends ApiController {
 				$data['DifferentBillingAddress'] = 1;
 			}
 
+			if($accountInfo->IsReseller != 1){
+				if (isset($accountData['IsAffiliateAccount']) && $accountData['IsAffiliateAccount'] !== "") {
+					if ($accountData['IsAffiliateAccount'] != "0" && $accountData['IsAffiliateAccount'] != "1") {
+						return Response::json(["ErrorMessage" => Codes::$Code1065[1]],Codes::$Code1065[0]);
+					}
+					$data['IsAffiliateAccount'] = $accountData['IsAffiliateAccount'];
+				}
+			}
+
 			if(isset($accountData['AutoPay'])) {
 				// Auto Pay Value must be in (0,1,2)
 				$AutoPayIndex = $accountData['AutoPay'];
@@ -3185,7 +3194,7 @@ class AccountsApiController extends ApiController {
 				
 			$data['AffiliateAccounts'] = isset($accountData['AffiliateAccounts']) ? $accountData['AffiliateAccounts'] : '';
 			
-			if ($accountInfo->IsAffiliateAccount == 1) {		
+			if ($accountInfo->IsAffiliateAccount == 1 || isset($data['IsAffiliateAccount'])) {		
 				if(isset($accountData['AffiliateAccounts'])){
 					if(!preg_match('/^[0-9,]+$/', $data['AffiliateAccounts'])){
 						return Response::json(array("ErrorMessage" => Codes::$Code1066[1]),Codes::$Code1066[0]);
