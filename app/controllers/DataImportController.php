@@ -14,7 +14,7 @@ class DataImportController extends \BaseController {
             $upload_path    = CompanyConfiguration::get('TEMP_PATH');
             $excel          = Input::file('excel');
             $ext            = $excel->getClientOriginalExtension();
-            if (in_array(strtolower($ext), array("xls", "xlsx"))) {
+            if (in_array(strtolower($ext), array("xls", "xlsx", "csv"))) {
                 $file_name_without_ext = GUID::generate();
                 $file_name = $file_name_without_ext . '.' . strtolower($excel->getClientOriginalExtension());
                 $excel->move($upload_path, $file_name);
