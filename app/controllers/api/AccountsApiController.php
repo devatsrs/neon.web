@@ -3146,14 +3146,14 @@ class AccountsApiController extends ApiController {
 
 				if (isset($accountData['IsCustomer']) && $accountData['IsCustomer'] !== "") {
 					if ($accountData['IsCustomer'] != "0" && $accountData['IsCustomer'] != "1") {
-						return Response::json(["ErrorMessage" => Codes::$Code1065[1]],Codes::$Code1065[0]);
+						return Response::json(["ErrorMessage" => Codes::$Code1024[1]],Codes::$Code1065[0]);
 					}
 					$data['IsCustomer'] = $accountData['IsCustomer'];
 				}
 
 				if (isset($accountData['IsVendor']) && $accountData['IsVendor'] !== "") {
 					if ($accountData['IsVendor'] != "0" && $accountData['IsVendor'] != "1") {
-						return Response::json(["ErrorMessage" => Codes::$Code1065[1]],Codes::$Code1065[0]);
+						return Response::json(["ErrorMessage" => Codes::$Code1025[1]],Codes::$Code1065[0]);
 					}
 					$data['IsVendor'] = $accountData['IsVendor'];
 				}
