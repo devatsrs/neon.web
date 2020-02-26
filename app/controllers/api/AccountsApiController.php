@@ -3158,12 +3158,21 @@ class AccountsApiController extends ApiController {
 					$data['IsVendor'] = $accountData['IsVendor'];
 				}
 
-				if((isset($data['IsVendor']) && $data['IsVendor'] == "0") || (isset($data['IsCustomer']) && $data['IsCustomer'] == "0") || (isset($data['IsAffiliateAccount']) && $data['IsAffiliateAccount'] == "0")){
-					if((isset($data['IsVendor']) && $data['IsVendor'] == "0") && $accountInfo->IsCustomer == 0 && $accountInfo->IsAffiliateAccount == 0){
+				if((isset($data['IsVendor']) && $data['IsVendor'] == "1") || (isset($data['IsCustomer']) && $data['IsCustomer'] == "1") || (isset($data['IsAffiliateAccount']) && $data['IsAffiliateAccount'] == "1"))
+				{	
+					
+				}else{
+					if((isset($data['IsVendor']) && $data['IsVendor'] == "0") && (isset($data['IsCustomer']) && $data['IsCustomer'] == "0") || (isset($data['IsAffiliateAccount']) && $data['IsAffiliateAccount'] == "0"))
+					{
 						return Response::json(["ErrorMessage" => "One of the option should be checked either Customer ,Affiliate or Vendor "],Codes::$Code1065[0]);
-					}else if((isset($data['IsCustomer']) && $data['IsCustomer'] == "0") && $accountInfo->IsVendor == 0 && $accountInfo->IsAffiliateAccount == 0){
+					}else if((isset($data['IsCustomer']) && $data['IsCustomer'] == "0") && $accountInfo->IsVendor == 0 && $accountInfo->IsAffiliateAccount == 0)
+					{
 						return Response::json(["ErrorMessage" => "One of the option should be checked either Customer ,Affiliate or Vendor "],Codes::$Code1065[0]);
-					}else if((isset($data['IsAffiliateAccount']) && $data['IsAffiliateAccount'] == "0") && $accountInfo->IsVendor == 0 && $accountInfo->IsCustomer == 0){
+					}else if((isset($data['IsAffiliateAccount']) && $data['IsAffiliateAccount'] == "0") && $accountInfo->IsVendor == 0 && $accountInfo->IsCustomer == 0)
+					{
+						return Response::json(["ErrorMessage" => "One of the option should be checked either Customer ,Affiliate or Vendor "],Codes::$Code1065[0]);
+					}else if((isset($data['IsVendor']) && $data['IsVendor'] == "0") && $accountInfo->IsAffiliateAccount == 0 && $accountInfo->IsCustomer == 0)
+					{
 						return Response::json(["ErrorMessage" => "One of the option should be checked either Customer ,Affiliate or Vendor "],Codes::$Code1065[0]);
 					}
 				}
@@ -3241,9 +3250,9 @@ class AccountsApiController extends ApiController {
 
 			if (isset($accountData['AccountName']) && !empty($accountData['AccountName'])) {
 				$data['AccountName'] = $accountData['AccountName'];
-				if (strpbrk($data['AccountName'], '\/?*:|"<>')) {
-					return Response::json(["ErrorMessage" => Codes::$Code1018[1]], Codes::$Code1018[0]);
-				}
+				// if (strpbrk($data['AccountName'], '\/?*:|"<>')) {
+				// 	return Response::json(["ErrorMessage" => Codes::$Code1018[1]], Codes::$Code1018[0]);
+				// }
 				$AccountName = Account::where(['AccountName' => $data["AccountName"], 'CompanyID' => $CompanyID, 'AccountType' => 1])->where('AccountID' ,'!=', $accountInfo->AccountID)->count();
 				if ($AccountName > 0) {
 					return Response::json(["ErrorMessage" => Codes::$Code1029[1]], Codes::$Code410[0]);
