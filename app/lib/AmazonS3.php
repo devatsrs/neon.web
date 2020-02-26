@@ -55,7 +55,8 @@ class AmazonS3 {
         'TRANSLATION_IMPORT' => 'TranslationsImport',
         'DATA_IMPORT' => 'DataImport',
         'ACCOUNTS_IMPORT'    =>  'AccountsImport',
-        'SERVICE_IMPORT'     =>   'ServiceImport'
+        'SERVICE_IMPORT'     =>  'ServiceImport',
+        'CDR_IMPORT'         =>  "CDR's Import"  
     );
 
     // Instantiate an S3 client

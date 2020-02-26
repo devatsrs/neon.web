@@ -134,7 +134,8 @@ class JobsController extends \BaseController {
     public function download_rate_sheet_file($id){
         //if( User::checkPermission('Job') ) {
         $FilePath = JobFile::where(["JobID" => $id])->pluck("FilePath");
-        if(Job::where(["JobID" => $id])->pluck("Title") != "Account Import" && Job::where(["JobID" => $id])->pluck("Title") != "Service Import"){
+        $JobTitle = Job::where(["JobID" => $id])->pluck("Title");
+        if($JobTitle != "Account Import" && $JobTitle != "Service Import" && $JobTitle != "CDR's Import"){
             $FilePath =  AmazonS3::preSignedUrl($FilePath);
         }
     
