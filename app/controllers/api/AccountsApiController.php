@@ -2110,10 +2110,10 @@ class AccountsApiController extends ApiController {
 				$data['VerificationStatus'] = Account::VERIFIED;
 			}
 
-			if (strpbrk($data['AccountName'], '\/?*:|"<>')) {
-				return Response::json(["ErrorMessage" => Codes::$Code1018[1]],Codes::$Code1018[0]);
+			// if (strpbrk($data['AccountName'], '\/?*:|"<>')) {
+			// 	return Response::json(["ErrorMessage" => Codes::$Code1018[1]],Codes::$Code1018[0]);
 
-			}
+			// }
 
 
 			if (empty($data['Number'])) {
@@ -3143,6 +3143,31 @@ class AccountsApiController extends ApiController {
 					}
 					$data['IsAffiliateAccount'] = $accountData['IsAffiliateAccount'];
 				}
+
+				if (isset($accountData['IsCustomer']) && $accountData['IsCustomer'] !== "") {
+					if ($accountData['IsCustomer'] != "0" && $accountData['IsCustomer'] != "1") {
+						return Response::json(["ErrorMessage" => Codes::$Code1065[1]],Codes::$Code1065[0]);
+					}
+					$data['IsCustomer'] = $accountData['IsCustomer'];
+				}
+
+				if (isset($accountData['IsVendor']) && $accountData['IsVendor'] !== "") {
+					if ($accountData['IsVendor'] != "0" && $accountData['IsVendor'] != "1") {
+						return Response::json(["ErrorMessage" => Codes::$Code1065[1]],Codes::$Code1065[0]);
+					}
+					$data['IsVendor'] = $accountData['IsVendor'];
+				}
+
+				if((isset($data['IsVendor']) && $data['IsVendor'] == "0") || (isset($data['IsCustomer']) && $data['IsCustomer'] == "0") || (isset($data['IsAffiliateAccount']) && $data['IsAffiliateAccount'] == "0")){
+					if((isset($data['IsVendor']) && $data['IsVendor'] == "0") && $accountInfo->IsCustomer == 0 && $accountInfo->IsAffiliateAccount == 0){
+						return Response::json(["ErrorMessage" => "One of the option should be checked either Customer ,Affiliate or Vendor "],Codes::$Code1065[0]);
+					}else if((isset($data['IsCustomer']) && $data['IsCustomer'] == "0") && $accountInfo->IsVendor == 0 && $accountInfo->IsAffiliateAccount == 0){
+						return Response::json(["ErrorMessage" => "One of the option should be checked either Customer ,Affiliate or Vendor "],Codes::$Code1065[0]);
+					}else if((isset($data['IsAffiliateAccount']) && $data['IsAffiliateAccount'] == "0") && $accountInfo->IsVendor == 0 && $accountInfo->IsCustomer == 0){
+						return Response::json(["ErrorMessage" => "One of the option should be checked either Customer ,Affiliate or Vendor "],Codes::$Code1065[0]);
+					}
+				}
+
 			}
 
 			if(isset($accountData['AutoPay'])) {
