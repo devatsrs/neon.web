@@ -4314,7 +4314,7 @@ class AccountsApiController extends ApiController {
 			$rules_numbers = $msg__numbers = [];
 			foreach ($data['Numbers'] as $key => $value) {
 				$rules_numbers = array(
-					'Numbers.'.$key.'.NumberPurchased'			=> 'required|numeric',
+					'Numbers.'.$key.'.NumberPurchased'			=> 'required',// |numeric
 					'Numbers.'.$key.'.ProductID'				=> 'required|numeric',
 					'Numbers.'.$key.'.PackageProductID'			=> 'required|numeric',
 					'Numbers.'.$key.'.InboundTariffCategoryID'	=> 'required|numeric',
@@ -4330,7 +4330,7 @@ class AccountsApiController extends ApiController {
 
 				$msg__numbers =  [
 					'Numbers.'.$key.'.NumberPurchased.required'  		=> "The Numbers[".$key."][NumberPurchased] field is required.",
-					'Numbers.'.$key.'.NumberPurchased.numeric'  		=> "The Numbers[".$key."][NumberPurchased] must be a number.",
+					//'Numbers.'.$key.'.NumberPurchased.numeric'  		=> "The Numbers[".$key."][NumberPurchased] must be a number.",
 					'Numbers.'.$key.'.ProductID.required'				=> "The Numbers[".$key."][ProductID] field is required.",
 					'Numbers.'.$key.'.ProductID.numeric'  				=> "The Numbers[".$key."][ProductID] must be a number.",
 					'Numbers.'.$key.'.PackageProductID.required'		=> "The Numbers[".$key."][PackageProductID] field is required.",
@@ -4610,7 +4610,7 @@ class AccountsApiController extends ApiController {
 		}
 		$rules = array(
 			'OrderID'							=> 'required|numeric',
-			'NumberPurchased'					=> 'required|numeric',
+			'NumberPurchased'					=> 'required',// |numeric
 			'ProductID'							=> 'required|numeric',
 			'InboundTariffCategoryID'			=> 'required|numeric|in:1,4,7',
 			'NumberContractID'					=> 'required|numeric',
@@ -4623,7 +4623,7 @@ class AccountsApiController extends ApiController {
 			'OrderID.required'  				=> "The OrderID field is required.",
 			'OrderID.numeric'  					=> "The OrderID must be a number.",
 			'NumberPurchased.required'  		=> "The NumberPurchased field is required.",
-			'NumberPurchased.numeric'  			=> "The NumberPurchased must be a number.",
+			//'NumberPurchased.numeric'  			=> "The NumberPurchased must be a number.",
 			'ProductID.required'				=> "The ProductID field is required.",
 			'ProductID.numeric'  				=> "The ProductID must be a number.",
 			'InboundTariffCategoryID.required'	=> "The InboundTariffCategoryID field is required.",
@@ -4844,7 +4844,7 @@ class AccountsApiController extends ApiController {
 		$rules = array(
 			'OrderID'							=> 'required|numeric',
 			'NumberContractID'					=> 'required|numeric',
-			'NumberPurchased'					=> 'required|numeric',
+			'NumberPurchased'					=> 'required',// |numeric
 			'ContractEndDate'					=> 'required|date|date_format:Y-m-d|after:'.date('Y-m-d',strtotime("-1 days")),
 		);
 
@@ -4854,7 +4854,7 @@ class AccountsApiController extends ApiController {
 			'NumberContractID.required'  		=> "The NumberContractID field is required.",
 			'NumberContractID.numeric'  		=> "The NumberContractID must be a number.",
 			'NumberPurchased.required'  		=> "The NumberPurchased field is required.",
-			'NumberPurchased.numeric'  			=> "The NumberPurchased must be a number.",
+			//'NumberPurchased.numeric'  			=> "The NumberPurchased must be a number.",
 			'ContractEndDate.required'			=> "The ContractEndDate field is required.",
 			'ContractEndDate.after'				=> "Past dates not allowed for ContractEndDate.",
 		);
@@ -4976,7 +4976,7 @@ class AccountsApiController extends ApiController {
 		$rules = array(
 			'OrderID'							=> 'required|numeric',
 			'NumberContractID'					=> 'required|numeric',
-			'NumberPurchased'					=> 'required|numeric',
+			'NumberPurchased'					=> 'required',// |numeric
 			'ContractEndDate'					=> 'required|date|date_format:Y-m-d|after:'.date('Y-m-d',strtotime("-1 days")),
 		);
 
@@ -4986,7 +4986,7 @@ class AccountsApiController extends ApiController {
 			'NumberContractID.required'  		=> "The NumberContractID field is required.",
 			'NumberContractID.numeric'  		=> "The NumberContractID must be a number.",
 			'NumberPurchased.required'  		=> "The NumberPurchased field is required.",
-			'NumberPurchased.numeric'  			=> "The NumberPurchased must be a number.",
+			//'NumberPurchased.numeric'  			=> "The NumberPurchased must be a number.",
 			'ContractEndDate.required'			=> "The ContractEndDate field is required.",
 			'ContractEndDate.after'				=> "Past dates not allowed for ContractEndDate.",
 		);
@@ -5111,9 +5111,9 @@ class AccountsApiController extends ApiController {
 		$rules = array(
 			'OrderID'							=> 'required|numeric',
 			'NumberContractID'					=> 'required|numeric',
-			'NumberPurchased'					=> 'required|numeric',
+			'NumberPurchased'					=> 'required',// |numeric
 			'TestNumberContractID'				=> 'required|numeric',
-			'TestNumberPurchased'				=> 'required|numeric',
+			'TestNumberPurchased'				=> 'required',// |numeric
 			'UpdatePackageDate'					=> 'required|date|date_format:Y-m-d|after:'.date('Y-m-d',strtotime("-1 days")),
 		);
 
@@ -5123,9 +5123,9 @@ class AccountsApiController extends ApiController {
 			'NumberContractID.required'  		=> "The NumberContractID field is required.",
 			'NumberContractID.numeric'  		=> "The NumberContractID must be a number.",
 			'NumberPurchased.required'  		=> "The NumberPurchased field is required.",
-			'NumberPurchased.numeric'  			=> "The NumberPurchased must be a number.",
+			//'NumberPurchased.numeric'  			=> "The NumberPurchased must be a number.",
 			'TestNumberContractID.required'  	=> "The TestNumberContractID field is required.",
-			'TestNumberContractID.numeric'  	=> "The TestNumberContractID must be a number.",
+			//'TestNumberContractID.numeric'  	=> "The TestNumberContractID must be a number.",
 			'TestNumberPurchased.required'  	=> "The TestNumberPurchased field is required.",
 			'TestNumberPurchased.numeric'  		=> "The TestNumberPurchased must be a number.",
 			'UpdatePackageDate.required'		=> "The UpdatePackageDate field is required.",
@@ -5323,7 +5323,7 @@ class AccountsApiController extends ApiController {
 			'FromOrderID'						=> 'required|numeric',
 			'ToOrderID'							=> 'required|numeric',
 			'NumberContractID'					=> 'required|numeric',
-			'NumberPurchased'					=> 'required|numeric',
+			'NumberPurchased'					=> 'required',// |numeric
 			'ContractStartDate'					=> 'required|date|date_format:Y-m-d|after:'.date('Y-m-d',strtotime("-1 days")),
 			'ContractEndDate'					=> 'required|date|date_format:Y-m-d|after:ContractStartDate',
 		);
@@ -5336,7 +5336,7 @@ class AccountsApiController extends ApiController {
 			'NumberContractID.required'  		=> "The NumberContractID field is required.",
 			'NumberContractID.numeric'  		=> "The NumberContractID must be a number.",
 			'NumberPurchased.required'  		=> "The NumberPurchased field is required.",
-			'NumberPurchased.numeric'  			=> "The NumberPurchased must be a number.",
+			//'NumberPurchased.numeric'  			=> "The NumberPurchased must be a number.",
 			'ContractStartDate.required'		=> "The ContractStartDate field is required.",
 			'ContractStartDate.after'			=> "Past dates not allowed for ContractStartDate.",
 			'ContractEndDate.required'			=> "The ContractEndDate field is required.",
@@ -5550,8 +5550,8 @@ class AccountsApiController extends ApiController {
 			'OrderID'							=> 'required|numeric',
 			'TestNumberContractID'				=> 'required|numeric',
 			'FinalNumberContractID'				=> 'required|numeric',
-			'TestNumberPurchased'				=> 'required|numeric',
-			'FinalNumberPurchased'				=> 'required|numeric',
+			'TestNumberPurchased'				=> 'required',// |numeric
+			'FinalNumberPurchased'				=> 'required',// |numeric
 		);
 
 		$msg = array(
@@ -5562,9 +5562,9 @@ class AccountsApiController extends ApiController {
 			'FinalNumberContractID.required'  	=> "The FinalNumberContractID field is required.",
 			'FinalNumberContractID.numeric'  	=> "The FinalNumberContractID must be a number.",
 			'TestNumberPurchased.required'  	=> "The TestNumberPurchased field is required.",
-			'TestNumberPurchased.numeric'  		=> "The TestNumberPurchased must be a number.",
+			//'TestNumberPurchased.numeric'  		=> "The TestNumberPurchased must be a number.",
 			'FinalNumberPurchased.required'  	=> "The FinalNumberPurchased field is required.",
-			'FinalNumberPurchased.numeric'  	=> "The FinalNumberPurchased must be a number.",
+			//'FinalNumberPurchased.numeric'  	=> "The FinalNumberPurchased must be a number.",
 		);
 
 		$validator = Validator::make($data, $rules, $msg);
