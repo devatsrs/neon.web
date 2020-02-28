@@ -495,6 +495,15 @@ class RateGeneratorsController extends \BaseController {
                         if(in_array('all' , $GetComponent) || in_array('' , $GetComponent)){
                             $addComponents['Component'] = '';
                         }
+
+                        if(in_array('all' , $GetToTimeOfDay) || in_array('' , $GetToTimeOfDay)){
+                            $addComponents['ToTimezonesID'] = '';
+                        }
+
+                        if(in_array('all' , $GetTimeOfDay) || in_array('' , $GetTimeOfDay)){
+                            $addComponents['TimezonesID'] = '';
+                        }
+                        
                         if($addComponents['Component'] == 'all,' || $addComponents['Component'] == 'all'){
                             $addComponents['Component'] = '';
                         }
@@ -1136,6 +1145,14 @@ class RateGeneratorsController extends \BaseController {
                         }
                         if(in_array('all' , $GetComponent) || in_array('' , $GetComponent)){
                             $addComponents['Component'] = '';
+                        }
+
+                        if(in_array('all' , $GetToTimeOfDay) || in_array('' , $GetToTimeOfDay)){
+                            $addComponents['ToTimezonesID'] = '';
+                        }
+
+                        if(in_array('all' , $GetTimeOfDay) || in_array('' , $GetTimeOfDay)){
+                            $addComponents['TimezonesID'] = '';
                         }
                         if($addComponents['Component'] == 'all,' || $addComponents['Component'] == 'all'){
                             $addComponents['Component'] = '';
