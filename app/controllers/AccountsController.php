@@ -302,9 +302,9 @@ class AccountsController extends \BaseController {
         if (isset($data['TaxRateId'])) {
             $data['TaxRateId'] = implode(',', array_unique($data['TaxRateId']));
         }
-        if (strpbrk($data['AccountName'], '\/?*:|"<>')) {
-            return Response::json(array("status" => "failed", "message" => "Account Name contains illegal character."));
-        }
+        // if (strpbrk($data['AccountName'], '\/?*:|"<>')) {
+        //     return Response::json(array("status" => "failed", "message" => "Account Name contains illegal character."));
+        // }
         $data['Status'] = isset($data['Status']) ? 1 : 0;
 
         if (empty($data['Number'])) {
@@ -1103,9 +1103,9 @@ class AccountsController extends \BaseController {
         if(isset($data['TaxRateId'])) {
             $data['TaxRateId'] = implode(',', array_unique($data['TaxRateId']));
         }
-        if (strpbrk($data['AccountName'],'\/?*:|"<>')) {
-            return Response::json(array("status" => "failed", "message" => "Account Name contains illegal character."));
-        }
+        // if (strpbrk($data['AccountName'],'\/?*:|"<>')) {
+        //     return Response::json(array("status" => "failed", "message" => "Account Name contains illegal character."));
+        // }
         $data['Status'] = isset($data['Status']) ? 1 : 0;
 
         if(trim($data['Number']) == ''){

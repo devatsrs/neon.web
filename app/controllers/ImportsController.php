@@ -942,7 +942,10 @@ class ImportsController extends \BaseController {
                 $upload_path = AmazonS3::generate_upload_path(AmazonS3::$dir['ACCOUNTS_IMPORT']);
             }else if($data['importtype'] == 'Service'){
                 $upload_path = AmazonS3::generate_upload_path(AmazonS3::$dir['SERVICE_IMPORT']);
+            }else if($data['importtype'] == 'CDR'){
+                $upload_path = AmazonS3::generate_upload_path(AmazonS3::$dir['CDR_IMPORT']);
             }
+            
 
             $upload_path = CompanyConfiguration::get('TEMP_PATH').'/' . $upload_path;
             
@@ -972,7 +975,10 @@ class ImportsController extends \BaseController {
             $jobtype = 'AI';
         }else if($data['importtype'] == 'Service'){
             $jobtype = 'SI';
+        }else if($data['importtype'] == 'CDR'){
+            $jobtype = 'CDI';
         }
+        
         
     }
 
