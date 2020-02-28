@@ -470,10 +470,10 @@ class RateGeneratorsController extends \BaseController {
 
                         $addComponents['Component'] = implode(",", $GetComponent);
                         $addComponents['Origination'] = $GetOrigination;
-                        $addComponents['TimezonesID'] = $GetTimeOfDay;
+                        $addComponents['TimezonesID'] = implode(",", $GetTimeOfDay);
                         $addComponents['Action'] = $GetAction;
-                        $addComponents['MergeTo'] = $GetMergeTo;
-                        $addComponents['ToTimezonesID'] = $GetToTimeOfDay;
+                        $addComponents['MergeTo'] = implode(",", $GetMergeTo);
+                        $addComponents['ToTimezonesID'] = implode(",", $GetToTimeOfDay);
                         $addComponents['ToOrigination'] = $GetToOrigination;
                         $addComponents['FromCountryID'] = $GetFCountry;
                         $addComponents['FromAccessType'] = $GetFAccessType;
@@ -491,12 +491,12 @@ class RateGeneratorsController extends \BaseController {
                         if($addComponents['PackageID'] == ''){
                             $addComponents['PackageID'] = Null;
                         }
-                        if($addComponents['TimezonesID'] == ''){
-                            $addComponents['TimezonesID'] = Null;
-                        }
-                        if($addComponents['ToTimezonesID'] == ''){
-                            $addComponents['ToTimezonesID'] = Null;
-                        }
+                        // if($addComponents['TimezonesID'] == ''){
+                        //     $addComponents['TimezonesID'] = Null;
+                        // }
+                        // if($addComponents['ToTimezonesID'] == ''){
+                        //     $addComponents['ToTimezonesID'] = Null;
+                        // }
                         if($addComponents['Origination'] == ''){
                             $addComponents['Origination'] = Null;
                         }
@@ -1108,10 +1108,10 @@ class RateGeneratorsController extends \BaseController {
 
                         $addComponents['Component'] = implode(",", $GetComponent);
                         $addComponents['Origination'] = $GetOrigination;
-                        $addComponents['TimezonesID'] = $GetTimeOfDay;
+                        $addComponents['TimezonesID'] = implode(",", $GetTimeOfDay);
                         $addComponents['Action'] = $GetAction;
-                        $addComponents['MergeTo'] = $GetMergeTo;
-                        $addComponents['ToTimezonesID'] = $GetToTimeOfDay;
+                        $addComponents['MergeTo'] = implode(",", $GetMergeTo);
+                        $addComponents['ToTimezonesID'] = implode(",", $GetToTimeOfDay);
                         $addComponents['ToOrigination'] = $GetToOrigination;
                         $addComponents['RateGeneratorId'] = $RateGeneratorID;
                         $addComponents['FromCountryID'] = $GetFCountry;
@@ -1130,12 +1130,12 @@ class RateGeneratorsController extends \BaseController {
                         if($addComponents['PackageID'] == ''){
                             $addComponents['PackageID'] = Null;
                         }
-                        if($addComponents['TimezonesID'] == ''){
-                            $addComponents['TimezonesID'] = Null;
-                        }
-                        if($addComponents['ToTimezonesID'] == ''){
-                            $addComponents['ToTimezonesID'] = Null;
-                        }
+                        // if($addComponents['TimezonesID'] == ''){
+                        //     $addComponents['TimezonesID'] = Null;
+                        // }
+                        // if($addComponents['ToTimezonesID'] == ''){
+                        //     $addComponents['ToTimezonesID'] = Null;
+                        // }
                         if($addComponents['Origination'] == ''){
                             $addComponents['Origination'] = Null;
                         }
