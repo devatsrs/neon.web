@@ -427,9 +427,9 @@
                                         </td>
                                         <td id="testValues">
                                             @if($rategenerators->SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_DID))
-                                            {{ Form::select('Component-'.$a.'[]', DiscountPlan::$RateTableDIDRate_Components, $ComponentArray1, array("class"=>"select2 selected-Components" ,'multiple', "id"=>"Component-".$a)) }}
+                                            {{ Form::select('Component-'.$a.'[]', array("" => "All") + DiscountPlan::$RateTableDIDRate_Components, $ComponentArray1, array("class"=>"select2 selected-Components" ,'multiple', "id"=>"Component-".$a)) }}
                                             @elseif($rategenerators->SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_PACKAGE))
-                                            {{ Form::select('Component-'.$a.'[]', DiscountPlan::$RateTablePKGRate_Components, $ComponentArray1, array("class"=>"select2 selected-Components" ,'multiple', "id"=>"Component-".$a)) }}
+                                            {{ Form::select('Component-'.$a.'[]', array("" => "All") + DiscountPlan::$RateTablePKGRate_Components, $ComponentArray1, array("class"=>"select2 selected-Components" ,'multiple', "id"=>"Component-".$a)) }}
                                             @endif
 
                                         </td>
@@ -1215,7 +1215,7 @@
                 $(".NonDID-Div").hide();
                 $(".Package-Div").hide();
                 $('.w-del').css('width','');
-                $('#testValuess').html('{{ Form::select("Component-1[]",DiscountPlan::$RateTableDIDRate_Components , null, array("class"=>"DID" ,"multiple", "id"=>"Component-1")) }}');
+                $('#testValuess').html('{{ Form::select("Component-1[]",array("all" => "All") + DiscountPlan::$RateTableDIDRate_Components , null, array("class"=>"DID" ,"multiple", "id"=>"Component-1")) }}');
                 $('#testRateValues').html('{{ Form::select("RateComponent-1[]",DiscountPlan::$RateTableDIDRate_Components , null, array("class"=>"DID" ,"multiple", "id"=>"RateComponent-1")) }}');
                 $('.mergetestvalues').html('{{ Form::select("MergeTo-1[]",DiscountPlan::$RateTableDIDRate_Components , null, array("class"=>"DID", "multiple" , "id"=>"MergeTo-1")) }}');
                 $('.DID').select2();

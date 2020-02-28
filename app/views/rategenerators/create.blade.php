@@ -887,7 +887,7 @@
                 $('.vendor-tooltip').attr('data-original-title','Product');
                 $('#servicetableSubBox tbody').empty();
                 $('#ratetableSubBox tbody').empty();
-                $('.testValues').html('{{ Form::select("Component-1[]",DiscountPlan::$RateTableDIDRate_Components , null, array("class"=>"DID Components1" ,"multiple", "id"=>"Component-1")) }}');
+                $('.testValues').html('{{ Form::select("Component-1[]",array("all" => "All") + DiscountPlan::$RateTableDIDRate_Components , null, array("class"=>"DID Components1" ,"multiple", "id"=>"Component-1")) }}');
                 $('.testRateValues').html('{{ Form::select("RateComponent-1[]",DiscountPlan::$RateTableDIDRate_Components , null, array("class"=>"DID Components2" ,"multiple", "id"=>"RateComponent-1")) }}');
                 $('.mergetestvalues').html('{{ Form::select("MergeTo-1[]",DiscountPlan::$RateTableDIDRate_Components , null, array("class"=>"DID Components3","multiple" , "id"=>"MergeTo-1")) }}');
                 $('.DID').select2();
