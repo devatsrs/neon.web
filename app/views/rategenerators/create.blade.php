@@ -929,7 +929,7 @@
                 $('#getRateIDs').val('');
                 $('.vendor-tooltip').attr('data-content','Keep ALL package option at the bottom. If any condition added for any specific Package then also add ALL option for remaining packages. ')
                 $('.vendor-tooltip').attr('data-original-title','Package');
-                $('.testValues').html('{{ Form::select("Component-[]", DiscountPlan::$RateTablePKGRate_Components , null, array("class"=>"PKG" ,"multiple", "id"=>"Component-1")) }}');
+                $('.testValues').html('{{ Form::select("Component-[]", array("all" => "All") + DiscountPlan::$RateTablePKGRate_Components , null, array("class"=>"PKG" ,"multiple", "id"=>"Component-1")) }}');
                 $('.testRateValues').html('{{ Form::select("RateComponent-1[]", DiscountPlan::$RateTablePKGRate_Components , null, array("class"=>"PKG" ,"multiple", "id"=>"RateComponent-1")) }}');
                 $('.mergetestvalues').html('{{ Form::select("MergeTo-1", DiscountPlan::$RateTablePKGRate_Components , null, array("class"=>"PKG" , "id"=>"MergeTo-1")) }}');
                 $('.PKG').select2();

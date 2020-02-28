@@ -1242,7 +1242,7 @@
                 $('#ratetableSubBox').css('width','1025px');
                 $('#ratetableVendorBox').css('width','1030px');
                 $('.w-del').css('width','4%');
-                $('#testValuess').html('{{ Form::select("Component-1[]", DiscountPlan::$RateTablePKGRate_Components , null, array("class"=>"PKG" ,"multiple", "id"=>"Component-1")) }}');
+                $('#testValuess').html('{{ Form::select("Component-1[]", array("all" => "All") + DiscountPlan::$RateTablePKGRate_Components , null, array("class"=>"PKG" ,"multiple", "id"=>"Component-1")) }}');
                 $('#testRateValues').html('{{ Form::select("RateComponent-1[]", DiscountPlan::$RateTablePKGRate_Components , null, array("class"=>"PKG" ,"multiple", "id"=>"RateComponent-1")) }}');
                 $('.mergetestvalues').html('{{ Form::select("MergeTo-1[]",DiscountPlan::$RateTablePKGRate_Components , null, array("class"=>"PKG", "multiple" , "id"=>"MergeTo-1")) }}');
                
