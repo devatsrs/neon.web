@@ -404,7 +404,10 @@ class Payment extends \Eloquent {
                 $data['transaction_notes'] .= " ". $data['custome_notes'];
             }
         }
-
+        if(isset($data['Transaction'])){
+            $data['TransactionID'] = $data['Transaction'];
+        }
+        
         $paymentdata['PaymentDate']     = date('Y-m-d H:i:s');
         $paymentdata['PaymentMethod'] = $data['PaymentMethod'];
         $paymentdata['CurrencyID'] = $account->CurrencyId;

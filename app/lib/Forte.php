@@ -26,16 +26,16 @@ class Forte
         if ($Forteobj) {
             $this->SandboxUrl           =   "https://sandbox.forte.net/api/v3";
             $this->LiveUrl              =   "https://api.forte.net/v3";
-            $this->organizationID 	    = 	$Forteobj->organizationID;
-            $this->locationID 	        = 	$Forteobj->locationID;
-            $this->ApiAccessID		    = 	$Forteobj->accessID;
-            $this->apiSecureKey		    = 	$Forteobj->apiSecureKey;
+            $this->organizationID       =   $Forteobj->organizationID;
+            $this->locationID           =   $Forteobj->locationID;
+            $this->ApiAccessID          =   $Forteobj->accessID;
+            $this->apiSecureKey         =   $Forteobj->apiSecureKey;
             $this->forteDataLive        =   $Forteobj->forteDataLive;
             $this->authToken            =   base64_encode($this->ApiAccessID . ':' . $this->apiSecureKey);
             if ($this->forteDataLive == 1) {
-                $this->ForteUrl         = 	$this->LiveUrl;
+                $this->ForteUrl         =   $this->LiveUrl;
             } else {
-                $this->ForteUrl         = 	$this->SandboxUrl;
+                $this->ForteUrl         =   $this->SandboxUrl;
             }
             $this->status               =   true;
         } else {
@@ -111,54 +111,54 @@ class Forte
 
     public function doValidation($data)
     {
-		$ValidationResponse = [];
-		$rules = [
-			'AccountNumber' => 'required|digits_between:6,19',
-			'RoutingNumber' => 'required',
-			'AccountHolderType' => 'required',
-			'AccountHolderName' => 'required',
-			//'Title' => 'required|unique:tblAutorizeCardDetail,NULL,CreditCardID,CompanyID,'.$CompanyID
+        $ValidationResponse = [];
+        $rules = [
+            'AccountNumber' => 'required',
+            'RoutingNumber' => 'required',
+            'AccountHolderType' => 'required',
+            'AccountHolderName' => 'required',
+            //'Title' => 'required|unique:tblAutorizeCardDetail,NULL,CreditCardID,CompanyID,'.$CompanyID
         ];
 
-		$validator = Validator::make($data, $rules);
-		if ($validator->fails()) {
-			$errors = "";
-			foreach ($validator->messages()->all() as $error){
-				$errors .= $error."<br>";
-			}
+        $validator = Validator::make($data, $rules);
+        if ($validator->fails()) {
+            $errors = "";
+            foreach ($validator->messages()->all() as $error){
+                $errors .= $error."<br>";
+            }
     
             $ValidationResponse['status'] = 'failed';
-			$ValidationResponse['message'] = $errors;
-			return $ValidationResponse;
+            $ValidationResponse['message'] = $errors;
+            return $ValidationResponse;
         }
         
-		$CustomerID = $data['AccountID'];
-		$account = Account::find($CustomerID);
-		$CurrencyCode = Currency::getCurrency($account->CurrencyId);
-		if (empty($CurrencyCode)) {
-			$ValidationResponse['status']  = 'failed';
-			$ValidationResponse['message'] = cus_lang("PAYMENT_MSG_NO_ACCOUNT_CURRENCY_AVAILABLE");
-			return $ValidationResponse;
-		}
+        $CustomerID = $data['AccountID'];
+        $account = Account::find($CustomerID);
+        $CurrencyCode = Currency::getCurrency($account->CurrencyId);
+        if (empty($CurrencyCode)) {
+            $ValidationResponse['status']  = 'failed';
+            $ValidationResponse['message'] = cus_lang("PAYMENT_MSG_NO_ACCOUNT_CURRENCY_AVAILABLE");
+            return $ValidationResponse;
+        }
         
         $data['currency'] = strtolower($CurrencyCode);
-		$Country = $account->Country;
+        $Country = $account->Country;
         
         if (!empty($Country)) {
-			$CountryCode = Country::where(['Country'=>$Country])->pluck('ISO2');
-		} else {
-			$CountryCode = '';
-		}
-        
-        if (empty($CountryCode)) {
-			$ValidationResponse['status'] = 'failed';
-			$ValidationResponse['message'] = cus_lang("PAYMENT_MSG_NO_ACCOUNT_COUNTRY_AVAILABLE");
-			return $ValidationResponse;
+            $CountryCode = Country::where(['Country'=>$Country])->pluck('ISO2');
+        } else {
+            $CountryCode = '';
         }
         
-		$ValidationResponse['status'] = 'success';
-		return $ValidationResponse;
-	}
+        if (empty($CountryCode)) {
+            $ValidationResponse['status'] = 'failed';
+            $ValidationResponse['message'] = cus_lang("PAYMENT_MSG_NO_ACCOUNT_COUNTRY_AVAILABLE");
+            return $ValidationResponse;
+        }
+        
+        $ValidationResponse['status'] = 'success';
+        return $ValidationResponse;
+    }
  
     public function paymentWithProfile($data)
     {
@@ -187,7 +187,6 @@ class Forte
         $transactionResponse['transaction_notes']   = $Notes;
         $transactionResponse['PaymentMethod']       = 'BANK TRANSFER';
         $transactionResponse['failed_reason']       = $Notes;
-        $transactionResponse['transaction_id']      = isset($transaction['transaction_id']) ? $transaction['transaction_id'] : '';
         $transactionResponse['Response']            = $transaction;
 
         $transactiondata['CompanyID']   = $account->CompanyId;
@@ -217,9 +216,9 @@ class Forte
         try {
             $Account            = Account::join('tblAccountPaymentProfile','tblAccount.AccountID','=','tblAccountPaymentProfile.AccountID')->select('tblAccount.*', 'tblAccountPaymentProfile.Options')->where('tblAccount.AccountID', '=', $data['AccountID'])->first();
             $CurrencyID         = $Account->CurrencyId;
-			$accountname         = $Account->AccountName;
+            $accountname         = $Account->AccountName;
             $InvoiceCurrency    = Currency::getCurrency($CurrencyID);
-			$optionsData = $Account->Options;
+            $optionsData = $Account->Options;
 
             $data['customer_name'] = $accountname;
             if (is_int($data['GrandTotal'])) {
@@ -232,16 +231,16 @@ class Forte
                     $data['amount'] = number_format($data['GrandTotal'], 2, '.', ''); // for testing
                 }
             }
-			$profileOptions = json_decode($optionsData, true);
-			$data['AccountHolderType'] = $profileOptions['AccountHolderType'];
-			$data['RoutingNumber'] = $profileOptions['RoutingNumber'];
-			$data['AccountNumber'] = $profileOptions['AccountNumber'];
+            $profileOptions = json_decode($optionsData, true);
+            $data['AccountHolderType'] = $profileOptions['AccountHolderType'];
+            $data['RoutingNumber'] = $profileOptions['RoutingNumber'];
+            $data['AccountNumber'] = $profileOptions['AccountNumber'];
             $data['AccountHolderName'] = $profileOptions['AccountHolderName'];
             
             $postData = $this->getApiData($data);
 
             try {
-				$res = $this->sendCurlRequest($postUrl, $postData);
+                $res = $this->sendCurlRequest($postUrl, $postData);
             } catch (\Guzzle\Http\Exception\CurlException $e) {
                 log::info($e->getMessage());
                 $response['status']         = 'fail';
@@ -284,12 +283,9 @@ class Forte
         if ($count>0) {
             $isDefault = 0;
         }
-
+        
         $ForteResponse = $this->createForteProfile($data);
-        echo "<pre> imran";
-        print_r($ForteResponse);
-        die();
-		
+
         if ($ForteResponse["status"] == "success") {
             $option = [
                 'AccountHolderType'                 => $data['AccountHolderType'],
@@ -318,12 +314,12 @@ class Forte
 
     public function createForteProfile($data)
     {
-        $Account            = Account::join('tblAccountPaymentProfile','tblAccount.AccountID','=','tblAccountPaymentProfile.AccountID')->select('tblAccount.*', 'tblAccountPaymentProfile.Options')->where('tblAccount.AccountID', '=', $data['AccountID'])->first();
+        $Account = Account::join('tblAccountPaymentProfile','tblAccount.AccountID','=','tblAccountPaymentProfile.AccountID')->select('tblAccount.*', 'tblAccountPaymentProfile.Options')->where('tblAccount.AccountID', '=', $data['AccountID'])->first();
         try {
             $postData = [
                 "first_name"        => $Account->FirstName,
                 "last_name"         => $Account->LastName,
-                "addresses"         => [
+                "addresses"         => [[
                     "label"     => !empty($Account->Phone)?$Account->Phone:'',
                     "email"     => $Account->Email,
                     "physical_address"     => [
@@ -334,7 +330,7 @@ class Forte
                         'postal_code'   => $Account->PostCode
                     ]
 
-                ],
+                ]],
                 "paymethod"         => [
                     "label"     => $data['AccountHolderName'],
                     "echeck"    => [
@@ -347,7 +343,7 @@ class Forte
                 ] 
             ];
 
-            $postUrl = $this->ForteUrl.'/organizations/org_'.$this->organizationID.'/bankaccounts';
+            $postUrl = $this->ForteUrl.'/organizations/org_'.$this->organizationID.'/locations/loc_'.$this->locationID.'/customers';
             
             try {
                 $res = $this->sendCurlRequest($postUrl, $postData);
@@ -392,7 +388,7 @@ class Forte
         curl_setopt($ch, CURLOPT_HTTPHEADER, $httpHeader);
 
         $response = curl_exec($ch);
-        $info = curl_getinfo($ch);
+        $info     = curl_getinfo($ch);
         curl_close($ch);
         $data = json_decode($response);
         // Validate the response - the only successful code is 0
@@ -401,30 +397,30 @@ class Forte
          $res = [
             'status' => $status,
             'transactionID' => (isset($data->transactionID) ? $data->transactionID : null),
-			'response' => $data->response->response_desc,
+            'response' => $data->response->response_desc,
             'responseData' => $data
             ];
-			
+            
         return $res;
     }
     public function paymentValidateWithProfile($data)
     {
-		$Response = array();
-		$Response['status']= 'success';
+        $Response = array();
+        $Response['status']= 'success';
         $account = Account::find($data['AccountID']);
-		$CurrencyCode = Currency::getCurrency($account->CurrencyId);
-		if (empty($CurrencyCode)) {
-			$Response['status']='failed';
-			$Response['message']= cus_lang("PAYMENT_MSG_NO_ACCOUNT_CURRENCY_AVAILABLE");
-		}
-		$CustomerProfile = AccountPaymentProfile::find($data['AccountPaymentProfileID']);
-		$StripeObj = json_decode($CustomerProfile->Options);
-		if (empty($StripeObj)) {
-			$Response['status']= 'failed';
-			$Response['message']= cus_lang("PAYMENT_MSG_BANK_ACCOUNT_NOT_VERIFIED");
-		}
-		return $Response;
-	}
+        $CurrencyCode = Currency::getCurrency($account->CurrencyId);
+        if (empty($CurrencyCode)) {
+            $Response['status']='failed';
+            $Response['message']= cus_lang("PAYMENT_MSG_NO_ACCOUNT_CURRENCY_AVAILABLE");
+        }
+        $CustomerProfile = AccountPaymentProfile::find($data['AccountPaymentProfileID']);
+        $StripeObj = json_decode($CustomerProfile->Options);
+        if (empty($StripeObj)) {
+            $Response['status']= 'failed';
+            $Response['message']= cus_lang("PAYMENT_MSG_BANK_ACCOUNT_NOT_VERIFIED");
+        }
+        return $Response;
+    }
     public function deleteForteProfile($Token)
     {
         $response['status']         = 'success';
@@ -481,7 +477,7 @@ class Forte
     }
     public function verifyBankAccount($data)
     {
-		try {
+        try {
             $Account            = Account::find($data['AccountID']);
             $CurrencyID         = $Account->CurrencyId;
             $InvoiceCurrency    = Currency::getCurrency($CurrencyID);
@@ -528,6 +524,6 @@ class Forte
             $response['error']              = $e->getMessage();
         }
         return $response;
-	}
+    }
    
 }
