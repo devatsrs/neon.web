@@ -120,7 +120,7 @@
                             });
                             $('.btn.upload').button('reset');
                             if (response.status == 'success') {
-                                toastr.success(response.message, "Error", toastr_opts);
+                                toastr.success(response.message, "Success", toastr_opts);
                                $('#excel').val('');
                                 $(document.body).find(".file-input-name").empty()
                             } else {
