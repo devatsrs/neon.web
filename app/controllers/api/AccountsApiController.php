@@ -4365,7 +4365,7 @@ class AccountsApiController extends ApiController {
 			return Response::json(["ErrorMessage" => $errors],Codes::$Code400[0]);
 		}
 		$Account = Account::find($AccountID);
-		if($Account){
+		if($Account && $Account->IsReseller != 1){
 			$CompanyID 	= $Account->CompanyId;
 			$AccountID 	= $Account->AccountID;
 			$ProductData = [];
@@ -4563,8 +4563,11 @@ class AccountsApiController extends ApiController {
 				return Response::json(["ErrorMessage" => "Service Not Found"], Codes::$Code400[0]);
 			}
 		} else {
-			// Account Not Found Error
-			return Response::json(["ErrorMessage" => "Account Not Found"], Codes::$Code400[0]);
+			if($Account) { // Account is Partner Error
+				return Response::json(["ErrorMessage" => "Account is Partner Account, can not add number against Partner Account"], Codes::$Code400[0]);
+			} else { // Account Not Found Error
+				return Response::json(["ErrorMessage" => "Account Not Found"], Codes::$Code400[0]);
+			}
 		}
 	}
 
