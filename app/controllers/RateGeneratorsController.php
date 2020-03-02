@@ -107,6 +107,7 @@ class RateGeneratorsController extends \BaseController {
         $ResellerDD   = RateTable::getResellerDropdownIDList();
 
         return View::make('rategenerators.create', compact('trunks','AllTypes','Products','Package','Categories','codedecklist','currencylist','trunk_keys','Timezones','country','AccessType','Prefix','City','Tariff','ResellerDD','Vendors'));
+
     }
 
     public function store() {
@@ -470,10 +471,10 @@ class RateGeneratorsController extends \BaseController {
 
                         $addComponents['Component'] = implode(",", $GetComponent);
                         $addComponents['Origination'] = $GetOrigination;
-                        $addComponents['TimezonesID'] = $GetTimeOfDay;
+                        $addComponents['TimezonesID'] = implode(",", $GetTimeOfDay);
                         $addComponents['Action'] = $GetAction;
-                        $addComponents['MergeTo'] = $GetMergeTo;
-                        $addComponents['ToTimezonesID'] = $GetToTimeOfDay;
+                        $addComponents['MergeTo'] = implode(",", $GetMergeTo);
+                        $addComponents['ToTimezonesID'] = implode(",", $GetToTimeOfDay);
                         $addComponents['ToOrigination'] = $GetToOrigination;
                         $addComponents['FromCountryID'] = $GetFCountry;
                         $addComponents['FromAccessType'] = $GetFAccessType;
@@ -491,48 +492,60 @@ class RateGeneratorsController extends \BaseController {
                         if($addComponents['PackageID'] == ''){
                             $addComponents['PackageID'] = Null;
                         }
-                        if($addComponents['TimezonesID'] == ''){
-                            $addComponents['TimezonesID'] = Null;
+                        if(in_array('all' , $GetComponent) || in_array('' , $GetComponent)){
+                            $addComponents['Component'] = '';
                         }
-                        if($addComponents['ToTimezonesID'] == ''){
-                            $addComponents['ToTimezonesID'] = Null;
+
+                        if(in_array('all' , $GetToTimeOfDay) || in_array('' , $GetToTimeOfDay)){
+                            $addComponents['ToTimezonesID'] = '';
                         }
-                        if($addComponents['Origination'] == ''){
-                            $addComponents['Origination'] = Null;
+
+                        if(in_array('all' , $GetTimeOfDay) || in_array('' , $GetTimeOfDay)){
+                            $addComponents['TimezonesID'] = '';
                         }
-                        if($addComponents['FromCountryID'] == ''){
-                            $addComponents['FromCountryID'] = Null;
+                        
+                        if($addComponents['Component'] == 'all,' || $addComponents['Component'] == 'all'){
+                            $addComponents['Component'] = '';
                         }
-                        if($addComponents['FromAccessType'] == ''){
-                            $addComponents['FromAccessType'] = Null;
-                        }
-                        if($addComponents['FromPrefix'] == ''){
-                            $addComponents['FromPrefix'] = Null;
-                        }
-                        if($addComponents['FromCity'] == ''){
-                            $addComponents['FromCity'] = Null;
-                        }
-                        if($addComponents['FromTariff'] == ''){
-                            $addComponents['FromTariff'] = Null;
-                        }
-                        if($addComponents['ToOrigination'] == ''){
-                            $addComponents['ToOrigination'] = Null;
-                        }
-                        if($addComponents['ToCountryID'] == ''){
-                            $addComponents['ToCountryID'] = Null;
-                        }
-                        if($addComponents['ToAccessType'] == ''){
-                            $addComponents['ToAccessType'] = Null;
-                        }
-                        if($addComponents['ToPrefix'] == ''){
-                            $addComponents['ToPrefix'] = Null;
-                        }
-                        if($addComponents['ToCity'] == ''){
-                            $addComponents['ToCity'] = Null;
-                        }
-                        if($addComponents['ToTariff'] == ''){
-                            $addComponents['ToTariff'] = Null;
-                        }
+                        // if($addComponents['ToTimezonesID'] == ''){
+                        //     $addComponents['ToTimezonesID'] = Null;
+                        // }
+                        // if($addComponents['Origination'] == ''){
+                        //     $addComponents['Origination'] = Null;
+                        // }
+                        // if($addComponents['FromCountryID'] == ''){
+                        //     $addComponents['FromCountryID'] = Null;
+                        // }
+                        // if($addComponents['FromAccessType'] == ''){
+                        //     $addComponents['FromAccessType'] = Null;
+                        // }
+                        // if($addComponents['FromPrefix'] == ''){
+                        //     $addComponents['FromPrefix'] = Null;
+                        // }
+                        // if($addComponents['FromCity'] == ''){
+                        //     $addComponents['FromCity'] = Null;
+                        // }
+                        // if($addComponents['FromTariff'] == ''){
+                        //     $addComponents['FromTariff'] = Null;
+                        // }
+                        // if($addComponents['ToOrigination'] == ''){
+                        //     $addComponents['ToOrigination'] = Null;
+                        // }
+                        // if($addComponents['ToCountryID'] == ''){
+                        //     $addComponents['ToCountryID'] = Null;
+                        // }
+                        // if($addComponents['ToAccessType'] == ''){
+                        //     $addComponents['ToAccessType'] = Null;
+                        // }
+                        // if($addComponents['ToPrefix'] == ''){
+                        //     $addComponents['ToPrefix'] = Null;
+                        // }
+                        // if($addComponents['ToCity'] == ''){
+                        //     $addComponents['ToCity'] = Null;
+                        // }
+                        // if($addComponents['ToTariff'] == ''){
+                        //     $addComponents['ToTariff'] = Null;
+                        // }
                         if (RateGeneratorComponent::create($addComponents)) {
                             $CostComponentSaved = "and Cost component Updated";
                         }
@@ -1108,10 +1121,10 @@ class RateGeneratorsController extends \BaseController {
 
                         $addComponents['Component'] = implode(",", $GetComponent);
                         $addComponents['Origination'] = $GetOrigination;
-                        $addComponents['TimezonesID'] = $GetTimeOfDay;
+                        $addComponents['TimezonesID'] = implode(",", $GetTimeOfDay);
                         $addComponents['Action'] = $GetAction;
-                        $addComponents['MergeTo'] = $GetMergeTo;
-                        $addComponents['ToTimezonesID'] = $GetToTimeOfDay;
+                        $addComponents['MergeTo'] = implode(",", $GetMergeTo);
+                        $addComponents['ToTimezonesID'] = implode(",", $GetToTimeOfDay);
                         $addComponents['ToOrigination'] = $GetToOrigination;
                         $addComponents['RateGeneratorId'] = $RateGeneratorID;
                         $addComponents['FromCountryID'] = $GetFCountry;
@@ -1130,48 +1143,62 @@ class RateGeneratorsController extends \BaseController {
                         if($addComponents['PackageID'] == ''){
                             $addComponents['PackageID'] = Null;
                         }
-                        if($addComponents['TimezonesID'] == ''){
-                            $addComponents['TimezonesID'] = Null;
+                        if(in_array('all' , $GetComponent) || in_array('' , $GetComponent)){
+                            $addComponents['Component'] = '';
                         }
-                        if($addComponents['ToTimezonesID'] == ''){
-                            $addComponents['ToTimezonesID'] = Null;
+
+                        if(in_array('all' , $GetToTimeOfDay) || in_array('' , $GetToTimeOfDay)){
+                            $addComponents['ToTimezonesID'] = '';
                         }
-                        if($addComponents['Origination'] == ''){
-                            $addComponents['Origination'] = Null;
+
+                        if(in_array('all' , $GetTimeOfDay) || in_array('' , $GetTimeOfDay)){
+                            $addComponents['TimezonesID'] = '';
                         }
-                        if($addComponents['FromCountryID'] == ''){
-                            $addComponents['FromCountryID'] = Null;
+                        if($addComponents['Component'] == 'all,' || $addComponents['Component'] == 'all'){
+                            $addComponents['Component'] = '';
                         }
-                        if($addComponents['FromAccessType'] == ''){
-                            $addComponents['FromAccessType'] = Null;
-                        }
-                        if($addComponents['FromPrefix'] == ''){
-                            $addComponents['FromPrefix'] = Null;
-                        }
-                        if($addComponents['FromCity'] == ''){
-                            $addComponents['FromCity'] = Null;
-                        }
-                        if($addComponents['FromTariff'] == ''){
-                            $addComponents['FromTariff'] = Null;
-                        }
-                        if($addComponents['ToOrigination'] == ''){
-                            $addComponents['ToOrigination'] = Null;
-                        }
-                        if($addComponents['ToCountryID'] == ''){
-                            $addComponents['ToCountryID'] = Null;
-                        }
-                        if($addComponents['ToAccessType'] == ''){
-                            $addComponents['ToAccessType'] = Null;
-                        }
-                        if($addComponents['ToPrefix'] == ''){
-                            $addComponents['ToPrefix'] = Null;
-                        }
-                        if($addComponents['ToCity'] == ''){
-                            $addComponents['ToCity'] = Null;
-                        }
-                        if($addComponents['ToTariff'] == ''){
-                            $addComponents['ToTariff'] = Null;
-                        }
+                        // if($addComponents['TimezonesID'] == ''){
+                        //     $addComponents['TimezonesID'] = Null;
+                        // }
+                        // if($addComponents['ToTimezonesID'] == ''){
+                        //     $addComponents['ToTimezonesID'] = Null;
+                        // }
+                        // if($addComponents['Origination'] == ''){
+                        //     $addComponents['Origination'] = Null;
+                        // }
+                        // if($addComponents['FromCountryID'] == ''){
+                        //     $addComponents['FromCountryID'] = Null;
+                        // }
+                        // if($addComponents['FromAccessType'] == ''){
+                        //     $addComponents['FromAccessType'] = Null;
+                        // }
+                        // if($addComponents['FromPrefix'] == ''){
+                        //     $addComponents['FromPrefix'] = Null;
+                        // }
+                        // if($addComponents['FromCity'] == ''){
+                        //     $addComponents['FromCity'] = Null;
+                        // }
+                        // if($addComponents['FromTariff'] == ''){
+                        //     $addComponents['FromTariff'] = Null;
+                        // }
+                        // if($addComponents['ToOrigination'] == ''){
+                        //     $addComponents['ToOrigination'] = Null;
+                        // }
+                        // if($addComponents['ToCountryID'] == ''){
+                        //     $addComponents['ToCountryID'] = Null;
+                        // }
+                        // if($addComponents['ToAccessType'] == ''){
+                        //     $addComponents['ToAccessType'] = Null;
+                        // }
+                        // if($addComponents['ToPrefix'] == ''){
+                        //     $addComponents['ToPrefix'] = Null;
+                        // }
+                        // if($addComponents['ToCity'] == ''){
+                        //     $addComponents['ToCity'] = Null;
+                        // }
+                        // if($addComponents['ToTariff'] == ''){
+                        //     $addComponents['ToTariff'] = Null;
+                        // }
                         if (RateGeneratorComponent::create($addComponents)) {
                             $CostComponentSaved = "and Cost component Updated";
                         }

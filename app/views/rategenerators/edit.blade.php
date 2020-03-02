@@ -407,6 +407,16 @@
                                         $MergeToArray1[$MergeTo1]=$MergeTo1;
                                     }
 
+                                    $TimeToDay = explode("," ,$Component->TimezonesID);
+                                    foreach ($TimeToDay as $TimeTo) {
+                                        $TimeToDay[$TimeTo]=$TimeTo;
+                                    }
+
+                                    $TimeToDayTo = explode("," ,$Component->ToTimezonesID);
+                                    foreach ($TimeToDayTo as $TimeDayTo) {
+                                        $TimeToDayTo[$TimeDayTo]=$TimeDayTo;
+                                    }
+
                                     ?>
                                     <tr id="selectedRow-{{$a}}">
                                     {{-- @if($rategenerators->SelectType == 3)
@@ -417,9 +427,9 @@
                                         </td>
                                         <td id="testValues">
                                             @if($rategenerators->SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_DID))
-                                            {{ Form::select('Component-'.$a.'[]', DiscountPlan::$RateTableDIDRate_Components, $ComponentArray1, array("class"=>"select2 selected-Components" ,'multiple', "id"=>"Component-".$a)) }}
+                                            {{ Form::select('Component-'.$a.'[]', array("" => "All") + DiscountPlan::$RateTableDIDRate_Components, $ComponentArray1, array("class"=>"select2 selected-Components" ,'multiple', "id"=>"Component-".$a)) }}
                                             @elseif($rategenerators->SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_PACKAGE))
-                                            {{ Form::select('Component-'.$a.'[]', DiscountPlan::$RateTablePKGRate_Components, $ComponentArray1, array("class"=>"select2 selected-Components" ,'multiple', "id"=>"Component-".$a)) }}
+                                            {{ Form::select('Component-'.$a.'[]', array("" => "All") + DiscountPlan::$RateTablePKGRate_Components, $ComponentArray1, array("class"=>"select2 selected-Components" ,'multiple', "id"=>"Component-".$a)) }}
                                             @endif
 
                                         </td>
@@ -442,7 +452,7 @@
                                             <input type="text" class="form-control" value="{{$Component->Origination}}" name="Origination-{{$a}}"/>
                                         </td>
                                         <td>
-                                            {{ Form::select('TimeOfDay-'.$a, $Timezones, $Component->TimezonesID, array("class"=>"select2")) }}
+                                            {{ Form::select('TimeOfDay-'.$a.'[]', $Timezones, $TimeToDay, array("class"=>"select2" , "multiple")) }}
                                         </td>
                                         <td>
                                             {{ Form::select('Action-'.$a,  RateGenerator::$Action, $ActionsArray1, array("class"=>"select2")) }}
@@ -450,9 +460,9 @@
                                         </td>
                                         <td>
                                             @if($rategenerators->SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_DID))
-                                            {{ Form::select('MergeTo-'.$a,DiscountPlan::$RateTableDIDRate_Components,  $MergeToArray1 , array("class"=>"select2" , "id"=>"MergeTo-".$a)) }}
+                                            {{ Form::select('MergeTo-'.$a.'[]',DiscountPlan::$RateTableDIDRate_Components,  $MergeToArray1 , array("class"=>"select2" , "multiple" , "id"=>"MergeTo-".$a)) }}
                                             @elseif($rategenerators->SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_PACKAGE))
-                                            {{ Form::select('MergeTo-'.$a, DiscountPlan::$RateTablePKGRate_Components,  $MergeToArray1 , array("class"=>"select2" , "id"=>"MergeTo-".$a)) }}
+                                            {{ Form::select('MergeTo-'.$a.'[]', DiscountPlan::$RateTablePKGRate_Components,  $MergeToArray1 , array("class"=>"select2" , "multiple" , "id"=>"MergeTo-".$a)) }}
                                             @endif
                                         </td>
                                         <td class="DID-Div">
@@ -474,7 +484,7 @@
                                             <input type="text" class="form-control" value="{{$Component->ToOrigination}}" name="ToOrigination-{{$a}}"/>
                                         </td>
                                         <td>
-                                            {{ Form::select('ToTimeOfDay-'.$a, $Timezones, $Component->ToTimezonesID, array("class"=>"select2")) }}
+                                            {{ Form::select('ToTimeOfDay-'.$a.'[]', $Timezones, $TimeToDayTo, array("class"=>"select2" , "multiple")) }}
                                         </td>
                                         <td class="w-del">
 
@@ -890,7 +900,7 @@
                     <input type="text" class="form-control" name="Origination-1"/>
                 </td>
                 <td>
-                    {{ Form::select('TimeOfDay-1', $Timezones, '', array("class"=>"select2")) }}
+                    {{ Form::select('TimeOfDay-1[]', $Timezones, '', array("class"=>"select2" , "multiple")) }}
                 </td>
                 <td>
                     {{ Form::select('Action-1',  RateGenerator::$Action, RateGenerator::$Action, array("class"=>"select2")) }}
@@ -919,7 +929,7 @@
                     <input type="text" class="form-control" name="ToOrigination-1"/>
                 </td>
                 <td>
-                    {{ Form::select('ToTimeOfDay-1', $Timezones, '', array("class"=>"select2")) }}
+                    {{ Form::select('ToTimeOfDay-1[]', $Timezones, '', array("class"=>"select2" , "multiple")) }}
                 </td>
                 <td class="w-del">
 
@@ -1121,7 +1131,7 @@
                 $('.vendor-tooltip').attr('data-original-title','Package');
                 $('#testValuess').html('{{ Form::select("Component-1[]", DiscountPlan::$RateTablePKGRate_Components , null, array("class"=>"PKG" ,"multiple", "id"=>"Component-1")) }}');
                 $('#testRateValues').html('{{ Form::select("RateComponent-1[]", DiscountPlan::$RateTablePKGRate_Components , null, array("class"=>"PKG" ,"multiple", "id"=>"RateComponent-1")) }}');
-                $('.mergetestvalues').html('{{ Form::select("MergeTo-1",DiscountPlan::$RateTablePKGRate_Components , null, array("class"=>"PKG", "id"=>"MergeTo-1")) }}');
+                $('.mergetestvalues').html('{{ Form::select("MergeTo-1[]",DiscountPlan::$RateTablePKGRate_Components , null, array("class"=>"PKG", "multiple" ,"id"=>"MergeTo-1")) }}');
 
                 $('.PKG').select2();
             } else {
@@ -1205,9 +1215,9 @@
                 $(".NonDID-Div").hide();
                 $(".Package-Div").hide();
                 $('.w-del').css('width','');
-                $('#testValuess').html('{{ Form::select("Component-1[]",DiscountPlan::$RateTableDIDRate_Components , null, array("class"=>"DID" ,"multiple", "id"=>"Component-1")) }}');
+                $('#testValuess').html('{{ Form::select("Component-1[]",array("all" => "All") + DiscountPlan::$RateTableDIDRate_Components , null, array("class"=>"DID" ,"multiple", "id"=>"Component-1")) }}');
                 $('#testRateValues').html('{{ Form::select("RateComponent-1[]",DiscountPlan::$RateTableDIDRate_Components , null, array("class"=>"DID" ,"multiple", "id"=>"RateComponent-1")) }}');
-                $('.mergetestvalues').html('{{ Form::select("MergeTo-1",DiscountPlan::$RateTableDIDRate_Components , null, array("class"=>"DID", "id"=>"MergeTo-1")) }}');
+                $('.mergetestvalues').html('{{ Form::select("MergeTo-1[]",DiscountPlan::$RateTableDIDRate_Components , null, array("class"=>"DID", "multiple" , "id"=>"MergeTo-1")) }}');
                 $('.DID').select2();
             }else if(TypeValue == 1){
                 $("#rate-ostion-trunk-div").show();
@@ -1232,9 +1242,9 @@
                 $('#ratetableSubBox').css('width','1025px');
                 $('#ratetableVendorBox').css('width','1030px');
                 $('.w-del').css('width','4%');
-                $('#testValuess').html('{{ Form::select("Component-1[]", DiscountPlan::$RateTablePKGRate_Components , null, array("class"=>"PKG" ,"multiple", "id"=>"Component-1")) }}');
+                $('#testValuess').html('{{ Form::select("Component-1[]", array("all" => "All") + DiscountPlan::$RateTablePKGRate_Components , null, array("class"=>"PKG" ,"multiple", "id"=>"Component-1")) }}');
                 $('#testRateValues').html('{{ Form::select("RateComponent-1[]", DiscountPlan::$RateTablePKGRate_Components , null, array("class"=>"PKG" ,"multiple", "id"=>"RateComponent-1")) }}');
-                $('.mergetestvalues').html('{{ Form::select("MergeTo-1",DiscountPlan::$RateTablePKGRate_Components , null, array("class"=>"PKG", "id"=>"MergeTo-1")) }}');
+                $('.mergetestvalues').html('{{ Form::select("MergeTo-1[]",DiscountPlan::$RateTablePKGRate_Components , null, array("class"=>"PKG", "multiple" , "id"=>"MergeTo-1")) }}');
                
 
                 $('.PKG').select2();
@@ -1723,16 +1733,16 @@
                 $('#' + tblID + ' tr:last').children('td:eq(5)').children('select').attr('name', 'FCity-' + numb).attr('id', 'FCity-' + numb).select2();
                 $('#' + tblID + ' tr:last').children('td:eq(6)').children('select').attr('name', 'FTariff-' + numb).attr('id', 'FTariff-' + numb).select2();
                 $('#' + tblID + ' tr:last').children('td:eq(7)').children('input').attr('name', 'Origination-' + numb).attr('id', 'Origination-' + numb).val('');
-                $('#' + tblID + ' tr:last').children('td:eq(8)').children('select').attr('name', 'TimeOfDay-' + numb).attr('id', 'TimeOfDay-' + numb).select2();
+                $('#' + tblID + ' tr:last').children('td:eq(8)').children('select').attr('name', 'TimeOfDay-' + numb + '[]').attr('id', 'TimeOfDay-' + numb).select2();
                 $('#' + tblID + ' tr:last').children('td:eq(9)').children('select').attr('name', 'Action-' + numb).attr('id', 'Action-' + numb).select2();
-                $('#' + tblID + ' tr:last').children('td:eq(10)').children('select').attr('name', 'MergeTo-' + numb).attr('id', 'MergeTo-' + numb).select2().select2('val', 'OneOffCost');
+                $('#' + tblID + ' tr:last').children('td:eq(10)').children('select').attr('name', 'MergeTo-' + numb + '[]').attr('id', 'MergeTo-' + numb).select2().select2('val', 'OneOffCost');
                 $('#' + tblID + ' tr:last').children('td:eq(11)').children('select').attr('name', 'TCountry-' + numb).attr('id', 'TCountry-' + numb).select2();
                 $('#' + tblID + ' tr:last').children('td:eq(12)').children('select').attr('name', 'TAccessType-' + numb).attr('id', 'TccessType-' + numb).select2();
                 $('#' + tblID + ' tr:last').children('td:eq(13)').children('select').attr('name', 'TPrefix-' + numb).attr('id', 'TPrefix-' + numb).select2();
                 $('#' + tblID + ' tr:last').children('td:eq(14)').children('select').attr('name', 'TCity-' + numb).attr('id', 'TCity-' + numb).select2();
                 $('#' + tblID + ' tr:last').children('td:eq(15)').children('select').attr('name', 'TTariff-' + numb).attr('id', 'TTariff-' + numb).select2();
                 $('#' + tblID + ' tr:last').children('td:eq(16)').children('input').attr('name', 'ToOrigination-' + numb).attr('id', 'ToOrigination-' + numb).val('');
-                $('#' + tblID + ' tr:last').children('td:eq(17)').children('select').attr('name', 'ToTimeOfDay-' + numb).attr('id', 'ToTimeOfDay-' + numb).select2();
+                $('#' + tblID + ' tr:last').children('td:eq(17)').children('select').attr('name', 'ToTimeOfDay-' + numb + '[]').attr('id', 'ToTimeOfDay-' + numb).select2();
 
 
             }else if (tblID == "ratetableVendorBox") { 
