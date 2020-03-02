@@ -484,7 +484,7 @@
                                             <input type="text" class="form-control" value="{{$Component->ToOrigination}}" name="ToOrigination-{{$a}}"/>
                                         </td>
                                         <td>
-                                            {{ Form::select('ToTimeOfDay-'.$a.'[]', $Timezones, $TimeToDayTo, array("class"=>"select2" , "multiple")) }}
+                                            {{ Form::select('ToTimeOfDay-'.$a, $Timezones, $Component->ToTimezonesID, array("class"=>"select2")) }}
                                         </td>
                                         <td class="w-del">
 
@@ -929,7 +929,7 @@
                     <input type="text" class="form-control" name="ToOrigination-1"/>
                 </td>
                 <td>
-                    {{ Form::select('ToTimeOfDay-1[]', $Timezones, '', array("class"=>"select2" , "multiple")) }}
+                    {{ Form::select('ToTimeOfDay-1', $Timezones, '', array("class"=>"select2")) }}
                 </td>
                 <td class="w-del">
 
@@ -1742,7 +1742,7 @@
                 $('#' + tblID + ' tr:last').children('td:eq(14)').children('select').attr('name', 'TCity-' + numb).attr('id', 'TCity-' + numb).select2();
                 $('#' + tblID + ' tr:last').children('td:eq(15)').children('select').attr('name', 'TTariff-' + numb).attr('id', 'TTariff-' + numb).select2();
                 $('#' + tblID + ' tr:last').children('td:eq(16)').children('input').attr('name', 'ToOrigination-' + numb).attr('id', 'ToOrigination-' + numb).val('');
-                $('#' + tblID + ' tr:last').children('td:eq(17)').children('select').attr('name', 'ToTimeOfDay-' + numb + '[]').attr('id', 'ToTimeOfDay-' + numb).select2();
+                $('#' + tblID + ' tr:last').children('td:eq(17)').children('select').attr('name', 'ToTimeOfDay-' + numb).attr('id', 'ToTimeOfDay-' + numb).select2();
 
 
             }else if (tblID == "ratetableVendorBox") { 
