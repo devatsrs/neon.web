@@ -122,9 +122,11 @@
                             if (response.status == 'success') {
                                 toastr.success(response.message, "Success", toastr_opts);
                                $('#excel').val('');
-                                $(document.body).find(".file-input-name").empty()
+                                $(document.body).find(".file-input-name").empty();
                             } else {
                                 toastr.error(response.message, "Error", toastr_opts);
+                                $('#excel').val('');
+                                $(document.body).find(".file-input-name").empty();
                             }
                         },
                         // Form data
