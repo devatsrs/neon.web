@@ -346,6 +346,12 @@
         });
     }
     jQuery(document).ready(function($) {
+
+        $(document.body).on('keyup change', '.BalanceThresholdcls' , function(){
+            if($(this).val() < 0){
+                $(this).val('0');
+            }
+        });
         var acountiptable;
         $('#save_account').click(function(){
             
