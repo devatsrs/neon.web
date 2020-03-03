@@ -469,11 +469,11 @@ class RateGeneratorsController extends \BaseController {
                         $GetPackage    =  $PackageComponent[$i];
 
 
-                        $addComponents['Component'] = implode(",", $GetComponent);
+                        $addComponents['Component'] = str_replace(' ','',implode(",", $GetComponent));
                         $addComponents['Origination'] = str_replace(' ','',$GetOrigination);
-                        $addComponents['TimezonesID'] = implode(",", $GetTimeOfDay);
+                        $addComponents['TimezonesID'] = str_replace(' ','',implode(",", $GetTimeOfDay));
                         $addComponents['Action'] = $GetAction;
-                        $addComponents['MergeTo'] = implode(",", $GetMergeTo);
+                        $addComponents['MergeTo'] = $GetMergeTo;
                         $addComponents['ToTimezonesID'] = $GetToTimeOfDay;
                         $addComponents['ToOrigination'] = explode(',' ,$GetToOrigination)[0];
                         $addComponents['FromCountryID'] = $GetFCountry;
@@ -503,6 +503,10 @@ class RateGeneratorsController extends \BaseController {
                         
                         if($addComponents['Component'] == 'all,' || $addComponents['Component'] == 'all'){
                             $addComponents['Component'] = '';
+                        }
+
+                        if($addComponents['MergeTo'] == 'all'){
+                            $addComponents['MergeTo'] = '';
                         }
                         // if($addComponents['ToTimezonesID'] == ''){
                         //     $addComponents['ToTimezonesID'] = Null;
@@ -1116,11 +1120,11 @@ class RateGeneratorsController extends \BaseController {
                         $GetTTarif    = $ttariif[$i];
                         $GetPackage    =  $PackageComponent[$i];
 
-                        $addComponents['Component'] = implode(",", $GetComponent);
+                        $addComponents['Component'] = str_replace(' ','',implode(",", $GetComponent));
                         $addComponents['Origination'] = str_replace(' ','',$GetOrigination);
-                        $addComponents['TimezonesID'] = implode(",", $GetTimeOfDay);
+                        $addComponents['TimezonesID'] = str_replace(' ','',implode(",", $GetTimeOfDay));
                         $addComponents['Action'] = $GetAction;
-                        $addComponents['MergeTo'] = implode(",", $GetMergeTo);
+                        $addComponents['MergeTo'] = $GetMergeTo;
                         $addComponents['ToTimezonesID'] = $GetToTimeOfDay;
                         $addComponents['ToOrigination'] = explode(',',$GetToOrigination)[0];
                         $addComponents['RateGeneratorId'] = $RateGeneratorID;
@@ -1150,6 +1154,10 @@ class RateGeneratorsController extends \BaseController {
                         }
                         if($addComponents['Component'] == 'all,' || $addComponents['Component'] == 'all'){
                             $addComponents['Component'] = '';
+                        }
+
+                        if($addComponents['MergeTo'] == 'all'){
+                            $addComponents['MergeTo'] = '';
                         }
                         // if($addComponents['TimezonesID'] == ''){
                         //     $addComponents['TimezonesID'] = Null;
