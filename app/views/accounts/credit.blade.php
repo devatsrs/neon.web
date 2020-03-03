@@ -104,7 +104,7 @@
                         </label>
                         <div class="desc col-sm-4 ">
                             <?php /* <input type="text" class="form-control"  name="BalanceThreshold" value="{{$BalanceThreshold}}" id="Threshold Limit"> */?>
-                            <input type="number" class="form-control"  name="BalanceThreshold" value="0" id="Threshold Limit">
+                            <input type="number" class="form-control" min="0"  name="BalanceThreshold" value="0" id="Threshold Limit">
                         </div>
                     </div>
                     
