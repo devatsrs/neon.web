@@ -4979,6 +4979,7 @@ class AccountsApiController extends ApiController {
 		$rules = array(
 			'OrderID'							=> 'required|numeric',
 			'NumberContractID'					=> 'required|numeric',
+			'PackageContractID'					=> 'required|numeric',
 			'NumberPurchased'					=> 'required',// |numeric
 			'ContractEndDate'					=> 'required|date|date_format:Y-m-d|after:'.date('Y-m-d',strtotime("-1 days")),
 		);
@@ -4988,6 +4989,8 @@ class AccountsApiController extends ApiController {
 			'OrderID.numeric'  					=> "The OrderID must be a number.",
 			'NumberContractID.required'  		=> "The NumberContractID field is required.",
 			'NumberContractID.numeric'  		=> "The NumberContractID must be a number.",
+			'PackageContractID.required'  		=> "The PackageContractID field is required.",
+			'PackageContractID.numeric'  		=> "The PackageContractID must be a number.",
 			'NumberPurchased.required'  		=> "The NumberPurchased field is required.",
 			//'NumberPurchased.numeric'  			=> "The NumberPurchased must be a number.",
 			'ContractEndDate.required'			=> "The ContractEndDate field is required.",
@@ -5018,15 +5021,18 @@ class AccountsApiController extends ApiController {
 			$AccountService = $AccountService->first();
 
 			$CLIRateTable = CLIRateTable::where([
-				'CompanyID' 		=> $CompanyID,
-				'AccountID' 		=> $AccountID,
-				'AccountServiceID' 	=> $AccountService->AccountServiceID,
-				'ContractID' 		=> $data['NumberContractID'],
-				'CLI' 				=> $data['NumberPurchased']/*,
+				'tblCLIRateTable.CompanyID' 			=> $CompanyID,
+				'tblCLIRateTable.AccountID' 			=> $AccountID,
+				'tblCLIRateTable.AccountServiceID' 		=> $AccountService->AccountServiceID,
+				'tblCLIRateTable.ContractID' 			=> $data['NumberContractID'],
+				'tblCLIRateTable.CLI' 					=> $data['NumberPurchased'],
+				'tblAccountServicePackage.ContractID'	=> $data['PackageContractID']/*,
 				'Status' 			=> 1*/
-			]);
+			])
+			->join('tblAccountServicePackage',"tblAccountServicePackage.AccountServicePackageID","=","tblCLIRateTable.AccountServicePackageID")
+			;
 
-			// if number exist
+			// if number and package exist
 			if($CLIRateTable->count() > 0) {
 				try {
 					DB::beginTransaction();
