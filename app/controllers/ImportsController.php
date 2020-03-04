@@ -971,9 +971,22 @@ class ImportsController extends \BaseController {
         $fullPath               = $file_name; //$destinationPath . $file_name;
         $save['full_path']      = $fullPath;
 
+        $NeonExcel = new NeonExcelIO($fullPath);
+        $results = $NeonExcel->read();
+        
+           
         if($data['importtype'] == 'Account') {
             $jobtype = 'AI';
         }else if($data['importtype'] == 'Service'){
+            foreach($results as $key => $value)
+            {
+                if(isset($value['CustomerId']) && isset($value['Number']) && isset($value['NumberContractId']) && isset($value['NumberStartDate']) && isset($value['NumberEndDate']) && isset($value['NumberProductId']) && isset($value['PackageContractId']) && isset($value['PackageStartDate']) && isset($value['PackageEndDate']) && isset($value['PackageProductId']) && isset($value['OrderId'])){
+                    
+                }else{
+                    return Response::json(array("status" => "failed", "message" => "File Format Is Wrong"));
+                }
+                break;
+            }
             $jobtype = 'SI';
         }else if($data['importtype'] == 'CDR'){
             $jobtype = 'CDI';

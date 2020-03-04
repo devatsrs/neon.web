@@ -53,7 +53,7 @@
                 var formData = new FormData($('#form-upload')[0]);
                 show_loading_bar(0);
                 $.ajax({
-                    url:  '{{URL::to('importdata/uploadtemplatefile')}}',  //Server script to process data
+                    url:  '{{URL::to('import_legacy_rates')}}',  //Server script to process data
                     type: 'POST',
                     dataType: 'json',
                     beforeSend: function(){

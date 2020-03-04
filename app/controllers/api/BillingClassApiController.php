@@ -193,6 +193,10 @@ class BillingClassApiController extends ApiController {
 
                     // foreach($val['BalanceThreshold'] as $keys=>$value){
                     $ThresholdReferenceArr=json_decode(json_encode($data['BalanceThreshold']),true);
+                        if($ThresholdReferenceArr['Threshold'] < 0) {
+                            return Response::json(["ErrorMessage"=>"Threshold value is not allowed in negative"],Codes::$Code400[0]);
+                        }
+
                         if(!empty($ThresholdReferenceArr['Threshold'])) {
                             $Threshold=$ThresholdReferenceArr['Threshold'];
                         }else{

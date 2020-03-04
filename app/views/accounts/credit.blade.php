@@ -104,7 +104,7 @@
                         </label>
                         <div class="desc col-sm-4 ">
                             <?php /* <input type="text" class="form-control"  name="BalanceThreshold" value="{{$BalanceThreshold}}" id="Threshold Limit"> */?>
-                            <input type="number" class="form-control"  name="BalanceThreshold" value="0" id="Threshold Limit">
+                            <input type="number" class="form-control" min="0"  name="BalanceThreshold" value="0" id="Threshold Limit">
                         </div>
                     </div>
                     
@@ -346,6 +346,12 @@
         });
     }
     jQuery(document).ready(function($) {
+
+        $(document.body).on('keyup change', '.BalanceThresholdcls' , function(){
+            if($(this).val() < 0){
+                $(this).val('0');
+            }
+        });
         var acountiptable;
         $('#save_account').click(function(){
             
