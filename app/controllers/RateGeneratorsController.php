@@ -259,7 +259,7 @@ class RateGeneratorsController extends \BaseController {
                         
                         $componts[]       = $data['Component-' . $numberArray[$i]];
                         $origination[]    = $data['Origination-' . $numberArray[$i]];
-                        $timeofday[]      = $data['TimeOfDay-' . $numberArray[$i]];
+                        $timeofday[]      = isset($data['TimeOfDay-' . $numberArray[$i]]) ? $data['TimeOfDay-' . $numberArray[$i]] : '';
                         $action[]         = $data['Action-' . $numberArray[$i]];
                         $mergeTo[]        = $data['MergeTo-' . $numberArray[$i]];
                         $originationTo[]  = $data['ToOrigination-' . $numberArray[$i]];
@@ -469,13 +469,13 @@ class RateGeneratorsController extends \BaseController {
                         $GetPackage    =  $PackageComponent[$i];
 
 
-                        $addComponents['Component'] = implode(",", $GetComponent);
-                        $addComponents['Origination'] = $GetOrigination;
-                        $addComponents['TimezonesID'] = implode(",", $GetTimeOfDay);
+                        $addComponents['Component'] = str_replace(' ','',implode(",", $GetComponent));
+                        $addComponents['Origination'] = str_replace(' ','',$GetOrigination);
+                        $addComponents['TimezonesID'] = !empty($GetTimeOfDay) ? str_replace(' ','',implode(",", $GetTimeOfDay)) : '';
                         $addComponents['Action'] = $GetAction;
-                        $addComponents['MergeTo'] = implode(",", $GetMergeTo);
-                        $addComponents['ToTimezonesID'] = implode(",", $GetToTimeOfDay);
-                        $addComponents['ToOrigination'] = $GetToOrigination;
+                        $addComponents['MergeTo'] = $GetMergeTo;
+                        $addComponents['ToTimezonesID'] = $GetToTimeOfDay;
+                        $addComponents['ToOrigination'] = explode(',' ,$GetToOrigination)[0];
                         $addComponents['FromCountryID'] = $GetFCountry;
                         $addComponents['FromAccessType'] = $GetFAccessType;
                         $addComponents['FromPrefix'] = $GetFPrefix;
@@ -496,16 +496,17 @@ class RateGeneratorsController extends \BaseController {
                             $addComponents['Component'] = '';
                         }
 
-                        if(in_array('all' , $GetToTimeOfDay) || in_array('' , $GetToTimeOfDay)){
-                            $addComponents['ToTimezonesID'] = '';
-                        }
 
-                        if(in_array('all' , $GetTimeOfDay) || in_array('' , $GetTimeOfDay)){
+                        if(!empty($GetTimeOfDay) && (in_array('all' , $GetTimeOfDay) || in_array('' , $GetTimeOfDay))){
                             $addComponents['TimezonesID'] = '';
                         }
                         
                         if($addComponents['Component'] == 'all,' || $addComponents['Component'] == 'all'){
                             $addComponents['Component'] = '';
+                        }
+
+                        if($addComponents['MergeTo'] == 'all'){
+                            $addComponents['MergeTo'] = '';
                         }
                         // if($addComponents['ToTimezonesID'] == ''){
                         //     $addComponents['ToTimezonesID'] = Null;
@@ -918,7 +919,7 @@ class RateGeneratorsController extends \BaseController {
                         
                         $componts[] = $data['Component-' . $numberArray[$i]];
                         $origination[] = $data['Origination-' . $numberArray[$i]];
-                        $timeofday[] = $data['TimeOfDay-' . $numberArray[$i]];
+                        $timeofday[] = isset($data['TimeOfDay-' . $numberArray[$i]]) ? $data['TimeOfDay-' . $numberArray[$i]] : '';
                         $action[] = $data['Action-' . $numberArray[$i]];
                         $mergeTo[] = $data['MergeTo-' . $numberArray[$i]];
                         $originationTo[] = $data['ToOrigination-' . $numberArray[$i]];
@@ -1119,13 +1120,13 @@ class RateGeneratorsController extends \BaseController {
                         $GetTTarif    = $ttariif[$i];
                         $GetPackage    =  $PackageComponent[$i];
 
-                        $addComponents['Component'] = implode(",", $GetComponent);
-                        $addComponents['Origination'] = $GetOrigination;
-                        $addComponents['TimezonesID'] = implode(",", $GetTimeOfDay);
+                        $addComponents['Component'] = str_replace(' ','',implode(",", $GetComponent));
+                        $addComponents['Origination'] = str_replace(' ','',$GetOrigination);
+                        $addComponents['TimezonesID'] = !empty($GetTimeOfDay) ? str_replace(' ','',implode(",", $GetTimeOfDay)) : '';
                         $addComponents['Action'] = $GetAction;
-                        $addComponents['MergeTo'] = implode(",", $GetMergeTo);
-                        $addComponents['ToTimezonesID'] = implode(",", $GetToTimeOfDay);
-                        $addComponents['ToOrigination'] = $GetToOrigination;
+                        $addComponents['MergeTo'] = $GetMergeTo;
+                        $addComponents['ToTimezonesID'] = $GetToTimeOfDay;
+                        $addComponents['ToOrigination'] = explode(',',$GetToOrigination)[0];
                         $addComponents['RateGeneratorId'] = $RateGeneratorID;
                         $addComponents['FromCountryID'] = $GetFCountry;
                         $addComponents['FromAccessType'] = $GetFAccessType;
@@ -1147,15 +1148,16 @@ class RateGeneratorsController extends \BaseController {
                             $addComponents['Component'] = '';
                         }
 
-                        if(in_array('all' , $GetToTimeOfDay) || in_array('' , $GetToTimeOfDay)){
-                            $addComponents['ToTimezonesID'] = '';
-                        }
 
-                        if(in_array('all' , $GetTimeOfDay) || in_array('' , $GetTimeOfDay)){
+                        if(!empty($GetTimeOfDay) && (in_array('all' , $GetTimeOfDay) || in_array('' , $GetTimeOfDay))){
                             $addComponents['TimezonesID'] = '';
                         }
                         if($addComponents['Component'] == 'all,' || $addComponents['Component'] == 'all'){
                             $addComponents['Component'] = '';
+                        }
+
+                        if($addComponents['MergeTo'] == 'all'){
+                            $addComponents['MergeTo'] = '';
                         }
                         // if($addComponents['TimezonesID'] == ''){
                         //     $addComponents['TimezonesID'] = Null;
