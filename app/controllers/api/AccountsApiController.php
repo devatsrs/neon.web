@@ -4322,10 +4322,12 @@ class AccountsApiController extends ApiController {
 					'Numbers.'.$key.'.NumberContractID'			=> 'required|numeric',
 					'Numbers.'.$key.'.ContractStartDate'		=> 'required|date|date_format:Y-m-d',
 					//'Numbers.'.$key.'.ContractStartDate'		=> 'required|date|date_format:Y-m-d|after:'.date('Y-m-d',strtotime("-1 days")),
-					'Numbers.'.$key.'.ContractEndDate'			=> 'required|date|date_format:Y-m-d|after:Numbers.'.$key.'.ContractStartDate',
+					//'Numbers.'.$key.'.ContractEndDate'			=> 'required|date|date_format:Y-m-d|after:Numbers.'.$key.'.ContractStartDate',
+					'Numbers.'.$key.'.ContractEndDate'			=> 'required|date|date_format:Y-m-d|after:'.date('Y-m-d',strtotime($data['Numbers'][$key]['ContractStartDate']." -1 days")),
 					'Numbers.'.$key.'.PackageStartDate'			=> 'required|date|date_format:Y-m-d',
 					//'Numbers.'.$key.'.PackageStartDate'			=> 'required|date|date_format:Y-m-d|after:'.date('Y-m-d',strtotime("-1 days")),
-					'Numbers.'.$key.'.PackageEndDate'			=> 'required|date|date_format:Y-m-d|after:Numbers.'.$key.'.PackageStartDate',
+					//'Numbers.'.$key.'.PackageEndDate'			=> 'required|date|date_format:Y-m-d|after:Numbers.'.$key.'.PackageStartDate',
+					'Numbers.'.$key.'.PackageEndDate'			=> 'required|date|date_format:Y-m-d|after:'.date('Y-m-d',strtotime($data['Numbers'][$key]['PackageStartDate']." -1 days")),
 				);
 
 				$msg__numbers =  [
@@ -4344,11 +4346,11 @@ class AccountsApiController extends ApiController {
 					'Numbers.'.$key.'.ContractStartDate.required'		=> "The Numbers[".$key."][ContractStartDate] field is required.",
 					'Numbers.'.$key.'.ContractStartDate.after'			=> "Past dates not allowed for Numbers[".$key."][ContractStartDate]",
 					'Numbers.'.$key.'.ContractEndDate.required'			=> "The Numbers[".$key."][ContractEndDate] field is required.",
-					'Numbers.'.$key.'.ContractEndDate.after'			=> "ContractEndDate must be a date after ContractStartDate.",
+					'Numbers.'.$key.'.ContractEndDate.after'			=> "ContractEndDate must be a date equal or after ContractStartDate.",
 					'Numbers.'.$key.'.PackageStartDate.required'		=> "The Numbers[".$key."][PackageStartDate] field is required.",
 					'Numbers.'.$key.'.PackageStartDate.after'			=> "Past dates not allowed for Numbers[".$key."][PackageStartDate]",
 					'Numbers.'.$key.'.PackageEndDate.required'			=> "The Numbers[".$key."][PackageEndDate] field is required.",
-					'Numbers.'.$key.'.PackageEndDate.after'				=> "PackageEndDate must be a date after PackageStartDate.",
+					'Numbers.'.$key.'.PackageEndDate.after'				=> "PackageEndDate must be a date equal or after PackageStartDate.",
 				];
 				$rules 	+= $rules_numbers;
 				$msg 	+= $msg__numbers;
