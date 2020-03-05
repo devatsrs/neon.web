@@ -90,64 +90,67 @@ class PaymentApiController extends ApiController {
 		
 		if(!empty($AccountID) && !empty($CompanyID)){
 			try {
-				$query = "CALL prc_getTransactionHistory(" . $CompanyID . "," . $AccountID . ",'" . $data['StartDate'] . "','" . $data['EndDate'] . "')";
-				//echo $query;die;
-				$Result = DB::connection('sqlsrv2')->select($query);
-				$Response = json_decode(json_encode($Result), true);
-				//$Balance = (float)AccountBalance::getAccountBalance($AccountID);
-				$BalanceArr = [];
-
-				$query = "CALL prc_getTransactionHistory(" . $CompanyID . "," . $AccountID . ",'0000-00-00','0000-00-00')";
-				$payments = DB::connection('sqlsrv2')->select($query);
-				$payments = json_decode(json_encode($payments), true);
-				$Balance = 0;
-
+				$BillingType = AccountBilling::where(['AccountID' => $AccountID,'ServiceID' => 0])->first();	
 				// If user type is prepaid
-				$BillingType = AccountBilling::where(['AccountID' => $AccountID,'ServiceID' => 0])->first();
-				if(isset($BillingType)) {
-					if ($BillingType->BillingType == AccountApproval::BILLINGTYPE_PREPAID) {
-						$today = date('Y-m-d 23:59:59');
-						$Account = Account::where(["AccountID" => $AccountID])->first();
-						$CustomerLastInvoiceDate = Account::getCustomerLastInvoiceDate($BillingType,$Account);
-						$startDate = $data['StartDate'] != "0000-00-00" ? $data['StartDate'] : $CustomerLastInvoiceDate;
-						$endDate = $data['EndDate'] != "0000-00-00" ? $data['EndDate'] : $today;
+				
+				if (isset($BillingType) && $BillingType->BillingType == AccountApproval::BILLINGTYPE_PREPAID) {
+					
+					$today = date('Y-m-d 23:59:59');
+					$Account = Account::where(["AccountID" => $AccountID])->first();
+					$CustomerLastInvoiceDate = Account::getCustomerLastInvoiceDate($BillingType,$Account);
+					$startDate = $data['StartDate'] != "0000-00-00" ? $data['StartDate'] : date('Y-m-d', strtotime('-30 days'));
+					$endDate = $data['EndDate'] != "0000-00-00" ? $data['EndDate'] : $today;
+					$Start_Date = $startDate;
+					$startDate = new DateTime($startDate);
+					$endDate   = new DateTime($endDate);
+					
+					$query = "call prc_getPrepaidUnbilledReport (?,?,?,?,?,?,?)";
+					$UnBilledResult = DB::select($query, array($CompanyID, $AccountID, $Start_Date, $today, 1, "", ""));
+					if($UnBilledResult != false){
+						foreach($UnBilledResult as $item){
+							if($item->Type == "Usage" && 0 != (float)$item->Amount) {
+								$insertArr = [
+									"PaymentID" 	=> 0,
+									"AccountID" 	=> $AccountID,
+									"Amount" 		=> $item->Amount,
+									"PaymentType" 	=> "Payment Out",
+									"CurrencyID" 	=> $Account->CurrencyId,
+									"PaymentDate" 	=> $item->IssueDate,
+									"CreatedBy" 	=> "",
+									"PaymentProof" 	=> NULL,
+									"InvoiceNo" 	=> "",
+									"PaymentMethod" => "",
+									"Notes" 		=> "Charges",
+									"Recall" 		=> "",
+									"Reason" 		=> "",
+									"RecallBy" 		=> "",
+								];
+								$payments[] = $insertArr;
+								$issueDate = new DateTime($item->IssueDate);
 
-						$startDate = new DateTime($startDate);
-						$endDate   = new DateTime($endDate);
-
-						$query = "call prc_getPrepaidUnbilledReport (?,?,?,?,?,?,?)";
-						$UnBilledResult = DB::select($query, array($CompanyID, $AccountID, $CustomerLastInvoiceDate, $today, 1, "", ""));
-						if($UnBilledResult != false){
-							foreach($UnBilledResult as $item){
-								if($item->Type == "Usage" && 0 != (float)$item->Amount) {
-									$insertArr = [
-										"PaymentID" 	=> 0,
-										"AccountID" 	=> $AccountID,
-										"Amount" 		=> $item->Amount,
-										"PaymentType" 	=> "Payment Out",
-										"CurrencyID" 	=> $Account->CurrencyId,
-										"PaymentDate" 	=> $item->IssueDate,
-										"CreatedBy" 	=> "",
-										"PaymentProof" 	=> NULL,
-										"InvoiceNo" 	=> "",
-										"PaymentMethod" => "",
-										"Notes" 		=> "Charges",
-										"Recall" 		=> "",
-										"Reason" 		=> "",
-										"RecallBy" 		=> "",
-									];
-									$payments[] = $insertArr;
-									$issueDate = new DateTime($item->IssueDate);
-
-									if($startDate <= $issueDate && $endDate >= $issueDate)
-										$Response[] = $insertArr;
-								}
+								if($startDate <= $issueDate && $endDate >= $issueDate)
+									$Response[] = $insertArr;
 							}
-
-							$payments = self::sortByPaymentDate($payments);
-							$Response = self::sortByPaymentDate($Response);
 						}
+
+						$payments = self::sortByPaymentDate($payments);
+						$Response = self::sortByPaymentDate($Response);
+					}else{
+						$payments = [];
+						$Response = [];
 					}
+				}else{
+					$query = "CALL prc_getTransactionHistory(" . $CompanyID . "," . $AccountID . ",'" . $data['StartDate'] . "','" . $data['EndDate'] . "')";
+					//echo $query;die;
+					$Result = DB::connection('sqlsrv2')->select($query);
+					$Response = json_decode(json_encode($Result), true);
+					//$Balance = (float)AccountBalance::getAccountBalance($AccountID);
+					$BalanceArr = [];
+
+					$query = "CALL prc_getTransactionHistory(" . $CompanyID . "," . $AccountID . ",'0000-00-00','0000-00-00')";
+					$payments = DB::connection('sqlsrv2')->select($query);
+					$payments = json_decode(json_encode($payments), true);
+					$Balance = 0;
 				}
 
 
