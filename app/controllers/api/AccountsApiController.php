@@ -4495,7 +4495,10 @@ class AccountsApiController extends ApiController {
 							$AccountServicePackage = AccountServicePackage::create($data_pkg);
 
 							if ($AccountServicePackage) {
-								$ProductCountry = Country::where(array('Country' => $ProductData[$key]['ServiceTemplate']->country));
+								$ProductCountry = Country::where(array('Country' => $ProductData[$key]['ServiceTemplate']->country))
+									->orWhere(function ($query) use ($ProductData,$key) {
+										$query->whereRaw('KeyWords IS NOT NULL AND FIND_IN_SET("'.$ProductData[$key]['ServiceTemplate']->country.'",KeyWords) != 0');
+									});
 
 								if($ProductCountry->count() == 0) {
 									return Response::json(["ErrorMessage" => "Country Not Found against ProductID: " . $number_data['ProductID']], Codes::$Code400[0]);
