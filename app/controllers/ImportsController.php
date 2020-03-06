@@ -976,10 +976,23 @@ class ImportsController extends \BaseController {
         
            
         if($data['importtype'] == 'Account') {
+            foreach($results as $key => $value)
+            {
+                $keys = str_replace( ' ', '', array_keys( $value ) );
+                $value = array_combine( $keys, array_values( $value ) );
+                if(isset($value['AccountNo']) && isset($value['AccountName']) && isset($value['CustomerId']) && isset($value['BillingType']) && isset($value['BillingStartDate']) && isset($value['PaymentMethod'])){
+                    
+                }else{
+                    return Response::json(array("status" => "failed", "message" => "File Format Is Wrong"));
+                }
+                break;
+            }
             $jobtype = 'AI';
         }else if($data['importtype'] == 'Service'){
             foreach($results as $key => $value)
             {
+                $keys = str_replace( ' ', '', array_keys( $value ) );
+                $value = array_combine( $keys, array_values( $value ) );
                 if(isset($value['CustomerId']) && isset($value['Number']) && isset($value['NumberContractId']) && isset($value['NumberStartDate']) && isset($value['NumberEndDate']) && isset($value['NumberProductId']) && isset($value['PackageContractId']) && isset($value['PackageStartDate']) && isset($value['PackageEndDate']) && isset($value['PackageProductId']) && isset($value['OrderId'])){
                     
                 }else{
