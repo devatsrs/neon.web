@@ -31,6 +31,118 @@
     @include('includes.errors')
     @include('includes.success')
 
+    <div class="row">
+        <div class="col-md-12">
+            <div class="panel panel-primary" data-collapsed="0">
+                <div class="panel-heading">
+                    <div class="panel-title">
+                        Deal Summary
+                    </div>
+                    <div class="panel-options">
+                        <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
+                    </div>
+                </div>
+                <div class="panel-body">
+                    <div class=" ">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h4><strong>Customer</strong></h4>
+                                <table class="table table-bordered">
+                                    <tbody>
+                                    @foreach($deal_summary['customer_sum'] as $index => $data_total)
+                                        <tr>
+                                            <th> {{ucfirst(str_replace('_',' ',$index))  }}</th>
+                                            <td>
+                                                {{$data_total}}
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                    <tr>
+                                        <th> %</th>
+                                        <td>
+                                            {{($deal_summary['customer_sum']['planned_cost'] ? $deal_summary['customer_sum']['actual_cost']/$deal_summary['customer_sum']['planned_cost'] : "0") *100}}%
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="col-md-6">
+                                <h4><strong>Vendor</strong></h4>
+                                <table class="table table-bordered">
+                                    <tbody>
+                                    @foreach($deal_summary['vendor_sum'] as $index => $data_total)
+                                        <tr>
+                                            <th> {{ucfirst(str_replace('_',' ',$index))  }}</th>
+                                            <td>
+                                                {{$data_total}}
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                    <tr>
+                                        <th> %</th>
+                                        <td>
+                                            {{($deal_summary['vendor_sum']['planned_cost'] ? $deal_summary['vendor_sum']['actual_cost']/$deal_summary['vendor_sum']['planned_cost'] : "0") *100}}%
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <h4><strong>Summary</strong></h4>
+                                <table class="table table-bordered">
+                                    <thead>
+                                    <tr>
+                                        <th style="width: 9% !important">Type</th>
+                                        <th style="width: 12% !important">Destination</th>
+                                        <th style="width: 12% !important">Destination Break</th>
+                                        <th style="width: 8% !important">Prefix</th>
+                                        <th style="width: 9% !important">Trunk</th>
+                                        <th style="width: 8%">Revenue/Cost</th>
+                                        <th style="width: 7%">Deal Rate</th> <!-- Sale Price -->
+                                        <th style="width: 7%">Actual Rate</th> <!-- Buy Price -->
+                                        <th style="width: 7%">Actual Revenue/Cost</th> <!-- Buy Price -->
+                                        <th style="width: 7%">Actual Minutes</th> <!-- Buy Price -->
+                                        <th style="width: 7%">%</th> <!-- Buy Price -->
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    @foreach($deal_summary as $deal_detail_id => $deal_detail)
+                                        @if(isset($deal_detail['detail']))
+                                        <tr>
+                                            <?php
+
+                                            $deal_detail_row = $deal_detail['detail'];
+                                            $deal_detail_data = $deal_detail['data'];
+                                            $deal_percentage = ($deal_detail_data['TotalCharges'] /$deal_detail_row->Revenue)*100;
+                                            ?>
+
+
+                                            <td> {{$deal_detail_row->Type}}</td>
+                                            <td> {{$deal_detail_row->DestinationCountryID ? $Countries[$deal_detail_row->DestinationCountryID] : ''}} </td>
+                                            <td> {{$deal_detail_row->DestinationBreak}} </td>
+                                            <td> {{$deal_detail_row->Prefix}} </td>
+                                            <td> {{$Trunks[$deal_detail_row->TrunkID]}} </td>
+                                            <td> {{$deal_detail_row->Revenue}} </td>
+                                            <td> {{$deal_detail_row->SalePrice}} </td>
+                                            <td> {{$deal_detail_row->BuyPrice}} </td>
+                                            <td> {{$deal_detail_data['TotalCharges']}} </td>
+                                            <td> {{$deal_detail_data['TotalBilledDuration']}} </td>
+                                            <td> {{$deal_percentage}}%<div class="progress"> <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="{{$deal_percentage}}" aria-valuemin="0" aria-valuemax="100" style="width: {{$deal_percentage}}%"> <span class="sr-only">{{$deal_percentage}}% Complete</span> </div> </div> </td>
+                                        </tr>
+                                        @endif
+                                    @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
     <p style="text-align: right;">
         <button type="button"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading..." id="save_deal">
             <i class="entypo-floppy"></i>
