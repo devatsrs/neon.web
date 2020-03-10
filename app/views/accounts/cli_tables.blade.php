@@ -449,7 +449,7 @@
             $.ajax({
                 url: baseurl + "/rate_tables/search_ajax_datagrid_rates_account_service",
                 type: 'POST',
-                data: {"AccessRateTable" : AccessRateTable , "TerminationRateTable" : TerminationRateTable , "Type" : Type  "Country" : Country , "City" : City , "Tariff" : Tariff , "Prefix" : Prefix},
+                data: {"AccessRateTable" : AccessRateTable , "TerminationRateTable" : TerminationRateTable , "Type" : Type , "Country" : Country , "City" : City , "Tariff" : Tariff , "Prefix" : Prefix},
                 dataType: 'json',
                 cache: false,
                 success: function (response) {
