@@ -170,8 +170,8 @@ class PaymentApiController extends ApiController {
 
 	public static function sortByPaymentDate($payments){
 		usort($payments, function($a, $b) {
-			$ad = new DateTime($a['PaymentDate']);
-			$bd = new DateTime($b['PaymentDate']);
+			$ad = new DateTime($a['IssueDate']);
+			$bd = new DateTime($b['IssueDate']);
 
 			if ($ad == $bd) {
 				return 0;
