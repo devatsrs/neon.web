@@ -118,7 +118,7 @@ class PaymentApiController extends ApiController {
 							$insertArr = [
 								"AccountID" 	=> $AccountID,
 								"Amount" 		=> $item['Amount'],
-								"PaymentType" 	=> $item['Type'],
+								"Type" 	=> $item['Type'],
 								"CurrencyID" 	=> $Account['CurrencyId'],
 								"PaymentDate" 	=> $item['IssueDate'],
 							];
@@ -144,6 +144,7 @@ class PaymentApiController extends ApiController {
 								"AccountID" 	=> $AccountID,
 								"Amount" 		=> $item['Amount'],
 								"Type" 	        => $item['Type'],
+								"CurrencyID" 	=> $Account['CurrencyId'],
 								"PaymentDate" 	=> $item['IssueDate'],
 							];
 							$TotalBalance = $TotalBalance + $item['Amount'];

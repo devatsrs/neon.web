@@ -475,7 +475,7 @@ class RateGeneratorsController extends \BaseController {
                         $addComponents['Action'] = $GetAction;
                         $addComponents['MergeTo'] = $GetMergeTo;
                         $addComponents['ToTimezonesID'] = $GetToTimeOfDay;
-                        $addComponents['ToOrigination'] = explode(',' ,$GetToOrigination)[0];
+                        $addComponents['ToOrigination'] = str_replace(' ','',explode(',' ,$GetToOrigination)[0]);
                         $addComponents['FromCountryID'] = $GetFCountry;
                         $addComponents['FromAccessType'] = $GetFAccessType;
                         $addComponents['FromPrefix'] = $GetFPrefix;
@@ -1126,7 +1126,7 @@ class RateGeneratorsController extends \BaseController {
                         $addComponents['Action'] = $GetAction;
                         $addComponents['MergeTo'] = $GetMergeTo;
                         $addComponents['ToTimezonesID'] = $GetToTimeOfDay;
-                        $addComponents['ToOrigination'] = explode(',',$GetToOrigination)[0];
+                        $addComponents['ToOrigination'] = str_replace(' ','',explode(',',$GetToOrigination)[0]);
                         $addComponents['RateGeneratorId'] = $RateGeneratorID;
                         $addComponents['FromCountryID'] = $GetFCountry;
                         $addComponents['FromAccessType'] = $GetFAccessType;
