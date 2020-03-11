@@ -116,7 +116,7 @@ class PaymentApiController extends ApiController {
 						$UnBilledResult2 = self::sortByPaymentDate($UnBilledResult);
 						foreach($UnBilledResult2 as $item){
 							$insertArr = [
-								"AccountID" 	=> $AccountID,
+								"TransactionID" 	=> $item['TransactionID'],
 								"Amount" 		=> $item['Amount'],
 								"Type" 	=> $item['Type'],
 								"CurrencyID" 	=> $Account['CurrencyId'],
@@ -141,7 +141,7 @@ class PaymentApiController extends ApiController {
 						$UnBilledResult2 = self::sortByPaymentDate($UnBilledResult);
 						foreach($UnBilledResult2 as $item){
 							$insertArr = [
-								"AccountID" 	=> $AccountID,
+								"TransactionID" 	=> $item['TransactionID'],
 								"Amount" 		=> $item['Amount'],
 								"Type" 	        => $item['Type'],
 								"CurrencyID" 	=> $Account['CurrencyId'],
