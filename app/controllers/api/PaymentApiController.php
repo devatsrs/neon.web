@@ -87,85 +87,87 @@ class PaymentApiController extends ApiController {
 
 		$data['StartDate'] 	 = 	!empty($data['StartDate'])? $data['StartDate'] : '0000-00-00';
 		$data['EndDate'] 	 = 	!empty($data['EndDate'])? $data['EndDate'] : '0000-00-00';
+
+		$today = date('Y-m-d 23:59:59');
+		$Account = Account::where(["AccountID" => $AccountID])->first();
+		$startDate = $data['StartDate'] != "0000-00-00" ? $data['StartDate'] : date('Y-m-d', strtotime('-30 days'));
+		$endDate = $data['EndDate'] != "0000-00-00" ? $data['EndDate'] : $today;
+		$Start_Date = $startDate;
+		$startDate = new DateTime($startDate);
+		$endDate   = new DateTime($endDate);
 		
 		if(!empty($AccountID) && !empty($CompanyID)){
 			try {
+				$Response = [];
 				$BillingType = AccountBilling::where(['AccountID' => $AccountID,'ServiceID' => 0])->first();	
 				// If user type is prepaid
 				
 				if (isset($BillingType) && $BillingType->BillingType == AccountApproval::BILLINGTYPE_PREPAID) {
 					
-					$today = date('Y-m-d 23:59:59');
-					$Account = Account::where(["AccountID" => $AccountID])->first();
-					$CustomerLastInvoiceDate = Account::getCustomerLastInvoiceDate($BillingType,$Account);
-					$startDate = $data['StartDate'] != "0000-00-00" ? $data['StartDate'] : date('Y-m-d', strtotime('-30 days'));
-					$endDate = $data['EndDate'] != "0000-00-00" ? $data['EndDate'] : $today;
-					$Start_Date = $startDate;
-					$startDate = new DateTime($startDate);
-					$endDate   = new DateTime($endDate);
-					
 					$query = "call prc_getPrepaidUnbilledReport (?,?,?,?,?,?,?)";
-					$UnBilledResult = DB::select($query, array($CompanyID, $AccountID, $Start_Date, $today, 1, "", ""));
+					$UnBilledResult = DB::select($query, array($CompanyID, $AccountID, $startDate, $endDate, 1, "", ""));
+					
+					$query1 = "call prc_getPrepaidUnbilledReportBalance (?,?,?)";
+					$PreviousBalance = DB::select($query1, array($AccountID , $CompanyID, $Start_Date));
+					$TotalBalance = $PreviousBalance[0]->Amount;
+					
 					if($UnBilledResult != false){
-						foreach($UnBilledResult as $item){
-							if($item->Type == "Usage" && 0 != (float)$item->Amount) {
-								$insertArr = [
-									"PaymentID" 	=> 0,
-									"AccountID" 	=> $AccountID,
-									"Amount" 		=> $item->Amount,
-									"PaymentType" 	=> "Payment Out",
-									"CurrencyID" 	=> $Account->CurrencyId,
-									"PaymentDate" 	=> $item->IssueDate,
-									"CreatedBy" 	=> "",
-									"PaymentProof" 	=> NULL,
-									"InvoiceNo" 	=> "",
-									"PaymentMethod" => "",
-									"Notes" 		=> "Charges",
-									"Recall" 		=> "",
-									"Reason" 		=> "",
-									"RecallBy" 		=> "",
-								];
-								$payments[] = $insertArr;
-								$issueDate = new DateTime($item->IssueDate);
-
-								if($startDate <= $issueDate && $endDate >= $issueDate)
-									$Response[] = $insertArr;
-							}
+						$UnBilledResult = json_decode(json_encode($UnBilledResult),true);
+						$UnBilledResult2 = self::sortByPaymentDate($UnBilledResult);
+						foreach($UnBilledResult2 as $item){
+							$insertArr = [
+								"AccountID" 	=> $AccountID,
+								"Amount" 		=> $item['Amount'],
+								"Type" 	=> $item['Type'],
+								"CurrencyID" 	=> $Account['CurrencyId'],
+								"PaymentDate" 	=> $item['IssueDate'],
+							];
+							$TotalBalance = $TotalBalance + $item['Amount'];
+							$insertArr['Balance']  = $TotalBalance;
+							$Response[] = $insertArr;
 						}
 
-						$payments = self::sortByPaymentDate($payments);
-						$Response = self::sortByPaymentDate($Response);
-					}else{
-						$payments = [];
-						$Response = [];
 					}
 				}else{
-					$query = "CALL prc_getTransactionHistory(" . $CompanyID . "," . $AccountID . ",'" . $data['StartDate'] . "','" . $data['EndDate'] . "')";
-					//echo $query;die;
-					$Result = DB::connection('sqlsrv2')->select($query);
-					$Response = json_decode(json_encode($Result), true);
-					//$Balance = (float)AccountBalance::getAccountBalance($AccountID);
-					$BalanceArr = [];
+					$query = "call prc_getPostpaidTransactions (?,?,?)";
+					$UnBilledResult = DB::connection('sqlsrv2')->select($query, array($AccountID, $startDate, $endDate));
+					
+					$query1 = "call prc_getPostpaidTransactionsBalance (?,?)";
+					$PreviousBalance = DB::connection('sqlsrv2')->select($query1, array($AccountID ,$Start_Date));
+					$TotalBalance = $PreviousBalance[0]->Amount;
+					
+					if($UnBilledResult != false){
+						$UnBilledResult = json_decode(json_encode($UnBilledResult),true);
+						$UnBilledResult2 = self::sortByPaymentDate($UnBilledResult);
+						foreach($UnBilledResult2 as $item){
+							$insertArr = [
+								"AccountID" 	=> $AccountID,
+								"Amount" 		=> $item['Amount'],
+								"Type" 	        => $item['Type'],
+								"CurrencyID" 	=> $Account['CurrencyId'],
+								"PaymentDate" 	=> $item['IssueDate'],
+							];
+							$TotalBalance = $TotalBalance + $item['Amount'];
+							$insertArr['Balance']  = $TotalBalance;
+							$Response[] = $insertArr;
+						}
 
-					$query = "CALL prc_getTransactionHistory(" . $CompanyID . "," . $AccountID . ",'0000-00-00','0000-00-00')";
-					$payments = DB::connection('sqlsrv2')->select($query);
-					$payments = json_decode(json_encode($payments), true);
-					$Balance = 0;
+					}
 				}
 
 
-				foreach($payments as $key => $payment){
-					if(strtolower($payment['PaymentType']) == "payment in")
-						$Balance += (float)$payment['Amount'];
-					elseif (strtolower($payment['PaymentType']) == "payment out")
-						$Balance -= (float)$payment['Amount'];
-					$BalanceArr[$payment['PaymentID'] ."-". $payment['PaymentDate']] = $Balance;
-				}
+				//foreach($payments as $key => $payment){
+					//if(strtolower($payment['PaymentType']) == "payment in")
+						//$Balance += (float)$payment['Amount'];
+					//elseif (strtolower($payment['PaymentType']) == "payment out")
+						//$Balance -= (float)$payment['Amount'];
+					//$BalanceArr[$payment['PaymentID'] ."-". $payment['PaymentDate']] = $Balance;
+				//}
 
-				foreach($Response as $key => $res){
-					if(array_key_exists($res['PaymentID'] ."-". $res['PaymentDate'], $BalanceArr))
-						$Response[$key]['Balance'] = $BalanceArr[$res['PaymentID'] ."-". $res['PaymentDate']];
-				}
+				//foreach($Response as $key => $res){
+					//if(array_key_exists($res['PaymentID'] ."-". $res['PaymentDate'], $BalanceArr))
+						//$Response[$key]['Balance'] = $BalanceArr[$res['PaymentID'] ."-". $res['PaymentDate']];
+				//}
 				return Response::json($Response,Codes::$Code200[0]);
 			}catch(Exception $e){
 				Log::info($e);
@@ -180,8 +182,8 @@ class PaymentApiController extends ApiController {
 
 	public static function sortByPaymentDate($payments){
 		usort($payments, function($a, $b) {
-			$ad = new DateTime($a['PaymentDate']);
-			$bd = new DateTime($b['PaymentDate']);
+			$ad = new DateTime($a['IssueDate']);
+			$bd = new DateTime($b['IssueDate']);
 
 			if ($ad == $bd) {
 				return 0;

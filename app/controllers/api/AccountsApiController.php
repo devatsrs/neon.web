@@ -4509,7 +4509,13 @@ class AccountsApiController extends ApiController {
 								$Tariff 	= !empty($ProductData[$key]['ServiceTemplate']->Tariff) ? $ProductData[$key]['ServiceTemplate']->Tariff : '';
 								$accessType = !empty($ProductData[$key]['ServiceTemplate']->accessType) ? $ProductData[$key]['ServiceTemplate']->accessType : '';
 								$prefixName = !empty($ProductData[$key]['ServiceTemplate']->prefixName) ? $ProductData[$key]['ServiceTemplate']->prefixName : '';
-								$AreaPrefix = !empty($ProductData[$key]['ServiceTemplate']->countryCode) ? $ProductData[$key]['ServiceTemplate']->countryCode  : ''. ltrim($ProductData[$key]['ServiceTemplate']->prefixName, '0');
+								//$AreaPrefix = !empty($ProductData[$key]['ServiceTemplate']->countryCode) ? $ProductData[$key]['ServiceTemplate']->countryCode  : ''. ltrim($ProductData[$key]['ServiceTemplate']->prefixName, '0');
+
+								if (substr($ProductData[$key]['ServiceTemplate']->prefixName,0,1) == "0") {
+									$AreaPrefix = $ProductData[$key]['ServiceTemplate']->countryCode . substr($ProductData[$key]['ServiceTemplate']->prefixName,1,strlen($ProductData[$key]['ServiceTemplate']->prefixName));
+								}else {
+									$AreaPrefix = $ProductData[$key]['ServiceTemplate']->countryCode .  empty($ProductData[$key]['ServiceTemplate']->prefixName) ? "" : $ProductData[$key]['ServiceTemplate']->prefixName;
+								}
 
 								$VendorID = RateTableDIDRate::Join('tblRate', 'tblRateTableDIDRate.RateID', '=', 'tblRate.RateID')
 									->select(['tblRateTableDIDRate.VendorID'])
