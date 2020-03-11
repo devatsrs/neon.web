@@ -5690,4 +5690,92 @@ class AccountsApiController extends ApiController {
 		}
 	}
 
+	public function getAccountBalance(){
+		if(parent::checkJson() === false) {
+			return Response::json(["ErrorMessage"=>"Content type must be: application/json"],Codes::$Code400[0]);
+		}
+		$Result=[];
+		$CompanyID=0;
+		$AccountID=0;
+		$rules = [];
+		
+		try {
+			$post_vars = json_decode(file_get_contents("php://input"));
+			$data=json_decode(json_encode($post_vars),true);
+			$countValues = count($data);
+			if ($countValues == 0) {
+				return Response::json(["ErrorMessage"=>"Invalid Request"],Codes::$Code400[0]);
+			}	
+		}catch(Exception $ex) {
+			Log::info('Exception in updateAccount API.Invalid JSON' . $ex->getTraceAsString());
+			return Response::json(["ErrorMessage"=>"Invalid Request"],Codes::$Code400[0]);
+		}
+
+		if(!empty($data['AccountID'])) {
+			if(is_numeric(trim($data['AccountID']))) {
+				$AccountID = $data['AccountID'];
+				$CompanyID = Account::where(["AccountID" => $data['AccountID']])->pluck('CompanyId');
+			}else {
+				return Response::json(["ErrorMessage"=>"AccountID must be a mumber."],Codes::$Code400[0]);
+			}
+		}else if(!empty($data['AccountNo'])){
+			$accountNo = trim($data['AccountNo']);
+			if(empty($accountNo)){
+				return Response::json(["ErrorMessage"=>"AccountNo can not be empty"],Codes::$Code400[0]);
+			}
+			$Account = Account::where(["Number" => $accountNo])->select('CompanyId','AccountID')->first();
+			if(!empty($Account)) {
+				$CompanyID = $Account->CompanyId;
+				$AccountID = $Account->AccountID;
+			}
+		}else if(!empty($data['AccountDynamicField'])){
+			$AccountID=Account::findAccountBySIAccountRef($data['AccountDynamicField']);
+			if(!empty($AccountID)){
+				$Account = Account::where(["AccountID" => $AccountID])->first();
+				$CompanyID = $Account->CompanyId;
+				$AccountID = $Account->AccountID;
+			}
+		}else{
+			return Response::json(["ErrorMessage"=>"AccountID or AccountNo or AccountDynamicField is required."],Codes::$Code400[0]);
+		}
+
+		$validator = Validator::make($data, $rules);
+		if ($validator->fails()) {
+			return Response::json([
+				"ErrorMessage" => $validator->messages()->first()
+			],Codes::$Code400[0]);
+		}
+
+
+		$Account = Account::where(["AccountID" => $AccountID])->first();
+		$query = "call prc_updatePrepaidAccountBalance (?)";
+		$balance = DB::select($query, array($AccountID));
+		
+		if(!empty($AccountID) && !empty($CompanyID)){
+			try{
+				$checkBillingType = AccountBilling::where('AccountID' , $AccountID)->first();
+				if($checkBillingType != false && $checkBillingType->BillingType == 1){
+					$AccountBalance = AccountBalanceLog::getPrepaidAccountBalance($AccountID);
+					$ActiveBalance = ActiveCall::where(['AccountID'=>$AccountID])->sum('Cost');
+
+					$AccountBalance = empty($AccountBalance)?0:$AccountBalance;
+					$ActiveBalance = empty($ActiveBalance)?0:$ActiveBalance;
+
+					$TotalAmount = $AccountBalance - $ActiveBalance;
+				}else{
+					$TotalAmount = AccountBalance::getNewAccountBalance($CompanyID, $AccountID);
+				}
+				return Response::json(['AccountBalance' => $TotalAmount],Codes::$Code200[0]);
+				
+			}catch(Exception $e){
+				Log::info($e);
+				$reseponse = array("ErrorMessage" => "Something Went Wrong.",Codes::$Code500[0]);
+				return $reseponse;
+			}
+		}else{
+			return Response::json(["ErrorMessage"=>"Account Not Found"],Codes::$Code400[0]);
+		}
+
+	}
+
 }
