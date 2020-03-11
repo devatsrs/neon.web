@@ -5748,6 +5748,14 @@ class AccountsApiController extends ApiController {
 
 
 		$Account = Account::where(["AccountID" => $AccountID])->first();
+		$checkBalanceData = AccountBalanceLog::where(['AccountID'=> $AccountID , 'CompanyID' => $CompanyID])->first();
+		if(!isset($checkBalanceData)){
+			AccountBalanceLog::create([
+				"CompanyID"     => $CompanyID,
+				"AccountID"     => $AccountID,
+				"BalanceAmount" => 0
+			]);
+		}
 		$query = "call prc_updatePrepaidAccountBalance (?)";
 		$balance = DB::select($query, array($AccountID));
 		
