@@ -48,7 +48,7 @@
     </ol>
     <h3>Packages</h3>
     <p class="text-right">
-        <a href="#" data-action="showAddModal" data-type="package" data-modal="add-new-modal-package" class="btn btn-primary">
+        <a href="#" data-action="showAddModal" data-type="package" data-modal="add-new-modal-package" class="btn btn-primary add-new">
             <i class="entypo-plus"></i>
             Add New Package
         </a>
@@ -62,6 +62,7 @@
         <thead>
         <tr>
             <th width="5%"><input type="checkbox" id="selectall" name="checkbox[]" class="" /></th>
+            <th>PackageID</th>
             <th>Name</th>
             <th>Rate Table</th>
             {{--<th>Currency</th>--}}
@@ -111,8 +112,24 @@
                                     return '<div class="checkbox "><input type="checkbox" name="checkbox[]" value="' + id + '" class="rowcheckbox" ></div>';
                                 }
                             },
-                            { "bSortable": true }, //Name
-                            { "bSortable": true }, //Type
+                            {"bSortable": false,
+                                mRender: function(id, type, full) {
+                                    
+                                    return full[0];
+                                }
+                            },
+                            {"bSortable": false,
+                                mRender: function(id, type, full) {
+                                    
+                                    return full[1];
+                                }
+                            }, //Name
+                            {"bSortable": false,
+                                mRender: function(id, type, full) {
+                                    
+                                    return full[2];
+                                }
+                            }, //Type
 //                            { "bSortable": true }, //Gateway
                             {
                                 "bSortable": false,
@@ -311,10 +328,15 @@
                 replaceCheckboxes();
             });
 
+            $('.add-new').on('click',function(){
+                $('.package-id').css('display','none');
+            })
+
             $('table tbody').on('click','.edit-package',function(ev){
                 ev.preventDefault();
                 ev.stopPropagation();
                 $('#add-new-package-form').trigger("reset");
+                $('.package-id').css('display','block');
 
                 PackageName = $(this).prev("div.hiddenRowData").find("input[name='PackageName']").val();
                 RateTableId = $(this).prev("div.hiddenRowData").find("input[name='RateTableId']").val();
@@ -323,6 +345,7 @@
 
                 $("#add-new-package-form [name='Name']").val(PackageName);
                 $("#add-new-package-form [name='PackageId']").val($(this).attr('data-id'));
+                $('.package-text').val($(this).attr('data-id'));
                 $("#add-new-package-form [name='RateTableId']").val(RateTableId).trigger("change");
                 $("#add-new-package-form [name='CurrencyId']").val(CurrencyId).trigger("change");
                 $("#add-new-package-form [name='status']").val(Status).prop('checked', Status == 1);
