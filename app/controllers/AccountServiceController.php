@@ -721,6 +721,7 @@ class AccountServiceController extends \BaseController {
         $ServicePackageId = 0;
         $AccountServiceOrderID = 0;
         $iDisplayLength = 0;
+        $Affiliate = 0;
         if(!empty($data['ServiceActive']) && $data['ServiceActive'] == 'true'){
             $ServiceActive = 1;
         }
@@ -735,11 +736,14 @@ class AccountServiceController extends \BaseController {
         if(!empty($data['AccountServiceOrderID'])){
             $AccountServiceOrderID = $data['AccountServiceOrderID'];
         }
+        if(!empty($data['Affiliate'])){
+            $Affiliate = $data['Affiliate'];  
+        }
 
         $iDisplayLength = $data['iDisplayLength'];
         $p_PageNumber = (ceil($data['iDisplayStart'] / $data['iDisplayLength'])) == 0 ? 1 : (ceil($data['iDisplayStart'] / $data['iDisplayLength']));
 
-        $query = "call prcGetAccountServiceData('" . $id . "','" . $ServiceNumber . "','" . $ServicePackageId . "'," . $AccountServiceOrderID . "," . $iDisplayLength . " ," . $p_PageNumber . ",1" . ")";
+        $query = "call prcGetAccountServiceData('" . $id . "','" . $ServiceNumber . "','" . $ServicePackageId . "'," . $AccountServiceOrderID . "," . $Affiliate . "," . $iDisplayLength . " ," . $p_PageNumber . ",1" . ")";
 
         $result = DB::select($query);
         //$services->select($select);
