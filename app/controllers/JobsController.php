@@ -135,7 +135,7 @@ class JobsController extends \BaseController {
         //if( User::checkPermission('Job') ) {
         $FilePath = JobFile::where(["JobID" => $id])->pluck("FilePath");
         $JobTitle = Job::where(["JobID" => $id])->pluck("Title");
-        if($JobTitle != "Account Import" && $JobTitle != "Service Import" && $JobTitle != "CDR's Import"){
+        if($JobTitle != "Account Import" && $JobTitle != "Service Import" && $JobTitle != "CDRs Import"){
             $FilePath =  AmazonS3::preSignedUrl($FilePath);
         }
     
