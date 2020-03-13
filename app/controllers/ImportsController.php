@@ -972,7 +972,7 @@ class ImportsController extends \BaseController {
             $save['full_path']      = $fullPath;
 
             $NeonExcel = new NeonExcelIO($fullPath);
-            $results = $NeonExcel->read();
+            $results = $NeonExcel->read(2);
             
             $accountFields = array('AccountNo','AccountName','CustomerId','BillingType','BillingStartDate','PaymentMethod','BillingCountryIso','LanguageIso');
             $serviceFields = array('CustomerId','Number','NumberContractId','NumberStartDate','NumberEndDate','NumberProductId','PackageContractId','PackageStartDate','PackageEndDate','PackageProductId','OrderId');

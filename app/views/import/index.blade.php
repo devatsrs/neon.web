@@ -200,7 +200,7 @@
                                 $('#date-format').css("display", "block");
                                 $('#cdr-filename').val(response.filename);
                                 $.each(response.data,function( index , value){
-                                    $('#table-4 thead tr').append("<td>"+index+"</td>");
+                                    $('#table-4 thead tr').append("<th>"+index+"</th>");
                                     $('#table-4 tbody tr').append("<td>"+value+"</td>");
                                 })
                             } else {
