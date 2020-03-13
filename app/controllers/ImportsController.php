@@ -997,6 +997,7 @@ class ImportsController extends \BaseController {
                     $jobtype = 'SI';
                 }
                 if($data['importtype'] == 'CDR') {
+                   return Response::json(array( "data" => $value , "filename" => $fullPath , "type" => "CDR")); 
                     $jobtype = 'CDI';
                 }
                 break;
@@ -1022,6 +1023,27 @@ class ImportsController extends \BaseController {
             }
             DB::commit();
             //@unlink($temp_path . $file_name);
+            return json_encode(["status" => "success", "message" => "File Uploaded, File is added to queue for processing. You will be notified once file upload is completed. "]);
+        } catch (Exception $ex) {
+            DB::rollback();
+            return json_encode(["status" => "failed", "message" => " Exception: " . $ex->getMessage()]);
+        }
+    }
+
+    public function uploadcdrs(){
+        $data = Input::all();
+        $jobtype = 'CDI'; 
+        $save = array();
+        $save['full_path']      = $data['filename'];
+        $save['date_format']      = $data['DateFormat'];
+        try {
+            DB::beginTransaction();
+            $result = Job::logJob($jobtype, $save);
+            if ($result['status'] != "success") {
+                DB::rollback();
+                return json_encode(["status" => "failed", "message" => $result['message']]);
+            }
+            DB::commit();
             return json_encode(["status" => "success", "message" => "File Uploaded, File is added to queue for processing. You will be notified once file upload is completed. "]);
         } catch (Exception $ex) {
             DB::rollback();
