@@ -39,6 +39,12 @@
                     </div>
                     <div class="modal-body">
                         <div class="row">
+                            <div class="col-md-12 package-id">
+                                <div class="form-group">
+                                    <label for="field-5" class="control-label">Package Product ID</label>
+                                    <input type="text" name="Name" class="form-control package-text" id="field-5" placeholder="" readonly>
+                                </div>
+                            </div>
                             <div class="col-md-12">
                                 <div class="form-group">
                                     <label for="field-5" class="control-label">Name</label>
