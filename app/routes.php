@@ -368,6 +368,10 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/import/account/add_missing_quickbookaccounts',  'ImportsController@add_missing_quickbookaccounts');
 	Route::any('/import' , 'ImportsController@importindex');
 	Route::any('/import/storeimportfiles' , 'ImportsController@storeimportfiles');
+	Route::any('/import/uploadcdrs' , 'ImportsController@uploadcdrs');
+
+
+	
 	
 	//import ips
 	Route::any('/import/ips',  'ImportsController@import_ips');
