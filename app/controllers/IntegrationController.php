@@ -608,6 +608,54 @@ class IntegrationController extends \BaseController
 				}
 				return Response::json(array("status" => "success", "message" => "MASAV Settings Successfully Updated"));
 			}
+			
+			if ($data['secondcategory'] == 'Forte') {
+
+				$forteDbData = IntegrationConfiguration::where(array('CompanyId' => $companyID, "IntegrationID" => $data['secondcategoryid']))->first();
+				
+				if (count($forteDbData) > 0) { // update
+					$rules = array(
+						'organizationID' => 'required',
+						'locationID' => 'required',
+						'accessID' => 'required',
+						'apiSecureKey' => 'required'
+
+					);
+				} else { // create
+					$rules = array(
+						'organizationID' => 'required',
+						'accessID' => 'required',
+						'locationID' => 'required',
+						'apiSecureKey' => 'required'
+					);
+				}
+				
+				$validator = Validator::make($data, $rules);
+
+				if ($validator->fails()) {
+					return json_validator_response($validator);
+				}
+				
+				$data['Status'] = isset($data['Status'])?1:0;
+				$data['forteDataLive'] = isset($data['forteDataLive'])?1:0;
+				
+				$forteData = array(
+					'organizationID'	=>	$data['organizationID'],
+					'locationID'	=>	$data['locationID'],
+					'accessID' 			=> $data['accessID'],
+					'apiSecureKey' 		=> $data['apiSecureKey'],
+					'forteDataLive' 	=> $data['forteDataLive']
+				);
+				
+				if (count($forteDbData) > 0) {
+					$SaveData = array("Settings" => json_encode($forteData), "updated_by" => User::get_user_full_name(), "Status"=>$data['Status'], 'ParentIntegrationID' => $data['firstcategoryid']);
+					IntegrationConfiguration::where(array('IntegrationConfigurationID' => $forteDbData->IntegrationConfigurationID))->update($SaveData);
+				} else {
+					$SaveData = array("Settings" => json_encode($forteData), "IntegrationID" => $data['secondcategoryid'], "CompanyId" => $companyID, "created_by" => User::get_user_full_name(), "Status"=>$data['Status'], 'ParentIntegrationID' => $data['firstcategoryid']);
+					IntegrationConfiguration::create($SaveData);
+				}
+				return Response::json(array("status" => "success", "message" => "Forte Settings Successfully Updated"));
+			}
 		}
 		
 		if($data['firstcategory']=='email') {

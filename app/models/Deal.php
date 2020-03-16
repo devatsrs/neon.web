@@ -92,4 +92,128 @@ class Deal extends \Eloquent {
 
         return $dealNote;
     }
+    public static function dealSummary($CompanyID,$Deal,$DealDetails)
+    {
+        $customer_sum = ['planned_cost' => 0, 'planned_minutes' => 0, 'actual_cost' => 0, 'actual_minutes' => 0];
+        $vendor_sum = ['planned_cost' => 0, 'planned_minutes' => 0, 'actual_cost' => 0, 'actual_minutes' => 0];
+
+        $deal_summary = [];
+        if (!empty($DealDetails)) {
+            foreach ($DealDetails as $dealDetail) {
+                if ($dealDetail->Type == "Customer") {
+                    $customer_sum['planned_cost'] += $dealDetail->Revenue;
+                    $customer_sum['planned_minutes'] += $dealDetail->Minutes;
+                }
+                if ($dealDetail->Type == "Vendor") {
+                    $vendor_sum['planned_cost'] += $dealDetail->Revenue;
+                    $vendor_sum['planned_minutes'] += $dealDetail->Minutes;
+                }
+                $trunks = $dealDetail->TrunkID;
+                $prefixes = $dealDetail->Prefix;
+                $country = $dealDetail->DestinationCountryID;
+                $dtbreaks = $dealDetail->DestinationBreak;
+
+                if($dealDetail->Type == "Customer") {
+
+                    $query_common = DB::connection('neon_report')
+                        ->table('tblHeader')
+                        ->join('tblDimDate', 'tblDimDate.DateID', '=', 'tblHeader.DateID')
+                        ->join('tblUsageSummaryDay', 'tblHeader.HeaderID', '=', 'tblUsageSummaryDay.HeaderID')
+                        ->where(['tblHeader.CompanyID' => $CompanyID])
+                        ->where(['tblHeader.AccountID' => $Deal->AccountID])
+                        ->whereBetween('tblDimDate.date', array($Deal->StartDate, $Deal->EndDate));
+                    $query_common2 = DB::connection('neon_report')
+                        ->table('tblHeader')
+                        ->join('tblDimDate', 'tblDimDate.DateID', '=', 'tblHeader.DateID')
+                        ->join('tblUsageSummaryDayLive', 'tblHeader.HeaderID', '=', 'tblUsageSummaryDayLive.HeaderID')
+                        ->where(['tblHeader.CompanyID' => $CompanyID])
+                        ->where(['tblHeader.AccountID' => $Deal->AccountID])
+                        ->whereBetween('tblDimDate.date', array($Deal->StartDate, $Deal->EndDate));
+                    if (!empty($trunks)) {
+                        $query_common->where('Trunk', $trunks);
+                        $query_common2->where('Trunk', $trunks);
+                    }
+                    if (!empty($prefixes)) {
+                        $query_common->where('AreaPrefix', $prefixes);
+                        $query_common2->where('AreaPrefix', $prefixes);
+                    }
+                    if (!empty($country)) {
+                        $query_common->where('CountryID', $country);
+                        $query_common2->where('CountryID', $country);
+                    }
+
+
+                    $query_common->union($query_common2);
+
+                    $customer_data = $query_common->get();
+                    $deal_summary[$dealDetail->DealNoteID]['data'] = $customer_data;
+                    $deal_summary[$dealDetail->DealNoteID]['detail'] = $dealDetail;
+                    $TotalCharges = $TotalBilledDuration = 0;
+                    if (!empty($customer_data)) {
+                        foreach ($customer_data as $customer_data_row) {
+                            $TotalCharges += $customer_data_row->TotalCharges;
+                            $TotalBilledDuration += $customer_data_row->TotalBilledDuration;
+                        }
+                    }
+                    $deal_summary[$dealDetail->DealNoteID]['data']['TotalBilledDuration'] = (int)($TotalBilledDuration / 60);
+                    $deal_summary[$dealDetail->DealNoteID]['data']['TotalCharges'] = (int)($TotalBilledDuration / 60 * $dealDetail->PerMinutePL);
+                    $customer_sum['actual_minutes'] += (int)($TotalBilledDuration / 60);
+                    $customer_sum['actual_cost'] += (int)($TotalBilledDuration / 60 * $dealDetail->PerMinutePL);
+                } else if($dealDetail->Type == "Vendor") {
+
+                    $query_common3 = DB::connection('neon_report')
+                        ->table('tblHeaderV')
+                        ->join('tblDimDate', 'tblDimDate.DateID', '=', 'tblHeaderV.DateID')
+                        ->join('tblVendorSummaryDay', 'tblHeaderV.HeaderVID', '=', 'tblVendorSummaryDay.HeaderVID')
+                        ->where(['tblHeaderV.CompanyID' => $CompanyID])
+                        ->where(['tblHeaderV.VAccountID' => $Deal->AccountID])
+                        ->whereBetween('tblDimDate.date', array($Deal->StartDate, $Deal->EndDate));
+                    $query_common4 = DB::connection('neon_report')
+                        ->table('tblHeaderV')
+                        ->join('tblDimDate', 'tblDimDate.DateID', '=', 'tblHeaderV.DateID')
+                        ->join('tblVendorSummaryDayLive', 'tblHeaderV.HeaderVID', '=', 'tblVendorSummaryDayLive.HeaderVID')
+                        ->where(['tblHeaderV.CompanyID' => $CompanyID])
+                        ->where(['tblHeaderV.VAccountID' => $Deal->AccountID])
+                        ->whereBetween('tblDimDate.date', array($Deal->StartDate, $Deal->EndDate));
+
+                    if (!empty($trunks)) {
+                        $query_common3->where('Trunk', $trunks);
+                        $query_common4->where('Trunk', $trunks);
+                    }
+                    if (!empty($prefixes)) {
+                        $query_common3->where('AreaPrefix', $prefixes);
+                        $query_common4->where('AreaPrefix', $prefixes);
+                    }
+                    if (!empty($country)) {
+                        $query_common3->where('CountryID', $country);
+                        $query_common4->where('CountryID', $country);
+                    }
+                    $query_common3->union($query_common4);
+
+                    $vendor_data = $query_common3->get();
+
+                    $deal_summary[$dealDetail->DealNoteID]['data'] = $vendor_data;
+                    $deal_summary[$dealDetail->DealNoteID]['detail'] = $dealDetail;
+
+                    $TotalCharges = $TotalBilledDuration = 0;
+                    if (!empty($vendor_data)) {
+                        foreach ($vendor_data as $vendor_data_row) {
+                            $TotalCharges += $vendor_data_row->TotalSales;
+                            $TotalBilledDuration += $vendor_data_row->TotalBilledDuration;
+                        }
+                    }
+                    $deal_summary[$dealDetail->DealNoteID]['data']['TotalBilledDuration'] = (int)($TotalBilledDuration / 60);
+                    $deal_summary[$dealDetail->DealNoteID]['data']['TotalCharges'] = (int)($TotalBilledDuration / 60 * $dealDetail->PerMinutePL);
+
+                    $vendor_sum['actual_minutes'] += (int)($TotalBilledDuration / 60);
+                    $vendor_sum['actual_cost'] += (int)($TotalBilledDuration / 60 * $dealDetail->PerMinutePL);
+                }
+
+            }
+        }
+        $deal_summary['vendor_sum'] = $vendor_sum;
+        $deal_summary['customer_sum'] = $customer_sum;
+
+        return $deal_summary;
+    }
 }

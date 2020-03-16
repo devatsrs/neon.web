@@ -31,6 +31,7 @@ class SiteIntegration{
  static    $MerchantWarriorSlug		=	'merchantwarrior';
  static    $FastPaySlug		=	'fastpay';
  static    $MASAVSlug		=	'masav';
+ static    $ForteSlug		=	'forte';
 
  	public function __construct(){
 	

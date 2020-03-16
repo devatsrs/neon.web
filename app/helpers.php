@@ -1741,6 +1741,9 @@ function is_merchantwarrior($CompanyID){
 function is_masav($CompanyID){
     return	SiteIntegration::CheckIntegrationConfiguration(false,SiteIntegration::$MASAVSlug,$CompanyID);
 }
+function is_forte($CompanyID){
+    return	SiteIntegration::CheckIntegrationConfiguration(false,SiteIntegration::$ForteSlug,$CompanyID);
+}
 function is_FastPay($CompanyID){
     return	SiteIntegration::CheckIntegrationConfigurationFastPay(false,SiteIntegration::$FastPaySlug,$CompanyID);
 }

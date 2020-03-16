@@ -6,23 +6,29 @@
 		@include('customer.paymentprofile.paymentGrid')
 	@endif
 @endif
-@if( $account->PaymentMethod == 'StripeACH' || $account->PaymentMethod == "GoCardLess" || $account->PaymentMethod == "AuthorizeNetEcheck")
+@if($account->PaymentMethod == 'StripeACH' || $account->PaymentMethod == "GoCardLess" || $account->PaymentMethod == "AuthorizeNetEcheck")
 	@if(is_StripeACH($account->CompanyId))
 		@include('customer.paymentprofile.bankpaymentGrid')
 	@endif
 @endif
-@if( $account->PaymentMethod == 'FastPay')
+@if($account->PaymentMethod == 'FastPay')
 	@if(is_FastPay($account->CompanyId))
 		@include('customer.paymentprofile.bankpaymentGridFastPay')
 	@endif
 @endif
-@if( $account->PaymentMethod == 'SagePayDirectDebit')
+@if($account->PaymentMethod == 'SagePayDirectDebit')
 	@if(is_SagePayDirectDebit($account->CompanyId))
 		@include('customer.paymentprofile.sagepaydirectdebitGrid')
 	@endif
 @endif
-@if( $account->PaymentMethod == 'MASAV')
+@if($account->PaymentMethod == 'MASAV')
 	@if(is_masav($account->CompanyId))
 		@include('customer.paymentprofile.masavGrid')
+	@endif
+@endif
+
+@if($account->PaymentMethod == 'Forte')
+	@if(is_forte($account->CompanyId))
+		@include('customer.paymentprofile.bankpaymentGridForte')
 	@endif
 @endif

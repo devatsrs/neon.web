@@ -4,14 +4,8 @@
         <div class="panel-title">
             <?php
             $title = PaymentGateway::getPaymentGatewayNameBYAccount($account->AccountID);
-            if($title=='StripeACH'){
-                $title='Stripe ACH';
-            }
-            if($title=='GoCardLess'){
-                $title='GoCardLess';
-            }
-            if($title=='AuthorizeNetEcheck'){
-                $title='AuthorizeNetEcheck';
+            if($title=='Forte'){
+                $title='Forte ACH';
             }
             ?>
             {{$title}} @lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_TITLE')
@@ -28,7 +22,6 @@
         <table class="table table-bordered datatable" id="table-4">
             <thead>
             <tr>
-                <th width="10%">@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_TBL_TITLE')</th>
                 <th width="10%">@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_TBL_STATUS')</th>
                 <th width="10%">@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_TBL_DEFAULT')</th>
                 <th width="10%">@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_TBL_PAYMENT_METHOD')</th>
@@ -103,7 +96,7 @@
                                 var Active_Card = "{{ URL::to('customer/PaymentMethodProfiles/{id}/card_status/active')}}";
                                 var DeActive_Card = "{{ URL::to('customer/PaymentMethodProfiles/{id}/card_status/deactive')}}";
                                 var set_default = "{{ URL::to('customer/PaymentMethodProfiles/{id}/set_default')}}";
-                                var Verify = "{{ URL::to('customer/PaymentMethodProfiles/{id}/verify_bankaccount')}}";
+                                
                                 Active_Card = Active_Card.replace('{id}', id);
                                 DeActive_Card = DeActive_Card.replace('{id}', id);
                                 set_default = set_default.replace('{id}', id);
@@ -113,8 +106,8 @@
 
                                 action = '<div class = "hiddenRowData" >';
                                 action += '<input type = "hidden"  name = "cardID" value = "' + id + '" / >';
-                                action += '<input type = "hidden"  name = "Title" value = "' + full[0] + '" / >';
-                                action += '<input type = "hidden"  name = "VerifyStatus" value = "' + verify_obj.VerifyStatus + '" / >';
+                                //action += '<input type = "hidden"  name = "Title" value = "' + full[0] + '" / >';
+                                //action += '<input type = "hidden"  name = "VerifyStatus" value = "' + verify_obj.VerifyStatus + '" / >';
                                 action += '</div>';
 
                                 //action += ' <a class="edit-card btn btn-default btn-sm btn-icon icon-left"><i class="entypo-pencil"></i>Edit </a>'
@@ -129,13 +122,7 @@
                                 if(full[2]!=1){
                                     action += ' <a href="' + set_default+ '" class="set-default btn btn-success btn-sm btn-icon icon-left"><i class="entypo-check"></i>@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_BUTTON_SET_DEFAULT') </a> ';
                                 }
-                                @if($title != 'GoCardLess')
-                                if((verify_obj.VerifyStatus=='undefined' || verify_obj.VerifyStatus=='null' || verify_obj.VerifyStatus!='verified')){
-                                    action += ' <a href="#" data-id="'+id+'" class="set-verify btn btn-success btn-sm btn-icon icon-left"><i class="entypo-check"></i>@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_TBL_VERIFY') </a> ';
-                                }
-                                @endif
-
-                                        return action;
+                                    return action;
                             }
                         }
                     ],
@@ -168,7 +155,7 @@
                                 $('#table-4_processing').css('visibility','visible');
                                 var url = deletePaymentMethodProfile_url;
                                 url = url.replace('{id}', id);
-                                showAjaxScript( url ,"",FnDeleteBankAccountSuccess );
+                                showAjaxScript(url ,"",FnDeleteBankAccountSuccess);
                             }
                             return false;
                         }
@@ -213,18 +200,6 @@
                     return false;
                 });
 
-                $('table tbody').on('click', '.set-verify', function (e) {
-                    e.preventDefault();
-                    var self = $(this);
-                    cardID = self.attr("data-id");
-                    $("#verify-bankaccount-form")[0].reset();
-                    $("#verify-bankaccount-form").find('input[name="MicroDeposit1"]').val('');
-                    $("#verify-bankaccount-form").find('input[name="MicroDeposit2"]').val('');
-                    $("#verify-bankaccount-form").find('input[name="cardID"]').val(cardID);
-                    //cardID = $(this).prev("div.hiddenRowData").find("input[name='cardID']").val();
-                    $('#verify-modal-bankaccount').modal('show');
-                    return false;
-                });
 
                 $('#add-new-bankaccount').click(function (ev) {
                     ev.preventDefault();
@@ -279,52 +254,7 @@
                     });
                 });
 
-                $('table tbody').on('click','.edit-bankaccount',function(ev){
-                    ev.preventDefault();
-                    ev.stopPropagation();
-                    $("#add-bankaccount-form")[0].reset();
-                    cardID = $(this).prev("div.hiddenRowData").find("input[name='cardID']").val();
-                    Title = $(this).prev("div.hiddenRowData").find("input[name='Title']").val();
-                    $("#add-bankaccount-form").find('[name="cardID"]').val(cardID);
-                    $("#add-bankaccount-form").find('[name="Title"]').val(Title);
-                    $('#add-modal-bankaccount').modal('show');
-                })
-
-                $('#verify-bankaccount-form').submit(function(e){
-                    e.preventDefault();
-                    $('#table-4_processing').css('visibility','visible');
-                    var data = new FormData($('#verify-bankaccount-form')[0]);
-                    //show_loading_bar(0);
-                    var fullurl = baseurl + '/customer/PaymentMethodProfiles/verify_bankaccount';
-                    $.ajax({
-                        url:fullurl, //Server script to process data
-                        type: 'POST',
-                        dataType: 'json',
-                        success: function(response) {
-                            $("#bankaccount-verify").button('reset');
-                            $(".btn").button('reset');
-                            $('#table-4_processing').css('visibility','hidden');
-                            if (response.status == 'success') {
-                                $('#verify-modal-bankaccount').modal('hide');
-                                toastr.success(response.message, "Success", toastr_opts);
-                                $('#verify-modal-bankaccount').modal('hide');
-                                if( typeof data_table !=  'undefined'){
-                                    data_table.fnFilter('', 0);
-                                }
-                            } else {
-                                toastr.error(response.message, "Error", toastr_opts);
-                            }
-                            $('.btn.upload').button('reset');
-                        },
-                        data: data,
-                        //Options to tell jQuery not to process data or worry about content-type.
-                        cache: false,
-                        contentType: false,
-                        processData: false
-                    });
-
-
-                });
+               
 
             });
 
@@ -363,8 +293,6 @@
             $(".pagination a").click(function (ev) {
                 replaceCheckboxes();
             });
-
-
         </script>
         <style>
             .dataTables_filter label{
@@ -374,144 +302,59 @@
                 right: 30px !important;
             }
         </style>
-
         @include('includes.errors')
         @include('includes.success')
-
     </div>
 </div>
-
 @section('footer_ext')
     @parent
     <div class="modal fade" id="add-modal-bankaccount" data-backdrop="static">
         <div class="modal-dialog">
             <div class="modal-content">
                 <form
-                    @if($title == "GoCardLess")
-                    id="add-new-gocardless"
-                    @else
                     id="add-bankaccount-form"
-                    @endif
                         method="post">
                     <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;
+                        </button>
                         <h4 class="modal-title">@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_MODAL_ADD_NEW_BANK_AC_TITLE')</h4>
                     </div>
                     <div class="modal-body">
                         <div class="row">
-                            @if($title != 'Forte')
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <label for="field-5" class="control-label">@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_MODAL_ADD_NEW_BANK_AC_FIELD_TITLE')</label>
-                                    <input type="text" name="Title" class="form-control" id="field-5" placeholder="">
+                                    <label for="field-5" class="control-label">@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_MODAL_ADD_NEW_BANK_AC_FIELD_AC_HOLDER_NAME')</label>
+                                    <input type="text" name="AccountHolderName" autocomplete="off" class="form-control" id="field-5" placeholder="">
                                 </div>
                             </div>
-                            @endif
-
-                            @if($title != 'GoCardLess')
-                                <div class="col-md-12">
-                                    <div class="form-group">
-                                        <label for="field-5" class="control-label">@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_MODAL_ADD_NEW_BANK_AC_FIELD_AC_HOLDER_NAME')</label>
-                                        <input type="text" name="AccountHolderName" autocomplete="off" class="form-control" id="field-5" placeholder="">
-                                    </div>
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="field-5" class="control-label">@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_MODAL_ADD_NEW_BANK_AC_FIELD_AC_NUMBER')</label>
+                                    <input type="text" name="AccountNumber" autocomplete="off" class="form-control" id="field-5" placeholder="">
+                                    <input type="hidden" name="cardID" />
+                                    <input type="hidden" name="AccountID" />
+                                    <input type="hidden" name="CompanyID" />
+                                    <input type="hidden" name="PaymentGatewayID" />
                                 </div>
-                                <div class="col-md-12">
-                                    <div class="form-group">
-                                        <label for="field-5" class="control-label">@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_MODAL_ADD_NEW_BANK_AC_FIELD_AC_NUMBER')</label>
-                                        <input type="text" name="AccountNumber" autocomplete="off" class="form-control" id="field-5" placeholder="">
-                                        <input type="hidden" name="cardID" />
-                                        <input type="hidden" name="AccountID" />
-                                        <input type="hidden" name="CompanyID" />
-                                        <input type="hidden" name="PaymentGatewayID" />
-                                    </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="field-5" class="control-label">@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_MODAL_ADD_NEW_BANK_AC_FIELD_ROUTING_NUMBER')</label>
+                                    <input type="text" name="RoutingNumber" autocomplete="off" class="form-control" id="field-5" placeholder="">
                                 </div>
-                                <div class="col-md-12">
-                                    <div class="form-group">
-                                        <label for="field-5" class="control-label">@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_MODAL_ADD_NEW_BANK_AC_FIELD_ROUTING_NUMBER')</label>
-                                        <input type="text" name="RoutingNumber" autocomplete="off" class="form-control" id="field-5" placeholder="">
-                                    </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="field-5" class="control-label">@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_MODAL_ADD_NEW_BANK_AC_FIELD_AC_HOLDER_TYPE')</label>
+                                    {{ Form::select('AccountHolderType',['Checking'=>'Checking', 'savings'=>'Saving'],'', array("class"=>"select2 small")) }}
                                 </div>
-                                @if($title == 'Forte')
-                                <div class="col-md-12">
-                                    <div class="form-group">
-                                        <label for="field-5" class="control-label">@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_MODAL_ADD_NEW_BANK_AC_FIELD_AC_HOLDER_TYPE')</label>
-                                        {{ Form::select('AccountHolderType',['Checking'=>'Checking', 'savings'=>'Saving'],'', array("class"=>"select2 small")) }}
-                                    </div>
-                                </div>
-                                @else
-                                <div class="col-md-12">
-                                    <div class="form-group">
-                                        <label for="field-5" class="control-label">@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_MODAL_ADD_NEW_BANK_AC_FIELD_AC_HOLDER_TYPE')</label>
-                                        {{ Form::select('AccountHolderType',['savings'=>'Saving', 'Checking'=>'Checking'],'', array("class"=>"select2 small")) }}
-                                    </div>
-                                </div>
-                                @endif
-                            @else
-                                <input type="hidden" name="cardID" />
-                                <input type="hidden" name="AccountID" />
-                                <input type="hidden" name="CompanyID" />
-                                <input type="hidden" name="PaymentGatewayID" />
-                            @endif
+                            </div>
                         </div>
                     </div>
                     <div class="modal-footer">
                         <button type="submit" id="bankaccount-update"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="@lang('routes.BUTTON_LOADING_CAPTION')">
                             <i class="entypo-floppy"></i>
                             @lang('routes.BUTTON_SAVE_CAPTION')
-                        </button>
-                        <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
-                            <i class="entypo-cancel"></i>
-                            @lang('routes.BUTTON_CLOSE_CAPTION')
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-    <div class="modal fade" id="verify-modal-bankaccount" data-backdrop="static">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <form id="verify-bankaccount-form" method="post">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                        <h4 class="modal-title">@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_MODAL_VERIFY_BANK_AC_TITLE')</h4>
-                    </div>
-                    <div class="modal-body">
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="form-group">
-                                    <label for="field-5" class="control-label">@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_MODAL_VERIFY_BANK_AC_FIELD_MICRO_DEPOSIT1')
-                                        {{-- CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_MODAL_VERIFY_BANK_AC_FIELD_MICRO_DEPOSIT1_MSG == You can verify your customer’s routing and account numbers by sending their account two micro-deposits. Two small deposits will be made to their account. The transfers can take 3-4 business days to appear on their account. Once they’ve been received by the customer, the amounts for each deposit will need to be provided to you by the customer to verify that they have access to their account statement.--}}
-                                        <span data-toggle="popover" data-trigger="hover" data-placement="bottom" data-content="@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_MODAL_VERIFY_BANK_AC_FIELD_MICRO_DEPOSIT1_MSG')" data-original-title="@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_MODAL_VERIFY_BANK_AC_LBL_MICRO_DEPOSIT')" class="label label-info popover-primary">?</span>
-                                    </label>
-                                    <input type="text" name="MicroDeposit1" class="form-control" id="field-5" placeholder="">
-                                    <input type="hidden" name="cardID">
-                                </div>
-                            </div>
-                            <div class="col-md-12">
-                                <div class="form-group">
-                                    <label for="field-5" class="control-label">@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_MODAL_VERIFY_BANK_AC_FIELD_MICRO_DEPOSIT2')
-                                        {{--CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_MODAL_VERIFY_BANK_AC_FIELD_MICRO_DEPOSIT2_MSG == You can verify your customer’s routing and account numbers by sending their account two micro-deposits. Two small deposits will be made to their account. The transfers can take 3-4 business days to appear on their account. Once they’ve been received by the customer, the amounts for each deposit will need to be provided to you by the customer to verify that they have access to their account statement.--}}
-                                        <span data-toggle="popover" data-trigger="hover" data-placement="bottom" data-content="@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_MODAL_VERIFY_BANK_AC_FIELD_MICRO_DEPOSIT2_MSG')" data-original-title="@lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_MODAL_VERIFY_BANK_AC_LBL_MICRO_DEPOSIT')" class="label label-info popover-primary">?</span>
-                                    </label>
-                                    <input type="text" name="MicroDeposit2" class="form-control" id="field-5" placeholder="">
-                                </div>
-                            </div>
-                            <div class="col-md-12">
-                                <div class="form-group">
-                                    <label for="field-5" class="control-label">
-                                        @lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_MODAL_VERIFY_BANK_AC_MSG1'){{--* Both Deposit amounts in cents--}}
-                                        </br>
-                                        @lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_MODAL_VERIFY_BANK_AC_MSG2'){{--* For live payments you have upto 10 tries to verify bank account after that bank account is unverifiable--}}
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="submit" id="bankaccount-verify"  class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="@lang('routes.BUTTON_LOADING_CAPTION')">
-                            <i class="entypo-floppy"></i>
-                            @lang('routes.CUST_PANEL_PAGE_PAYMENT_METHOD_PROFILES_BUTTON_VERIFY')
                         </button>
                         <button  type="button" class="btn btn-danger btn-sm btn-icon icon-left" data-dismiss="modal">
                             <i class="entypo-cancel"></i>

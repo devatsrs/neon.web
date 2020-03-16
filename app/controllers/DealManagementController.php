@@ -163,6 +163,7 @@ class DealManagementController extends \BaseController {
             ->select('Description')->distinct()->lists("Description","Description");
         $destinationBreaks = !empty($destinationBreaks) ? ['' => 'Select'] + $destinationBreaks : ['' => 'Select'];
         $DealNotes = DealNote::where('DealID',$id)->get();
+        $deal_summary = Deal::dealSummary($CompanyID,$Deal,$DealDetails);
         return View::make('dealmanagement.edit', get_defined_vars());
     }
 
