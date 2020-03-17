@@ -27,7 +27,8 @@ class PackageController extends BaseController {
             "tblCurrency.Code",
             "tblPackage.RateTableId",
             "tblPackage.CurrencyId",
-            "tblPackage.Status"
+            "tblPackage.Status",
+            "tblPackage.FieldValue_temp"
         ])
         ->where('tblPackage.CompanyId',$CompanyID);
             
