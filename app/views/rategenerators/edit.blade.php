@@ -1066,9 +1066,9 @@
             <?php $ab = 1; ?>
             @foreach ($rategeneratorComponents as $Component)
                 @if($rategenerators->SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_DID))
-                    var nodesArr = '{{ json_encode(array("" => "All") + DiscountPlan::$RateTableDIDRate_Components) }}';
+                    var nodesArr = '{{ json_encode(array("all" => "All") + DiscountPlan::$RateTableDIDRate_Components) }}';
                 @elseif($rategenerators->SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_PACKAGE))
-                    var nodesArr = '{{ json_encode(array("" => "All") + DiscountPlan::$RateTablePKGRate_Components) }}';
+                    var nodesArr = '{{ json_encode(array("all" => "All") + DiscountPlan::$RateTablePKGRate_Components) }}';
                 @endif               
                 var nodesarray =  "{{$Component->Component}}";
                 var toSplit = nodesarray.split(",");
@@ -1091,6 +1091,10 @@
 				$("#Component-" + {{ $ab }}).html(options);
 				$("#Component-" + {{ $ab }}).trigger("change");
                 $("#Component-" + {{ $ab }}).val(toSplit).trigger("change");
+                console.log(toSplit.length);
+                if(toSplit.length == 1 && toSplit[0] == ""){
+                    $("#Component-" + {{ $ab }}).val("all").trigger("change");
+                }
                 <?php $ab++ ?>
             @endforeach                            
 
