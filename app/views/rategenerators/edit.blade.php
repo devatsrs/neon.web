@@ -1063,11 +1063,49 @@
         }
 
         jQuery(document).ready(function() {
-            /*$(".btn.addnew").click(function(ev) {
-             jQuery('#modal-rate-generator-rule').modal('show', {backdrop: 'static'});
-             });*/
-            // $( "#sortable" ).sortable();
+            <?php $ab = 1; ?>
+            @foreach ($rategeneratorComponents as $Component)
+                @if($rategenerators->SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_DID))
+                    var nodesArr = '{{ json_encode(array("" => "All") + DiscountPlan::$RateTableDIDRate_Components) }}';
+                @elseif($rategenerators->SelectType == RateType::getRateTypeIDBySlug(RateType::SLUG_PACKAGE))
+                    var nodesArr = '{{ json_encode(array("" => "All") + DiscountPlan::$RateTablePKGRate_Components) }}';
+                @endif               
+                var nodesarray =  "{{$Component->Component}}";
+                var toSplit = nodesarray.split(",");
+                var y = JSON.parse(nodesArr);
+                var x = {}; 
+                $.each(toSplit,(i,j) => {     
+                    $.each(y,(a,b) => {
+                        if(j == a){
+                            x[a + " - " + a] = b;
+                            delete y[a];
+                        }
+                    });
+                });
+				var z = $.extend(x,y);
+				$("#Component-" + {{ $ab }}).empty();
+				var options = "";
+				$.each(z, function(item, val){
+                    if(item.lastIndexOf(" - ") > 0){
+                    item += "";
+                    item = item.slice(item.lastIndexOf(" "));
+                    }
+                    options += "<option value=" + item + ">" + val + "</option>";
+                });
+				$("#Component-" + {{ $ab }}).html(options);
+				$("#Component-" + {{ $ab }}).trigger("change");
+                $("#Component-" + {{ $ab }}).val(toSplit).trigger("change");
+                <?php $ab++ ?>
+            @endforeach                            
 
+            $(document.body).on("select2-selecting", 'select' ,function (evt) {
+                var element = evt.object.element;
+                var $element = $(element);
+                $element.detach();
+                $(this).append($element);
+                $(this).trigger("change");
+            });
+           
             var selectAllComponents;
 
             $("#DateFrom").datepicker({
