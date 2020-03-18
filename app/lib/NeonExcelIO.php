@@ -507,6 +507,34 @@ class NeonExcelIO
         return $this->file;
     }
 
+    public function write_multi_sheet_excel($data){
+        $upload_path        = CompanyConfiguration::get('UPLOAD_PATH');
+        $Original_file_name = $this->file;
+        $sheets             = [];
+        foreach ($data as $key => $value) {
+            $this->file = $upload_path.'/'.$key.'.csv';
+            $this->write_csv($value);
+            $sheets[] = $this->file;
+        }
+        $this->file = $Original_file_name;
+
+        $reader         = PHPExcel_IOFactory::createReader('CSV');
+        $sheet          = array_shift($sheets);
+        $spreadsheet    = $reader->load($sheet);
+        $spreadsheet->getActiveSheet()->setTitle(pathinfo($sheet,PATHINFO_BASENAME));
+
+        foreach($sheets as $sheet => $inputFileName) {
+            $reader->setSheetIndex($sheet+1);
+            $reader->loadIntoExisting($inputFileName,$spreadsheet);
+            $spreadsheet->getActiveSheet()->setTitle(pathinfo($inputFileName,PATHINFO_FILENAME));
+        }
+
+        $writer = PHPExcel_IOFactory::createWriter($spreadsheet, "Excel2007");
+        $writer->save($this->file);
+
+        return $this->file;
+    }
+
     public function download_csv_ajax($rows){
         $this->write_csv($rows);
         return $this->file;
