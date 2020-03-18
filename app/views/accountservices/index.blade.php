@@ -170,9 +170,21 @@
                                     return chackbox;
                                 }
                             }, //1   CurrencyDescription
-                            { "bSortable": false },  // 0 Service Name
+                            { "bSortable": false ,
+                                mRender: function(id,type,full){
+                                    var number = full[1];
+                                    if(number != null && number.length > 30) number = number.substring(0,30) + '...';
+                                    return number;
+                                }
+                            },  // 0 Service Name
 
-                            { "bSortable": false },  // 1 Package
+                            { "bSortable": false ,
+								mRender : function(id,type,full){
+                                    var packaage = full[2];
+                                    if(packaage != null && packaage.length > 30) packaage = packaage.substring(0,30) + '...';
+                                    return packaage;
+                                }
+                            },  // 1 Package
                             {
                                 "bSortable": false,
                                 mRender: function (id, type, full) {

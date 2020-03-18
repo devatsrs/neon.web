@@ -71,6 +71,77 @@
             </form>
         </div>
     </div>
+        
+        <form action="" id="Cdr-upload">
+        <div class="panel panel-primary" data-collapsed="0" id="date-format" style="display:none;">
+                <div class="panel-heading">
+                    <div class="panel-title">
+                        Field Remapping
+                    </div>
+
+                    <div class="panel-options">
+                        <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
+                    </div>
+                </div>
+
+                <div class="panel-body field-remaping" id="mapping">
+                        <div class="form-group" id="">
+                            <label class="col-sm-2 control-label">
+                                <!-- <input id="checkbox_import_rate" name="checkbox_import_rate" value="1" checked="" type="checkbox"/> --> Date Format
+                            </label>
+                            <div class="col-sm-4">
+                                {{Form::select('DateFormat',Company::$date_format ,(isset($attrselection->DateFormat)?$attrselection->DateFormat:''),array("class"=>"select2 small"))}}
+                            </div>
+                            <input type="hidden" name="filename" id="cdr-filename">
+                        </div>
+                  
+                </div>
+            </div>
+            <div class="panel panel-primary" data-collapsed="0" id="cdr-table" style="display:none;">
+                <div class="panel-heading">
+                    <div class="panel-title">
+                        File to be loaded
+                    </div>
+
+                    <div class="panel-options">
+                        <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
+                    </div>
+                </div>
+
+                <div class="panel-body scrollx">
+                    <div id="table-4_processing" class="dataTables_processing hidden">Processing...</div>
+                    <ul class="nav nav-tabs">
+                        <li class="active"><a href="#tabs1" data-toggle="tab">CDR</a></li>
+                    </ul>
+                    <div class="tab-content">
+                        <div class="tab-pane active" id="tabs1">
+                            <table class="table table-bordered datatable" id="table-4">
+                                <thead>
+                                <tr>
+                                    
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                            
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <br>
+                <br>
+                <p style="text-align: right;">
+                    <button id="save_template" class="save btn btn-primary btn-sm btn-icon icon-left" data-loading-text="Loading...">
+                        <i class="entypo-floppy"></i>
+                        Save
+                    </button>
+                </p>
+            </div>
+            </form>
+            
+    
 
     
     <style>
@@ -93,6 +164,7 @@
         
 
         jQuery(document).ready(function ($) {
+
             
 
             $(document).on('submit','#form-upload', function(e) {
@@ -123,6 +195,14 @@
                                 toastr.success(response.message, "Success", toastr_opts);
                                $('#excel').val('');
                                 $(document.body).find(".file-input-name").empty();
+                            }else if(response.type == "CDR"){
+                                $('#cdr-table').css("display", "block");
+                                $('#date-format').css("display", "block");
+                                $('#cdr-filename').val(response.filename);
+                                $.each(response.data,function( index , value){
+                                    $('#table-4 thead tr').append("<th>"+index+"</th>");
+                                    $('#table-4 tbody tr').append("<td>"+value+"</td>");
+                                })
                             } else {
                                 toastr.error(response.message, "Error", toastr_opts);
                                 $('#excel').val('');
@@ -137,6 +217,50 @@
                         processData: false
                     });
                 }
+            });
+
+            $(document).on('submit','#Cdr-upload', function(e) {
+                e.preventDefault();
+                
+                var formData = new FormData($('#Cdr-upload')[0]);
+                show_loading_bar(0);
+                $.ajax({
+                    url:  '{{URL::to('import/uploadcdrs')}}',  //Server script to process data
+                    type: 'POST',
+                    dataType: 'json',
+                    beforeSend: function(){
+                        $('#save_template').button('loading');
+                        show_loading_bar({
+                            pct: 50,
+                            delay: 5
+                        });
+                    },
+                    success: function (response) {
+                        show_loading_bar({
+                            pct: 100,
+                            delay: 2
+                        });
+                        $('#save_template').button('reset');
+                        if (response.status == 'success') {
+                            toastr.success(response.message, "Success", toastr_opts);
+                            $('#excel').val('');
+                            $('#cdr-table').css("display", "none");
+                            $('#date-format').css("display", "none");
+                            $(document.body).find(".file-input-name").empty();
+                        }else {
+                            toastr.error(response.message, "Error", toastr_opts);
+                            $('#excel').val('');
+                            $(document.body).find(".file-input-name").empty();
+                        }
+                    },
+                    // Form data
+                    data: formData,
+                    //Options to tell jQuery not to process data or worry about content-type.
+                    cache: false,
+                    contentType: false,
+                    processData: false
+                });
+                
             });
         
 

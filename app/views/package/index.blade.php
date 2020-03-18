@@ -48,7 +48,7 @@
     </ol>
     <h3>Packages</h3>
     <p class="text-right">
-        <a href="#" data-action="showAddModal" data-type="package" data-modal="add-new-modal-package" class="btn btn-primary">
+        <a href="#" data-action="showAddModal" data-type="package" data-modal="add-new-modal-package" class="btn btn-primary add-new">
             <i class="entypo-plus"></i>
             Add New Package
         </a>
@@ -62,6 +62,7 @@
         <thead>
         <tr>
             <th width="5%"><input type="checkbox" id="selectall" name="checkbox[]" class="" /></th>
+            <th>PackageID</th>
             <th>Name</th>
             <th>Rate Table</th>
             {{--<th>Currency</th>--}}
@@ -111,8 +112,24 @@
                                     return '<div class="checkbox "><input type="checkbox" name="checkbox[]" value="' + id + '" class="rowcheckbox" ></div>';
                                 }
                             },
-                            { "bSortable": true }, //Name
-                            { "bSortable": true }, //Type
+                            {"bSortable": false,
+                                mRender: function(id, type, full) {
+                                    
+                                    return full[7];
+                                }
+                            },
+                            {"bSortable": false,
+                                mRender: function(id, type, full) {
+                                    
+                                    return full[1];
+                                }
+                            }, //Name
+                            {"bSortable": false,
+                                mRender: function(id, type, full) {
+                                    
+                                    return full[2];
+                                }
+                            }, //Type
 //                            { "bSortable": true }, //Gateway
                             {
                                 "bSortable": false,
@@ -140,6 +157,7 @@
                                     action += '<input type = "hidden"  name ="RateTableId" value= "' + (full[4] != null ? full[4] : '') + '" / >';
                                     action += '<input type = "hidden"  name ="CurrencyId" value= "' + (full[5] != null ? full[5] : '') + '" / >';
                                     action += '<input type = "hidden"  name ="status" value= "' + (full[6] != null ? full[6] : '') + '" / >';
+                                    action += '<input type = "hidden"  name ="PackageProductId" value= "' + (full[7] != null ? full[7] : '') + '" / >';
                                     action += '</div>';
                                     action += ' <a data-name = "'+full[1]+'" data-id="'+ full[0] +'" title="Edit" class="edit-package btn btn-default btn-sm"><i class="entypo-pencil"></i>&nbsp;</a>';
                                     action += ' <a data-id="'+ full[0] +'" title="Delete" class="delete-package btn btn-danger btn-sm"><i class="entypo-trash"></i></a>';
@@ -311,18 +329,25 @@
                 replaceCheckboxes();
             });
 
+            $('.add-new').on('click',function(){
+                $('.package-id').css('display','none');
+            })
+
             $('table tbody').on('click','.edit-package',function(ev){
                 ev.preventDefault();
                 ev.stopPropagation();
                 $('#add-new-package-form').trigger("reset");
+                $('.package-id').css('display','block');
 
                 PackageName = $(this).prev("div.hiddenRowData").find("input[name='PackageName']").val();
                 RateTableId = $(this).prev("div.hiddenRowData").find("input[name='RateTableId']").val();
                 CurrencyId  = $(this).prev("div.hiddenRowData").find("input[name='CurrencyId']").val();
                 Status  = $(this).prev("div.hiddenRowData").find("input[name='status']").val();
+                PackageProductId = $(this).prev("div.hiddenRowData").find("input[name='PackageProductId']").val();
 
                 $("#add-new-package-form [name='Name']").val(PackageName);
                 $("#add-new-package-form [name='PackageId']").val($(this).attr('data-id'));
+                $('.package-text').val(PackageProductId);
                 $("#add-new-package-form [name='RateTableId']").val(RateTableId).trigger("change");
                 $("#add-new-package-form [name='CurrencyId']").val(CurrencyId).trigger("change");
                 $("#add-new-package-form [name='status']").val(Status).prop('checked', Status == 1);

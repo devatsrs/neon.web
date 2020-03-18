@@ -368,6 +368,10 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/import/account/add_missing_quickbookaccounts',  'ImportsController@add_missing_quickbookaccounts');
 	Route::any('/import' , 'ImportsController@importindex');
 	Route::any('/import/storeimportfiles' , 'ImportsController@storeimportfiles');
+	Route::any('/import/uploadcdrs' , 'ImportsController@uploadcdrs');
+
+
+	
 	
 	//import ips
 	Route::any('/import/ips',  'ImportsController@import_ips');
@@ -1922,7 +1926,8 @@ Route::group(array('before' => 'auth.api', 'prefix' => 'api'), function()
 	Route::post('products/ProductUpdateStock', 'ProductApiController@UpdateStockCalculation');
 	Route::post('getAccountbilling/{AccountID}', 'AccountBillingApiController@getAccountBilling');
 	Route::post('serviceTemplate/createServiceTemplate', 'ServicesTemplateApiController@storeServiceTempalteData');
-
+	
+	Route::post('getAccountBalance', 'AccountsApiController@getAccountBalance');
 	Route::post('account/checkBalance/', 'AccountsApiController@checkBalance');
 	Route::post('Payments/list', 'PaymentApiController@getPaymentHistory');
 	Route::post('AutoDepositSettings/list', 'AccountBillingApiController@getAutoDepositSettings');

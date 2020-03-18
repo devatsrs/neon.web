@@ -966,47 +966,51 @@ class ImportsController extends \BaseController {
         }
         if (!empty($file_name)) {
              
-        $save = array();
+            $save = array();
 
-        $fullPath               = $file_name; //$destinationPath . $file_name;
-        $save['full_path']      = $fullPath;
+            $fullPath               = $file_name; //$destinationPath . $file_name;
+            $save['full_path']      = $fullPath;
 
-        $NeonExcel = new NeonExcelIO($fullPath);
-        $results = $NeonExcel->read();
-        
-           
-        if($data['importtype'] == 'Account') {
+            $NeonExcel = new NeonExcelIO($fullPath);
+            $results = $NeonExcel->read(2);
+            
+            $accountFields = array('AccountNo','AccountName','CustomerId','BillingType','BillingStartDate','PaymentMethod','BillingCountryIso','LanguageIso');
+            $serviceFields = array('CustomerId','Number','NumberContractId','NumberStartDate','NumberEndDate','NumberProductId','PackageContractId','PackageStartDate','PackageEndDate','PackageProductId','OrderId');
             foreach($results as $key => $value)
             {
                 $keys = str_replace( ' ', '', array_keys( $value ) );
                 $value = array_combine( $keys, array_values( $value ) );
-                if(isset($value['AccountNo']) && isset($value['AccountName']) && isset($value['CustomerId']) && isset($value['BillingType']) && isset($value['BillingStartDate']) && isset($value['PaymentMethod'])){
-                    
-                }else{
-                    return Response::json(array("status" => "failed", "message" => "File Format Is Wrong"));
+                if($data['importtype'] == 'Account') {
+                    foreach($accountFields as $key => $field){
+                        if(!in_array($field , $keys)){
+                            $errors[] =  $field . " column is missing";
+                        }
+                    }
+                    $jobtype = 'AI';
+                }
+                if($data['importtype'] == 'Service') {
+                    foreach($serviceFields as $key => $field){
+                        if(!in_array($field , $keys)){
+                            $errors[] =  $field . " column is missing";
+                        }
+                    }
+                    $jobtype = 'SI';
+                }
+                if($data['importtype'] == 'CDR') {
+                   return Response::json(array( "data" => $value , "filename" => $fullPath , "type" => "CDR")); 
+                    $jobtype = 'CDI';
                 }
                 break;
-            }
-            $jobtype = 'AI';
-        }else if($data['importtype'] == 'Service'){
-            foreach($results as $key => $value)
-            {
-                $keys = str_replace( ' ', '', array_keys( $value ) );
-                $value = array_combine( $keys, array_values( $value ) );
-                if(isset($value['CustomerId']) && isset($value['Number']) && isset($value['NumberContractId']) && isset($value['NumberStartDate']) && isset($value['NumberEndDate']) && isset($value['NumberProductId']) && isset($value['PackageContractId']) && isset($value['PackageStartDate']) && isset($value['PackageEndDate']) && isset($value['PackageProductId']) && isset($value['OrderId'])){
-                    
-                }else{
-                    return Response::json(array("status" => "failed", "message" => "File Format Is Wrong"));
-                }
-                break;
-            }
-            $jobtype = 'SI';
-        }else if($data['importtype'] == 'CDR'){
-            $jobtype = 'CDI';
+            }   
         }
-        
-        
-    }
+
+        if(isset($errors) && count($errors) > 0){
+            $errorss = "";
+            foreach ($errors as $error) {
+                $errorss .= $error . "<br>";
+            }
+            return Response::json(array("status" => "failed", "message" => $errorss));
+        }
 
         //Inserting Job Log
         try {
@@ -1019,6 +1023,27 @@ class ImportsController extends \BaseController {
             }
             DB::commit();
             //@unlink($temp_path . $file_name);
+            return json_encode(["status" => "success", "message" => "File Uploaded, File is added to queue for processing. You will be notified once file upload is completed. "]);
+        } catch (Exception $ex) {
+            DB::rollback();
+            return json_encode(["status" => "failed", "message" => " Exception: " . $ex->getMessage()]);
+        }
+    }
+
+    public function uploadcdrs(){
+        $data = Input::all();
+        $jobtype = 'CDI'; 
+        $save = array();
+        $save['full_path']      = $data['filename'];
+        $save['date_format']      = $data['DateFormat'];
+        try {
+            DB::beginTransaction();
+            $result = Job::logJob($jobtype, $save);
+            if ($result['status'] != "success") {
+                DB::rollback();
+                return json_encode(["status" => "failed", "message" => $result['message']]);
+            }
+            DB::commit();
             return json_encode(["status" => "success", "message" => "File Uploaded, File is added to queue for processing. You will be notified once file upload is completed. "]);
         } catch (Exception $ex) {
             DB::rollback();
