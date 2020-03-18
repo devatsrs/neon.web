@@ -1077,7 +1077,7 @@
                 $.each(toSplit,(i,j) => {     
                     $.each(y,(a,b) => {
                         if(j == a){
-                            x[a + " - " + a] = b;
+                            x[a] = b;
                             delete y[a];
                         }
                     });
@@ -1086,10 +1086,6 @@
 				$("#Component-" + {{ $ab }}).empty();
 				var options = "";
 				$.each(z, function(item, val){
-                    if(item.lastIndexOf(" - ") > 0){
-                    item += "";
-                    item = item.slice(item.lastIndexOf(" "));
-                    }
                     options += "<option value=" + item + ">" + val + "</option>";
                 });
 				$("#Component-" + {{ $ab }}).html(options);
