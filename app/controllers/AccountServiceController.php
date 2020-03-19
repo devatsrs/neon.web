@@ -226,6 +226,7 @@ class AccountServiceController extends \BaseController {
             $ServiceActive = 1;
         }
         if(!empty($data['Number'])){
+            $data['Number'] =    str_replace("*" , "%" , $data['Number']);
             $ServiceNumber = $data['Number'];
         }
 
