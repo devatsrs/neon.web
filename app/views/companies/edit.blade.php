@@ -504,6 +504,83 @@
             </div>
 
             @endif
+            <div class="panel panel-primary" data-collapsed="0" id="Vendors">
+                <div class="panel-heading">
+                    <div class="panel-title">
+                        Default Ratetables
+                    </div>
+                    <div class="panel-options">
+                        <button type="button" onclick="createCloneRow('ratetableVendorBox','getRateVendorIDs')" id="rate-update" class="btn btn-primary btn-xs add-clone-row-btn" data-loading-text="Loading...">
+                            <i></i>
+                            +
+                        </button>
+                        <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
+                    </div>
+                </div>
+                <div class="panel-body">
+                    <div class="" style=" overflow: auto;">
+                        <br/>
+                        <input type="hidden" id="getRateVendorIDs" name="getRateVendorIDs" value=""/>
+                        <table id="ratetableVendorBox" class="table table-bordered datatable">
+                            <thead>
+                            <tr>
+                                @if(!is_reseller())
+                                    <th style="width:250px !important;" class="DID-Div">Partner</th>
+                                @endif      
+                                <th style="width:250px;">Type</th>
+                                <th style="width:250px !important;" class="DID-Div">Category</th>
+                                <th style="width:250px !important;" class="DID-Div">Rate Tables</th>
+                                <th style="width:250px !important;" class="DID-Div">Discount Plan</th>
+                            </tr>
+                            </thead>
+                            <tbody id="ratetbody">
+                                @if(count($DefaultRatetables) > 0)
+                                 
+                                    @foreach($DefaultRatetables as $key =>  $DefaultRatetable)
+                                    <?php $key++; ?>
+                                        <tr id="selectedRateVendorRow-{{$key}}">
+                                            
+                                                @if(!is_reseller())
+                                                    <td class="Package-Div">
+                                                        {{ Form::select('Partner-'.$key, $reseller_owners, $DefaultRatetable->PartnerID, array("class"=>"select2")) }}
+                                                    </td>
+                                                @else
+                                                    <td class="Package-Div hidden">
+                                                        <input type="text" name="Partner-{{$key}}" value="{{$DefaultRatetable->PartnerID}}">
+                                                    </td>
+                                                @endif                                               
+                                            
+                                            <td>
+                                                {{ Form::select('Type-'.$key , $ratetype, $DefaultRatetable->Type, array("class"=>"select2 Type" )) }}
+                                            </td>
+                                            <td class="DID-Div">
+                                                @if($DefaultRatetable->Type != 2)
+                                                    {{ Form::select('Category-'.$key, $Categories, $DefaultRatetable->Category, array("class"=>"select2 categories" , "disabled")) }}
+                                                @else
+                                                    {{ Form::select('Category-'.$key, $Categories, $DefaultRatetable->Category, array("class"=>"select2 categories")) }}
+                                                @endif
+                                            </td>
+                                            <td class="DID-Div">
+                                                {{ Form::select('RateTable-'.$key, $rate_table, $DefaultRatetable->RatetableID, array("class"=>"select2")) }}
+                                            </td>
+                                            <td class="DID-Div">
+                                                {{ Form::select('Discountplan-'.$key, $inbounddiscountplan, $DefaultRatetable->Discountplan, array("class"=>"select2 discount-plan")) }}
+                                            </td>
+                                            <td class="" style="width:2%;">
+                                            <a onclick="deleteRow(this.id,'ratetableVendorBox','getRateVendorIDs')" id="rateVendorCal-{{$key}}" class="btn btn-danger btn-sm" data-loading-text="Loading..." >
+                                                    <i></i>
+                                                    -
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                @endif
+                            
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
 
         </form>
     </div>
@@ -538,9 +615,69 @@
   </div>
 </div>
 
-<script type="text/javascript">
-    jQuery(document).ready(function($) {
+<div class="hidden">
+    <table id="table-3">
+        <tr id="selectedRateVendorRow-0">
+            
+            @if(!is_reseller())
+                <td class="Package-Div">
+                    {{ Form::select('Partner-1', $reseller_owners, '', array("class"=>"select2")) }} 
+                </td>
+            @else
+                <td class="Package-Div hidden">
+                    <input type="hidden" name="Partner-1" value="{{$PartnerID}}">
+                </td>      
+            @endif
+            <td>
+                {{ Form::select('Type-1', $ratetype, '', array("class"=>"select2 Type" )) }}
+            </td>
+            <td class="DID-Div">
+                {{ Form::select('Category-1', $Categories, '', array("class"=>"select2 categories" , "disabled")) }}
+            </td>
+            <td class="DID-Div">
+                {{ Form::select('RateTable-1', $rate_table, '', array("class"=>"select2")) }}
+            </td>
+            <td class="DID-Div">
+                {{ Form::select('Discountplan-1', $inbounddiscountplan, '', array("class"=>"select2 discount-plan")) }}
+            </td>
+            <td class="" style="width:2%;">
+                <a onclick="deleteRow(this.id,'ratetableVendorBox','getRateVendorIDs')" id="rateVendorCal-0" class="btn btn-danger btn-sm" data-loading-text="Loading..." >
+                    <i></i>
+                    -
+                </a>
+            </td>
+        </tr>
+    </table>
+</div>
 
+<script type="text/javascript">
+
+    function getIds(tblID, idInp){
+        $('#'+idInp).val("");
+        $('#' + tblID + ' tbody tr').each(function() {
+
+            var row = "";
+            if(tblID == "servicetableSubBox"){
+                row = "selectedRow-0";
+            }else if(tblID == "ratetableVendorBox"){
+                row = "selectedRateVendorRow-0";
+            }else{
+                row = "selectedRateRow-0";
+            }
+            var id = 0;
+            if(this.id != row)
+                id = getNumber(this.id);
+
+            var getIDString =  $('#'+idInp).val();
+            getIDString = getIDString + id + ',';
+            $('#'+idInp).val(getIDString);
+
+        });
+    }
+
+
+    jQuery(document).ready(function($) 
+    {
         $("#nodes").on("select2-selecting", function (evt) {
             var element = evt.object.element;
             var $element = $(element);
@@ -548,6 +685,20 @@
             $(this).append($element);
             $(this).trigger("change");
         });
+
+        $(window).load(function() {
+            getIds("ratetableVendorBox", "getRateVendorIDs");
+        });
+
+        $(document.body).on('change' , '.Type' ,function(){
+            var type = $(this).val();
+            if(type != 2){
+                $(this).closest('tr').find('.categories').select2('val','');
+                $(this).closest('tr').find('.categories').prop("disabled",true);
+            }else{
+                $(this).closest('tr').find('.categories').prop("disabled",false);
+            }
+        })
 
         // Replace Checboxes
         $(".save.btn").click(function(ev) {
@@ -598,10 +749,8 @@
         });
 		
 		$('.ValidateSmtp').click(function(e) {
-        	$(this).attr('disabled', 'disabled');  
-			
-				$('#Test_smtp_mail_modal').modal('show'); return false;
-				
+        	$(this).attr('disabled', 'disabled');  	
+			$('#Test_smtp_mail_modal').modal('show'); return false;	
         });
 		
 		
@@ -640,6 +789,95 @@
             tags:{{json_encode(explode(',',$company->InvoiceStatus))}}
         });
     });
+
+    function getNumber($item){
+            var txt = $item;
+            var numb = txt.match(/\d/g);
+            numb = numb.join("");
+            return numb;
+        }
+
+        function createCloneRow(tblID, idInp) {
+            var lastrow = $('#' + tblID + ' tbody tr:last');
+            var $item = lastrow.attr('id');
+            var numb = lastrow.length > 0 ? getNumber($item) : 0;
+            numb++;
+            
+            if(tblID == 'servicetableSubBox'){
+                $("#table-1 tr").clone().appendTo('#' + tblID + ' tbody');
+                $("#table-1 tr").attr('id', 'selectedRow-'+numb);
+            }else if(tblID == 'ratetableVendorBox'){
+                $("#table-3 tr").clone().appendTo('#' + tblID + ' tbody');
+                $("#table-3 tr").attr('id', 'selectedRateVendorRow-'+numb);
+            }else{
+                $("#table-2 tr").clone().appendTo('#' + tblID + ' tbody');
+            }
+           
+            var row = "";
+
+            if(tblID == "servicetableSubBox"){
+                 row = "selectedRow";
+            }else if(tblID == "ratetableVendorBox"){
+                 row = "selectedRateVendorRow";
+            }else{
+                row = "selectedRateRow";
+            }
+
+            $('#' + tblID + ' tr:last').attr('id', row + '-' + numb);
+            if (tblID == "ratetableVendorBox") { 
+                @if(!is_reseller())
+                    $('#' + tblID + ' tr:last').children('td:eq(0)').children('select').attr('name', 'Partner-' + numb).attr('id', 'Partner-' + numb).select2();
+                @else
+                    $('#' + tblID + ' tr:last').children('td:eq(0)').children('input').attr('name', 'Partner-' + numb).attr('id', 'Partner-' + numb);
+                @endif
+                $('#' + tblID + ' tr:last').children('td:eq(1)').children('select').attr('name', 'Type-' + numb).attr('id', 'Type-' + numb).select2();
+                $('#' + tblID + ' tr:last').children('td:eq(2)').children('select').attr('name', 'Category-' + numb).attr('id', 'Category-' + numb).select2();
+                $('#' + tblID + ' tr:last').children('td:eq(3)').children('select').attr('name', 'Ratetable-' + numb).attr('id', 'Ratetable-' + numb).select2();
+                $('#' + tblID + ' tr:last').children('td:eq(4)').children('select').attr('name', 'Discountplan-' + numb).attr('id', 'Discountplan-' + numb).select2();
+                
+            } 
+            if ($('#' + idInp).val() == '') {
+                $('#' + idInp).val(numb + ',');
+            } else {
+                var getIDString = $('#' + idInp).val();
+                getIDString = getIDString + numb + ',';
+                $('#' + idInp).val(getIDString);
+            }
+
+            if (tblID == "ratetableVendorBox") {
+                $('#' + tblID + ' tr:last').closest('tr').children('td:eq(5)').children('a').attr('id', "rateVendorCal-" + numb);
+            }
+
+            $('#' + tblID + ' tr:last').children('td:eq(0)').find('div:first').remove();
+            $('#' + tblID + ' tr:last').children('td:eq(1)').find('div:first').remove();
+            $('#' + tblID + ' tr:last').children('td:eq(2)').find('div:first').remove();
+            $('#' + tblID + ' tr:last').children('td:eq(3)').find('div:first').remove();
+            $('#' + tblID + ' tr:last').children('td:eq(4)').find('div:first').remove();
+
+            if(tblID == "ratetableVendorBox") {
+                
+                $('#' + tblID + ' tr:last').closest('tr').children('td:eq(5)').find('a').removeClass('hidden');
+            }
+        }
+        function deleteRow(id, tblID, idInp)
+        {
+            
+            if(confirm("Are You Sure?")) {
+                var selectedSubscription = $('#'+idInp).val();
+                var removeValue = id + ",";
+                var removalueIndex = selectedSubscription.indexOf(removeValue);
+                var firstValue = selectedSubscription.substr(0, removalueIndex);
+                var lastValue = selectedSubscription.substr(removalueIndex + removeValue.length, selectedSubscription.length);
+                var selectedSubscription = firstValue + lastValue;
+                if (selectedSubscription.charAt(0) == ',') {
+                    selectedSubscription = selectedSubscription.substr(1, selectedSubscription.length)
+                }
+                $('#'+idInp).val(selectedSubscription);
+                $("#" + id).closest("tr").remove();
+                getIds(tblID, idInp);
+                return false;
+            }
+        }
   
 </script>
 <style>

@@ -81,7 +81,25 @@ class CompaniesController extends \BaseController {
             $DigitalSignature=json_decode($DigitalSignature, true);
         }
 
-        return View::make('companies.edit')->with(compact('company','AccessExcludedComponent','PackageExcludedComponent','ExcludedComponent', 'countries', 'currencies', 'timezones', 'InvoiceTemplates', 'LastPrefixNo', 'LicenceApiResponse', 'dashboardlist', 'DefaultDashboard','RoundChargesAmount','RateSheetTemplate','RateSheetTemplateFile','AccountVerification','SSH','COMPANY_SSH_VISIBLE', 'DigitalSignature', 'UseDigitalSignature', 'ActiveNodes' ,'invoicePdfSend', 'RateApprovalProcess','Nodes'));
+        $reseller_owners = Reseller::getDropdownIDList(User::get_companyID());
+        $rate_table = RateTable::getRateTableListWithoutCompanyID([
+            'types' => [RateGenerator::DID],
+            'NotVendor' => true,
+        ]);
+        unset($reseller_owners['']);
+        $reseller_owners = array('' => 'All') + $reseller_owners;
+        $Categories   = DidCategory::getCategoryDropdownIDListWithoutCompanyID();
+        $ratetype = RateType::lists('Title','RateTypeID');
+        $inbounddiscountplan =   DiscountPlan::lists('Name','DiscountPlanID');
+        $inbounddiscountplan = array('' => 'Select') + $inbounddiscountplan;
+        $DefaultRatetables = DefaultRatetables::all();
+        $PartnerID = '';
+        if(is_reseller()){
+            $PartnerID = Reseller::where('ChildCompanyID' , User::get_companyID())->pluck('ResellerID');
+            $DefaultRatetables = DefaultRatetables::whereIn("PartnerID" , [$PartnerID , 0])->get();   
+        }
+
+        return View::make('companies.edit')->with(compact('company','AccessExcludedComponent','PackageExcludedComponent','ExcludedComponent', 'countries', 'currencies', 'timezones', 'InvoiceTemplates', 'LastPrefixNo', 'LicenceApiResponse', 'dashboardlist', 'DefaultDashboard','RoundChargesAmount','RateSheetTemplate','RateSheetTemplateFile','AccountVerification','SSH','COMPANY_SSH_VISIBLE', 'DigitalSignature', 'UseDigitalSignature', 'ActiveNodes' ,'invoicePdfSend', 'RateApprovalProcess','Nodes','reseller_owners','customers','rate_table','ratetype','Categories','inbounddiscountplan','DefaultRatetables','PartnerID'));
 
     }
 
@@ -95,6 +113,7 @@ class CompaniesController extends \BaseController {
 	public function update()
 	{
         $data = Input::all();
+        //dd($data);
 
         $companyID = User::get_companyID();
         $company = Company::find($companyID);
@@ -213,7 +232,7 @@ class CompaniesController extends \BaseController {
         //unset($data['PincodeWidget']);
         // LastPrefixNo::updateLastPrefixNo($data['LastPrefixNo']);
         // unset($data['LastPrefixNo']);
-	$Getparent_CompanyID =  getParentCompanyIdIfReseller($companyID);	
+	    $Getparent_CompanyID =  getParentCompanyIdIfReseller($companyID);	
         if(!empty($data['CurrencyId'])){
             //add default currency value in exchange rate
             $CurrencyCon = array();
@@ -269,17 +288,70 @@ class CompaniesController extends \BaseController {
         if(isset($data['Nodes'])){
             $Nodes['Nodes'] = $data['Nodes'];
             $Nodes = json_encode($Nodes);
-            $NodesCheck = CompanyConfiguration::where('Key', 'Nodes')->first();
+            $NodesCheck = CompanyConfiguration::where('Key', 'NODES')->first();
             if($NodesCheck){
-                CompanyConfiguration::where('Key', 'Nodes')->update(['Value'=>$Nodes]);
+                CompanyConfiguration::where('Key', 'NODES')->update(['Value'=>$Nodes]);
                 CompanyConfiguration::updateCompanyConfiguration($companyID);
             }else{
                 $NodeAdd["CompanyID"] = User::get_companyID();
-                $NodeAdd["Key"] = "Nodes";
+                $NodeAdd["Key"] = "NODES";
                 $NodeAdd["Value"] = $Nodes;
                 CompanyConfiguration::insert($NodeAdd);
             }
             unset($data['Nodes']);
+        }
+        $getDefaultRatetable = isset($data['getRateVendorIDs']) ? $data['getRateVendorIDs'] : '';
+        unset($data['getRateVendorIDs']);
+
+        $calculatedDefaultRatetable = array_unique(explode(",", $getDefaultRatetable));
+        for ($i = 0; $i < sizeof($calculatedDefaultRatetable) - 1; $i++) {
+            
+            if (isset($data['Type-' . $calculatedDefaultRatetable[$i]]) && $data['Type-' . $calculatedDefaultRatetable[$i]] == 2) {
+                if(!isset($data['Category-' . $calculatedDefaultRatetable[$i]]) || empty($data['Category-' . $calculatedDefaultRatetable[$i]])){
+                    return Response::json(array("status" => "failed", "message" => "Please select Category first"));
+                }
+                else if(empty($data['RateTable-' . $calculatedDefaultRatetable[$i]])){
+                    return Response::json(array("status" => "failed", "message" => "Please select RateTable first"));
+                }
+            }else{
+                if(empty($data['RateTable-' . $calculatedDefaultRatetable[$i]])){
+                    return Response::json(array("status" => "failed", "message" => "Please select RateTable first"));
+                } 
+            } 
+
+            $rvPartner[]        = isset($data['Partner-' . $calculatedDefaultRatetable[$i]]) ? $data['Partner-' . $calculatedDefaultRatetable[$i]] : null ;
+            $rvType[]           = $data['Type-' . $calculatedDefaultRatetable[$i]];
+            $rvCategory[]       = isset($data['Category-' . $calculatedDefaultRatetable[$i]]) ? $data['Category-' . $calculatedDefaultRatetable[$i]] : null;
+            $rvRatetable[]      = $data['RateTable-' . $calculatedDefaultRatetable[$i]];
+            $rvDiscountplan[]   = $data['Discountplan-' . $calculatedDefaultRatetable[$i]];
+            
+            unset($data['Partner-'. $calculatedDefaultRatetable[$i]]);
+            unset($data['Type-'. $calculatedDefaultRatetable[$i]]);
+            unset($data['Category-'. $calculatedDefaultRatetable[$i]]);
+            unset($data['RateTable-'. $calculatedDefaultRatetable[$i]]);
+            unset($data['Discountplan-'. $calculatedDefaultRatetable[$i]]); 
+            
+        }
+        $PartnerID = Reseller::where('ChildCompanyID' , User::get_companyID())->pluck('ResellerID');
+        if(is_reseller()){
+            DefaultRatetables::whereIn("PartnerID" , [$PartnerID , 0])->delete();
+        }else{
+            DefaultRatetables::truncate();
+        }
+        
+        for ($i = 0; $i < sizeof($calculatedDefaultRatetable) - 1; $i++) {
+            if (!isset($rvPartner[$i])) {
+                break;
+            }
+           
+            $addVendorCalRate['PartnerID']       = $rvPartner[$i];
+            $addVendorCalRate['Type']            = $rvType[$i];
+            $addVendorCalRate['Category']        = $rvCategory[$i];
+            $addVendorCalRate['RatetableID']     = $rvRatetable[$i];
+            $addVendorCalRate['DiscountPlan']    = $rvDiscountplan[$i];
+            
+            
+            DefaultRatetables::create($addVendorCalRate);     
         }
 		
         if ($company->update($data)) {

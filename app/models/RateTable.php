@@ -150,6 +150,67 @@ class RateTable extends \Eloquent
         return $row;
     }
 
+    public static function getRateTableListWithoutCompanyID($data=array()){
+
+        $data['Status'] = 1;
+
+        $types = [];
+        $appliedTos = [];
+        $AccountCompanyID = 0;
+        $resellerID = 0;
+        if(isset($data['types']) && !empty($data['types'])) {
+            $types = $data['types'];
+            unset($data['types']);
+        }
+
+        if(isset($data['applied_tos']) && !empty($data['applied_tos'])) {
+            $appliedTos = $data['applied_tos'];
+            unset($data['applied_tos']);
+        }
+
+        if(isset($data['CompanyID']) && !empty($data['CompanyID'])) {
+            $AccountCompanyID = $data['CompanyID'];
+
+            $reseller = Reseller::where('ChildCompanyID', $AccountCompanyID)->first();
+            if($reseller != false)
+                $resellerID = $reseller->ResellerID;
+
+            unset($data['CompanyID']);
+        }
+
+        $notVendor = false;
+        if(isset($data['NotVendor'])){
+            $notVendor = true;
+            unset($data['NotVendor']);
+        }
+
+        $row = RateTable::where($data);
+
+        if(!empty($types))
+            $row->whereIn("Type", $types);
+
+        if(!empty($appliedTos))
+            $row->whereIn("AppliedTo", $appliedTos);
+
+        if($AccountCompanyID != 0){
+
+            $row->where(function($query) use($AccountCompanyID, $resellerID){
+                $query->where(['CompanyID' => $AccountCompanyID, 'Reseller' => '0'])
+                    ->orWhere(['Reseller' => '-1']);
+
+                if($resellerID != 0)
+                        $query->orWhere(['Reseller' => $resellerID]);
+            });
+
+        } 
+        if($notVendor == true)
+            $row->where("AppliedTo", "!=", self::APPLIED_TO_VENDOR);
+
+        $row = $row->lists("RateTableName", "RateTableId");
+        $row = array(""=> "Select")+$row;
+        return $row;
+    }
+
     public static function getRateTableListForPackage($data=array()){
 
         $data['Status'] = 1;
