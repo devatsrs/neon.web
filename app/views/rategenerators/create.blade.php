@@ -734,6 +734,14 @@
 
         $(document).ready(function() {
 
+            $(document.body).on("select2-selecting", 'select' ,function (evt) {
+                var element = evt.object.element;
+                var $element = $(element);
+                $element.detach();
+                $(this).append($element);
+                $(this).trigger("change");
+            });
+
             if(performance.navigation.type == 2)
             {
                 $('#getIDs').val('');

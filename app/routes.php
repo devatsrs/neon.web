@@ -1889,6 +1889,12 @@ Route::group(array('before' => 'guest'), function () {
 	// New API by Vasim Seta at 2020-02-17
 	Route::get('import_legacy_rates', 'DataImportController@index');
 	Route::post('import_legacy_rates', 'DataImportController@uploadTemplateFile');
+	Route::get('legacy_rates/compareSpecialRates', 'DataImportController@compareSpecialRates');
+	Route::post('legacy_rates/getNumbersByCustomer/{id}', 'DataImportController@getNumbersByCustomer');
+	Route::post('legacy_rates/getSpecialRatesByNumber/import', 'DataImportController@importSpecialRates');
+	Route::any('legacy_rates/getSpecialRatesByNumber/{id}/export', 'DataImportController@exportSpecialRates');
+	Route::any('legacy_rates/getSpecialRatesByNumber/{id}/download', 'DataImportController@download_exported_file');
+	Route::any('legacy_rates/getSpecialRatesByNumber/{id}/{type}', 'DataImportController@getSpecialRatesByNumber');
 
 });
 
