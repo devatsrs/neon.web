@@ -31,7 +31,7 @@ class RateGeneratorRuleController extends \BaseController {
             ])->where(["Status" => 1, "IsVendor" => 1, "AccountType" => 1, "CompanyID" => $companyID /*'CodeDeckId'=>$rategenerator->CodeDeckId*/])->get();
 
 
-            $UserActilead = UserActivity::UserActivitySaved($data,'Edit','Rate Generator Rule',$Code);
+            //$UserActilead = UserActivity::UserActivitySaved($data,'Edit','Rate Generator Rule',$Code);
             //margin
             $rategenerator_margins = RateRuleMargin::where([
                 "RateRuleID" => $RateRuleID
@@ -51,7 +51,7 @@ class RateGeneratorRuleController extends \BaseController {
             $rategenerator_margins = RateRuleMargin::where([
                 "RateRuleID" => $RateRuleID
             ])->select(array(
-                'Type',
+                //'Type',
                 'MinRate',
                 'MaxRate',
                 'AddMargin',
@@ -59,6 +59,23 @@ class RateGeneratorRuleController extends \BaseController {
                 'RateRuleMarginId',
             ))->orderBy('MinRate', 'ASC');
             return Datatables::of($rategenerator_margins)->make();
+        }
+
+    }
+
+    // rule data grid
+    public function ajax_rule_datagrid() {
+        $data = Input::all();
+
+        $id = $data['RateGeneratorId'];
+        $data['iDisplayStart'] +=1;
+
+        if ($id > 0) {
+
+            $query = "call prc_GetRateRules (".intval($id).",".( ceil($data['iDisplayStart']/$data['iDisplayLength']) )." ,".$data['iDisplayLength'].",'".strtoupper($data['sSortDir_0'])."')";
+
+            $result =  DataTableSql::of($query,'sqlsrv')->make();
+            return $result;
         }
 
     }

@@ -106,6 +106,7 @@
     </div>
 </div>
 <br>
+<div style="overflow-y: auto;">
     <table class="table table-bordered datatable" id="table-4">
         <thead>
         <tr>
@@ -122,6 +123,7 @@
         <tbody>
         </tbody>
     </table>
+    </div>
     <script type="text/javascript">
         var toFixed = '{{get_round_decimal_places()}}';
 

@@ -122,11 +122,12 @@ class RateGeneratorsController extends \BaseController {
                 ])->first();
                 $rategenerator_rules = RateRule::with('RateRuleMargin', 'RateRuleSource')->where([
                     "RateGeneratorId" => $id
-                ]) ->orderBy("Order", "asc")->get();
+                ]) ->orderBy("Order", "asc")->count();
+
                 $array_op= array();
                 $codedecklist = BaseCodeDeck::getCodedeckIDList();
                 $currencylist = Currency::getCurrencyDropdownIDList();
-                if(count($rategenerator_rules)){
+                if($rategenerator_rules){
                     $array_op['disabled'] = "disabled";
                 }
                     $rategenerator = RateGenerator::find($id);
