@@ -716,6 +716,7 @@ Route::group(array('before' => 'auth'), function () {
 	Route::any('/rategenerators/update_fields_sorting', "RateGeneratorsController@Update_Fields_Sorting");
 
 	Route::any('/rategenerators/ajax_margin_datagrid', 'RateGeneratorRuleController@ajax_margin_datagrid');
+	Route::any('/rategenerators/ajax_rule_datagrid', 'RateGeneratorRuleController@ajax_rule_datagrid');
 	Route::any('/rategenerators/{id}/rule/{rule_id}/delete', 'RateGeneratorRuleController@delete_rule')->where('rule_id', '(.[09]*)+');
 
 	Route::any('rategenerators/{id}/rule/add', 'RateGeneratorRuleController@add');

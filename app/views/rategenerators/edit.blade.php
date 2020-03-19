@@ -174,8 +174,6 @@
                 </div>
             </div>
 
-
-
             <div class="panel-body">
 
                             <div class="pull-right">
@@ -188,52 +186,53 @@
                                 <br><br>
                             </div>
 
-                    @if(count($rategenerator_rules))
+                    @if($rategenerator_rules)
                     <form id="RateRulesDataFrom" method="POST" />
-                        <div class="dataTables_wrapper clear-both">
-                            <table class="table table-bordered datatable" id="table-4">
-                                <thead>
-                                    <tr>
-                                        <th>Rate Filter</th>
-                                        <th>Sources</th>
-                                        <th>Margins</th>
-                                        <th>Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="sortable">
+                    <?php /*
+                     <table class="table table-bordered datatable" id="table-4">
+                        <thead>
+                        <tr>
+                            <th>Rate Filter</th>
+                            <th>Sources</th>
+                            <th>Margins</th>
+                            <th>Action</th>
+                        </tr>
+                        </thead>
+
+                         <tbody id="sortable">
                                 @foreach($rategenerator_rules as $rategenerator_rule)
-                                    <tr class="odd gradeX" data-id="{{$rategenerator_rule->RateRuleId}}">
+                                <tr class="odd gradeX" data-id="{{$rategenerator_rule->RateRuleId}}">
                                         <td>
                                             {{$rategenerator_rule->Code}}@if(!empty($rategenerator_rule->Code)) <br/> @endif
-                                            {{$rategenerator_rule->Description}}
-                                        </td>
-                                        <td>
-                                            @if(count($rategenerator_rule['RateRuleSource']))
-                                            @foreach($rategenerator_rule['RateRuleSource'] as $rateruleSource )
-                                            {{Account::getCompanyNameByID($rateruleSource->AccountId);}}<br>
+                        {{$rategenerator_rule->Description}}
+                                </td>
+                                <td>
+                                    @if(count($rategenerator_rule['RateRuleSource']))
+                        @foreach($rategenerator_rule['RateRuleSource'] as $rateruleSource )
+                        {{Account::getCompanyNameByID($rateruleSource->AccountId);}}<br>
                                             @endforeach
-                                            @endif
+                        @endif
 
-                                        </td>
-                                        <td>
+                                </td>
+                                <td>
 
-                                            @if(count($rategenerator_rule['RateRuleMargin']))
-                                            @foreach($rategenerator_rule['RateRuleMargin'] as $index=>$materulemargin )
-                                                    @if($materulemargin->Type == 1)
-                                                        <?php $tmptype = 'Rate'; ?>
-                                                    @else
-                                                        <?php $tmptype = 'Connection Fee'; ?>
-                                                    @endif
-                                                   {{$tmptype}} | {{$materulemargin->MinRate}} {{$index!=0?'<':'<='}}  rate <= {{$materulemargin->MaxRate}} {{$materulemargin->AddMargin}} {{$materulemargin->FixedValue}} <br>
+                                    @if(count($rategenerator_rule['RateRuleMargin']))
+                        @foreach($rategenerator_rule['RateRuleMargin'] as $index=>$materulemargin )
+                        @if($materulemargin->Type == 1)
+                        <?php $tmptype = 'Rate'; ?>
+                        @else
+                        <?php $tmptype = 'Connection Fee'; ?>
+                        @endif
+                        {{$tmptype}} | {{$materulemargin->MinRate}} {{$index!=0?'<':'<='}}  rate <= {{$materulemargin->MaxRate}} {{$materulemargin->AddMargin}} {{$materulemargin->FixedValue}} <br>
 
                                                 @endforeach
-                                            @endif
+                        @endif
 
 
 
-                                        </td>
-                                        <td>
-                                            <a href="{{URL::to('/rategenerators/'.$id. '/rule/' . $rategenerator_rule->RateRuleId .'/edit' )}}" id="add-new-margin" class="update btn btn-primary btn-sm">
+                                </td>
+                                <td>
+                                    <a href="{{URL::to('/rategenerators/'.$id. '/rule/' . $rategenerator_rule->RateRuleId .'/edit' )}}" id="add-new-margin" class="update btn btn-primary btn-sm">
                                                 <i class="entypo-pencil"></i>
                                             </a>
 
@@ -250,6 +249,24 @@
 
                                 @endforeach
                                 </tbody>
+                    </table> -->
+                    */
+                    ?>
+                        <div class="dataTables_wrapper clear-both">
+                            <table class="table table-bordered datatable" id="table-raterule">
+                                <thead>
+                                    <tr>
+                                        <th class="hidden"></th>
+                                        <th>Rate Filter</th>
+                                        <th>Sources</th>
+                                        <th>Margins</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="sortable">
+                                </tbody>
+
+
                             </table>
                         </div>
                     <input type="hidden" name="main_fields_sort" id="main_fields_sort" value="">
@@ -269,12 +286,219 @@
         display: none;
     }
 </style>
+{{--<script src="http://mpryvkin.github.io/jquery-datatables-row-reordering/1.2.3/jquery.dataTables.rowReordering.js"></script>--}}
+
 <script type="text/javascript">
     jQuery(document).ready(function($) {
         /*$(".btn.addnew").click(function(ev) {
             jQuery('#modal-rate-generator-rule').modal('show', {backdrop: 'static'});
         });*/
        // $( "#sortable" ).sortable();
+
+        /* ---------- DataTable Start ---------- */
+
+        var service_edit_url = baseurl + "/rategenerators/{{$id}}/rule/{id}/edit";
+        var service_delete_url = baseurl + "/rategenerators/{{$id}}/rule/{id}/delete";
+        var service_datagrid_url = baseurl + "/rategenerators/ajax_rule_datagrid";
+        var service_clone_url = baseurl + "/rategenerators/{{$id}}/rule/{id}/clone_rule";
+
+        var RateGeneratorId='{{$id}}';
+
+        data_table_raterule = $("#table-raterule").dataTable({
+            "bDestroy": true,
+            "bProcessing":true,
+            "bServerSide": true,
+            "sAjaxSource": service_datagrid_url,
+            "fnCreatedRow": function( nRow, aData, iDataIndex ) {
+                //console.log(aData[0]);
+                $(nRow).attr('data-id', aData[0]);
+            },
+            "fnServerParams": function (aoData) {
+                aoData.push({"name": "RateGeneratorId", "value": RateGeneratorId}
+                );
+
+                data_table_extra_params.length = 0;
+                data_table_extra_params.push({"name": "RateGeneratorId", "value": RateGeneratorId},
+                        {"name":"Export","value":1});
+
+            },
+            "iDisplayLength": 10,
+            "sPaginationType": "bootstrap",
+            "sDom": "<'row'<'col-xs-6 col-left '<'#selectcheckbox.col-xs-1'>'l><'col-xs-6 col-right'f>r>t<'row'<'col-xs-6 col-left'i><'col-xs-6 col-right'p>>",
+           // "aaSorting": [[0, 'desc']],
+            "aoColumns": [
+                {  "bSortable": false,"bVisible":false },
+                {
+                    "bSortable": false, //Account
+                    mRender: function (id, type, full) {
+                        var filter_ =  full[1];
+                        var filter='';
+
+                        if(typeof(filter_)!='undefined' && filter_!=null && filter_!=''){
+                            filter= filter_.split('{br}').join('<br>');
+                        }
+
+                        return filter;
+                    },
+
+                }, //1   RateFilter
+                {  "bSortable": true,
+
+                    mRender: function (id, type, full) {
+                        var source_ =  full[2];
+                        var source='';
+                        if(typeof(source_)!='undefined' && source_!=null && source_!=''){
+                            var source= source_.split('{br}').join('<br>');
+                        }
+
+                        return source;
+                    }
+
+
+                },  // 1 Sources
+
+                {  "bSortable": false,
+                    mRender: function (id, type, full) {
+                        var source_ =  full[3];
+                        var source='';
+                        if(typeof(source_)!='undefined' && source_!=null && source_!=''){
+                            var source= source_.split('{br}').join('<br>');
+                        }
+
+                        return source;
+                    }
+                },  // 2 margins
+                {                        // 3 Action
+                    "bSortable": false,
+                    mRender: function ( id, type, full ) {
+
+                        action = '';
+                        <?php if(User::checkCategoryPermission('AccountService','Edit')) { ?>
+
+                        action += ' <a href="' + service_edit_url.replace("{id}",full[0]) +'" id="add-new-margin" class="update btn btn-primary btn-sm"><i class="entypo-pencil"></i></a>';
+                        <?php } ?>
+                                action += ' <a href="' + service_clone_url.replace("{id}",full[0]) +'"  data-rate-generator-id="{{$id}}" id="clone-rule" class="clone_rule btn btn-default  btn-sm" data-original-title="Clone" title="" data-placement="top" data-toggle="tooltip" data-loading-text="..."><i class="fa fa-clone"></i></a>';
+                        <?php if(User::checkCategoryPermission('AccountService','Delete')) { ?>
+                                action += ' <a href="' + service_delete_url.replace("{id}",full[0]) +'" class="btn delete btn-danger btn-sm" data-redirect="{{Request::url()}}"><i class="entypo-trash"></i></a>';
+                        <?php } ?>
+                                return action;
+                    }
+                }
+            ],
+
+            "fnDrawCallback": function() {
+                $(".dataTables_wrapper select").select2({
+                    minimumResultsForSearch: -1
+                });
+
+                $("#table-service tbody input[type=checkbox]").each(function (i, el) {
+                    var $this = $(el),
+                            $p = $this.closest('tr');
+
+                    $(el).on('change', function () {
+                        var is_checked = $this.is(':checked');
+
+                        $p[is_checked ? 'addClass' : 'removeClass']('selected');
+                    });
+                });
+
+
+                $('#selectall').removeClass('hidden');
+
+                //select all record
+                $('#selectallbutton').click(function(){
+                    if($('#selectallbutton').is(':checked')){
+                        checked = 'checked=checked disabled';
+                        $("#selectall").prop("checked", true).prop('disabled', true);
+                        $('#table-service tbody tr').each(function (i, el) {
+                            $(this).find('.rowcheckbox').prop("checked", true).prop('disabled', true);
+                            $(this).addClass('selected');
+                        });
+                    }else{
+                        checked = '';
+                        $("#selectall").prop("checked", false).prop('disabled', false);
+                        $('#table-service tbody tr').each(function (i, el) {
+                            $(this).find('.rowcheckbox').prop("checked", false).prop('disabled', false);
+                            $(this).removeClass('selected');
+                        });
+                    }
+                });
+
+               /* $(".clone-service").click(function(e){
+                    e.preventDefault();
+                    var self = $(this);
+                    var serviceid = self.attr('data-id');
+
+                    $('#cloneservices-form').trigger("reset");
+                    $('#modal-clone-services h4').html('Clone Services');
+                    $('#cloneservicetable').find('tbody tr').each(function (i, el) {
+                        var self = $(this);
+                        if (self.hasClass('selected')) {
+                            $(this).find('input[type="checkbox"]').prop("checked", false);
+                            $(this).removeClass('selected');
+                        }
+                    });
+                    $("#cloneservices-form").find("input[name='criteria']").val('');
+                    $("#cloneservices-form").find("input[name='CloneID']").val(serviceid);
+                    $('#modal-clone-services').modal('show');
+
+                    initCustomerGrid();
+
+                }); */
+
+
+                $(".btn.clone_rule").click(function (e) {
+
+                    e.preventDefault();
+                    $(this).button('loading');
+                    var url = $(this).attr('href');
+                    var rate_generator_id = $(this).attr('data-rate-generator-id');
+
+                    $.ajax({
+                        url: url,
+                        type: 'POST',
+                        dataType: 'json',
+                        success: function (response) {
+
+                            if (response.status == 'success') {
+                                toastr.success(response.message, "Success", toastr_opts);
+                                var new_rule_url = baseurl + '/rategenerators/' + rate_generator_id + '/rule/' + response.RateRuleID + '/edit';
+
+                                setTimeout( function() {  window.location = new_rule_url } ,1000 );
+                            } else {
+                                toastr.error(response.message, "Error", toastr_opts);
+                            }
+                            $(".btn.clone_rule").button('reset');
+
+
+                        },
+
+                        // Form data
+                        //data: {},
+                        cache: false,
+                        contentType: false,
+                        processData: false
+                    });
+                    return false;
+
+                });
+
+
+
+            }
+
+
+
+        });
+
+
+       // data_table_raterule.rowReordering();
+
+
+        /* ---------- DataTable End ------------ */
+
+
+
         function initSortable(){
             // Code using $ as usual goes here.
             $('#sortable').sortable({
@@ -292,6 +516,7 @@
             });
         }
         function saveOrder() {
+
             var Ticketfields_array   = 	new Array();
             $('#sortable tr').each(function(index, element) {
                 var TicketfieldsSortArray  =  {};
@@ -485,7 +710,8 @@
                         return false;
 
                     });
-        $(".btn.clone_rule").click(function (e) {
+        /*$(".btn.clone_rule").click(function (e) {
+
             e.preventDefault();
             $(this).button('loading');
             var url = $(this).attr('href');
@@ -518,7 +744,7 @@
                 });
             return false;
 
-        });
+        });*/
 
 					
         $('#delete-rate-generator-form').submit(function (e) {
