@@ -832,7 +832,7 @@
                 @endif
                 $('#' + tblID + ' tr:last').children('td:eq(1)').children('select').attr('name', 'Type-' + numb).attr('id', 'Type-' + numb).select2();
                 $('#' + tblID + ' tr:last').children('td:eq(2)').children('select').attr('name', 'Category-' + numb).attr('id', 'Category-' + numb).select2();
-                $('#' + tblID + ' tr:last').children('td:eq(3)').children('select').attr('name', 'Ratetable-' + numb).attr('id', 'Ratetable-' + numb).select2();
+                $('#' + tblID + ' tr:last').children('td:eq(3)').children('select').attr('name', 'RateTable-' + numb).attr('id', 'Ratetable-' + numb).select2();
                 $('#' + tblID + ' tr:last').children('td:eq(4)').children('select').attr('name', 'Discountplan-' + numb).attr('id', 'Discountplan-' + numb).select2();
                 
             } 
