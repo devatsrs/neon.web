@@ -92,7 +92,7 @@ class RateGeneratorsController extends \BaseController {
         $AccessType   = array('' => "All") + $AccessType;
         $Prefix       = array('' => "All") + $Prefix;
         $City         = array('' => "All") + $City;
-        $Tariff       = array('' => "All") +  $Tariff;
+        $Tariff       = array("" => "All", "1" => "All - per call" , "2" => "All - per minute") +  $Tariff;
 
         $Package      = array('' => "All") + Package::where([
                 "status" => 1,
@@ -467,6 +467,7 @@ class RateGeneratorsController extends \BaseController {
                         $GetTCity    = $tcity[$i];
                         $GetTTarif    = $ttariif[$i];
                         $GetPackage    =  $PackageComponent[$i];
+                        
 
 
                         $addComponents['Component'] = str_replace(' ','',implode(",", $GetComponent));
@@ -480,7 +481,7 @@ class RateGeneratorsController extends \BaseController {
                         $addComponents['FromAccessType'] = $GetFAccessType;
                         $addComponents['FromPrefix'] = $GetFPrefix;
                         $addComponents['FromCity'] = $GetFCity;
-                        $addComponents['FromTariff'] = $GetFTarif;
+                        $addComponents['FromTariff'] = implode(",", $GetFTarif);
                         $addComponents['RateGeneratorId'] = $rateg->RateGeneratorId;
                         $addComponents['ToCountryID'] = $GetTCountry;
                         $addComponents['ToAccessType'] = $GetTAccessType;
@@ -499,6 +500,10 @@ class RateGeneratorsController extends \BaseController {
 
                         if(!empty($GetTimeOfDay) && (in_array('all' , $GetTimeOfDay) || in_array('' , $GetTimeOfDay))){
                             $addComponents['TimezonesID'] = '';
+                        }
+
+                        if(!empty($GetFTarif) && (in_array('' , $GetFTarif) || in_array('' , $GetFTarif))){
+                            $addComponents['FromTariff'] = '';
                         }
                         
                         if($addComponents['Component'] == 'all,' || $addComponents['Component'] == 'all'){
@@ -732,7 +737,7 @@ class RateGeneratorsController extends \BaseController {
             $AccessType = array('' => "All") + $AccessType;
             $Prefix = array('' => "All") + $Prefix;
             $City = array('' => "All") + $City;
-            $Tariff = array('' => "All") +  $Tariff;
+            $Tariff = array("" => "All", "1" => "All - per call" , "2" => "All - per minute") +  $Tariff;
            
             //unset($AllTypes[3]);
             $Package = array('' => "All") + Package::where([
@@ -1132,7 +1137,7 @@ class RateGeneratorsController extends \BaseController {
                         $addComponents['FromAccessType'] = $GetFAccessType;
                         $addComponents['FromPrefix'] = $GetFPrefix;
                         $addComponents['FromCity'] = $GetFCity;
-                        $addComponents['FromTariff'] = $GetFTarif;
+                        $addComponents['FromTariff'] = implode(",", $GetFTarif);
                         $addComponents['ToCountryID'] = $GetTCountry;
                         $addComponents['ToAccessType'] = $GetTAccessType;
                         $addComponents['ToPrefix'] = $GetTPrefix;
@@ -1151,6 +1156,9 @@ class RateGeneratorsController extends \BaseController {
 
                         if(!empty($GetTimeOfDay) && (in_array('all' , $GetTimeOfDay) || in_array('' , $GetTimeOfDay))){
                             $addComponents['TimezonesID'] = '';
+                        }
+                        if(!empty($GetFTarif) && (in_array('' , $GetFTarif) || in_array('' , $GetFTarif))){
+                            $addComponents['FromTariff'] = '';
                         }
                         if($addComponents['Component'] == 'all,' || $addComponents['Component'] == 'all'){
                             $addComponents['Component'] = '';
