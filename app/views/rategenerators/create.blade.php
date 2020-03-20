@@ -556,7 +556,7 @@
                     {{ Form::select('FCity-1', $City, null, array("class"=>"select2")) }}
                 </td>
                 <td class="DID-Div">
-                    {{ Form::select('FTariff-1', $Tariff, null, array("class"=>"select2")) }}
+                    {{ Form::select('FTariff-1[]', array("1" => "All - per call" , "2" => "All - per minute") + $Tariff, null, array("class"=>"select2" , "multiple")) }}
                 </td> 
                 <td class="DID-Div">
                     <input type="text" class="form-control" name="Origination-1"/>
@@ -585,7 +585,7 @@
                     {{ Form::select('TCity-1', $City, null, array("class"=>"select2")) }}
                 </td>
                 <td class="DID-Div">
-                    {{ Form::select('TTariff-1', $Tariff, null, array("class"=>"select2")) }}
+                    {{ Form::select('TTariff-1', array("1" => "All - per call" , "2" => "All - per minute") + $Tariff, null, array("class"=>"select2")) }}
                 </td>
                 <td class="DID-Div">
                     <input type="text" class="form-control" name="ToOrigination-1"/>
@@ -1076,7 +1076,7 @@
                 $('#' + tblID + ' tr:last').children('td:eq(3)').children('select').attr('name', 'FAccessType-' + numb).attr('id', 'FAccessType-' + numb).select2();
                 $('#' + tblID + ' tr:last').children('td:eq(4)').children('select').attr('name', 'FPrefix-' + numb).attr('id', 'FPrefix-' + numb).select2();
                 $('#' + tblID + ' tr:last').children('td:eq(5)').children('select').attr('name', 'FCity-' + numb).attr('id', 'FCity-' + numb).select2();
-                $('#' + tblID + ' tr:last').children('td:eq(6)').children('select').attr('name', 'FTariff-' + numb).attr('id', 'FTariff-' + numb).select2();
+                $('#' + tblID + ' tr:last').children('td:eq(6)').children('select').attr('name', 'FTariff-' + numb + '[]').attr('id', 'FTariff-' + numb).select2();
                 $('#' + tblID + ' tr:last').children('td:eq(7)').children('input').attr('name', 'Origination-' + numb).attr('id', 'Origination-' + numb).val('');
                 $('#' + tblID + ' tr:last').children('td:eq(8)').children('select').attr('name', 'TimeOfDay-' + numb + '[]').attr('id', 'TimeOfDay-' + numb).select2();
                 $('#' + tblID + ' tr:last').children('td:eq(9)').children('select').attr('name', 'Action-' + numb).attr('id', 'Action-' + numb).select2();
