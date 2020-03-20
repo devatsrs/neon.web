@@ -34,6 +34,16 @@ class DidCategory extends \Eloquent{
         return $row;
     }
 
+    public static function getCategoryDropdownIDListWithoutCompanyID()
+    {
+        $result = self::select(array('CategoryName', 'DIDCategoryID'))->orderBy('CategoryName')->lists('CategoryName', 'DIDCategoryID');
+        $row = array("" => "Select");
+        if (!empty($result)) {
+            $row = array("" => "Select") + $result;
+        }
+        return $row;
+    }
+
     static public function checkForeignKeyById($id) {
         $hasAccountApprovalList = RateTable::where("DIDCategoryID",$id)->count();
         if(!intval($hasAccountApprovalList) > 0){
