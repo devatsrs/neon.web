@@ -407,10 +407,10 @@
                                         $MergeToArray1[$MergeTo1]=$MergeTo1;
                                     }
 
-                                    $FromTariff = explode("," ,$Component->FromTariff);
-                                    foreach ($FromTariff as $Tariff) {
-                                        $FTariff[$Tariff]=$Tariff;
-                                    }
+                                    // $FromTariff = explode("," ,$Component->FromTariff);
+                                    // foreach ($FromTariff as $Tariff) {
+                                    //     $FTariff[$Tariff]=$Tariff;
+                                    // }
 
                                     $TimeToDay = explode("," ,$Component->TimezonesID);
                                     foreach ($TimeToDay as $TimeTo) {
@@ -451,7 +451,7 @@
                                             {{ Form::select('FCity-'.$a, $City, $Component->FromCity, array("class"=>"select2")) }}
                                         </td>
                                         <td class="DID-Div">
-                                            {{ Form::select('FTariff-'.$a.'[]', array("1" => "All - per call" , "2" => "All - per minute") + $Tariff, $FTariff, array("class"=>"select2" , "multiple")) }}
+                                            {{ Form::select('FTariff-'.$a.'[]', $Tariff, $Component->FromTariff == "" ? $Component->FromTariff : explode("," ,$Component->FromTariff), array("class"=>"select2" , "multiple")) }}
                                         </td>
                                         <td class="DID-Div">
                                             <input type="text" class="form-control" value="{{$Component->Origination}}" name="Origination-{{$a}}"/>
@@ -483,7 +483,7 @@
                                             {{ Form::select('TCity-'.$a, $City, $Component->ToCity, array("class"=>"select2")) }}
                                         </td>
                                         <td class="DID-Div">
-                                            {{ Form::select('TTariff-'.$a, array("1" => "All - per call" , "2" => "All - per minute") + $Tariff, $Component->ToTariff, array("class"=>"select2")) }}
+                                            {{ Form::select('TTariff-'.$a, $Tariff, $Component->ToTariff, array("class"=>"select2")) }}
                                         </td>
                                         <td class="DID-Div">
                                             <input type="text" class="form-control" value="{{$Component->ToOrigination}}" name="ToOrigination-{{$a}}"/>
@@ -898,7 +898,7 @@
                     {{ Form::select('FCity-1', $City, null, array("class"=>"select2")) }}
                 </td>
                 <td class="DID-Div">
-                    {{ Form::select('FTariff-1[]', array("1" => "All - per call" , "2" => "All - per minute") + $Tariff, null, array("class"=>"select2" , "multiple")) }}
+                    {{ Form::select('FTariff-1[]', $Tariff, null, array("class"=>"select2" , "multiple")) }}
                 </td>
                 
                 <td class="DID-Div">
@@ -928,7 +928,7 @@
                     {{ Form::select('TCity-1', $City, null, array("class"=>"select2")) }}
                 </td>
                 <td class="DID-Div">
-                    {{ Form::select('TTariff-1', array("1" => "All - per call" , "2" => "All - per minute") + $Tariff, null, array("class"=>"select2")) }}
+                    {{ Form::select('TTariff-1', $Tariff, null, array("class"=>"select2")) }}
                 </td>
                 <td class="DID-Div">
                     <input type="text" class="form-control" name="ToOrigination-1"/>

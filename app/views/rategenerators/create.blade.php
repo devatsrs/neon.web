@@ -556,7 +556,7 @@
                     {{ Form::select('FCity-1', $City, null, array("class"=>"select2")) }}
                 </td>
                 <td class="DID-Div">
-                    {{ Form::select('FTariff-1[]', array("1" => "All - per call" , "2" => "All - per minute") + $Tariff, null, array("class"=>"select2" , "multiple")) }}
+                    {{ Form::select('FTariff-1[]', $Tariff, null, array("class"=>"select2" , "multiple")) }}
                 </td> 
                 <td class="DID-Div">
                     <input type="text" class="form-control" name="Origination-1"/>
@@ -585,7 +585,7 @@
                     {{ Form::select('TCity-1', $City, null, array("class"=>"select2")) }}
                 </td>
                 <td class="DID-Div">
-                    {{ Form::select('TTariff-1', array("1" => "All - per call" , "2" => "All - per minute") + $Tariff, null, array("class"=>"select2")) }}
+                    {{ Form::select('TTariff-1', $Tariff, null, array("class"=>"select2")) }}
                 </td>
                 <td class="DID-Div">
                     <input type="text" class="form-control" name="ToOrigination-1"/>
