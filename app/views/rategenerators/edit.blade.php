@@ -407,6 +407,11 @@
                                         $MergeToArray1[$MergeTo1]=$MergeTo1;
                                     }
 
+                                    $FromTariff = explode("," ,$Component->FromTariff);
+                                    foreach ($FromTariff as $Tariff) {
+                                        $FTariff[$Tariff]=$Tariff;
+                                    }
+
                                     $TimeToDay = explode("," ,$Component->TimezonesID);
                                     foreach ($TimeToDay as $TimeTo) {
                                         $TimeToDay[$TimeTo]=$TimeTo;
@@ -446,7 +451,7 @@
                                             {{ Form::select('FCity-'.$a, $City, $Component->FromCity, array("class"=>"select2")) }}
                                         </td>
                                         <td class="DID-Div">
-                                            {{ Form::select('FTariff-'.$a.'[]', array("1" => "All - per call" , "2" => "All - per minute") + $Tariff, $Component->FromTariff, array("class"=>"select2" , "multiple")) }}
+                                            {{ Form::select('FTariff-'.$a.'[]', array("1" => "All - per call" , "2" => "All - per minute") + $Tariff, $FTariff, array("class"=>"select2" , "multiple")) }}
                                         </td>
                                         <td class="DID-Div">
                                             <input type="text" class="form-control" value="{{$Component->Origination}}" name="Origination-{{$a}}"/>
